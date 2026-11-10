@@ -6,9 +6,9 @@ A four-minute daily habit for getting fluent in AI, built as an installable web 
 
 - **Today**: the next session, the week's streak, the Daily Drop (the same five questions for everyone that day, with a shareable grid) and a warm-up of earlier questions that are due.
 - **Journey**: two tracks.
-  - *AI Fluency*: 8 chapters, 40 sessions, plain language and no code. Each session teaches three ideas and checks each one straight away.
+  - *AI Fluency*: 9 chapters, 45 sessions, plain language and no code. Each session teaches three ideas and checks each one straight away.
   - *Builder*: the technical track, adapted from Google DeepMind's course notebooks, with Python.
-- **Lab**: build a tiny language model on the phone (a word-level Copycat or a small neural Tiny Brain), play with it and export it as a single web page that works offline.
+- **Lab**: build a tiny language model on the phone (a word-level Copycat, a small neural Tiny Brain or a Bigger Brain), spend practice steps earned in sessions to train it further, and export it as a single web page that works offline. An ownership ladder leads on to running a real open model on your own computer.
 - **Rewards**: points, ten levels, colour themes, badges and optional team prizes.
 - **Me**: profile photo, stats, activity calendar, settings, backup code.
 
@@ -20,6 +20,7 @@ A four-minute daily habit for getting fluent in AI, built as an installable web 
 - `content/daily.json`: the Daily Drop question pool.
 - `content/lab/datasets.json`: starter text for the Lab, written by `tools/make_packs.mjs`.
 - `content/program.json`: optional team prizes (see below).
+- `docs/`: the journey map (`JOURNEY.md`) and the motion specification (`MOTION.md`) the app is built to.
 - `assets/`: app icons.
 - `dist/`: build output. Host this folder.
 
@@ -66,6 +67,7 @@ When someone reaches the points, they tap Claim and get a short code to show the
 ## Notes
 
 - Progress is stored on the device. Me, Back up progress gives a code to restore elsewhere (Safari and the Home Screen app keep separate storage). The photo and Lab models are not in the code.
+- A streak needs working days only; weekends never break it. The daily reminder is a calendar event, so it needs no server.
 - Haptics use the vibration API where it exists and the system switch tick on recent iOS versions.
 - Drag interactions (reorder, swipe to sort, drag into a gap) all have a tap alternative.
 

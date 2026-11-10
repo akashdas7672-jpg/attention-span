@@ -6,8 +6,10 @@ const ACTIONS = {
   chapter: (el) => {
     const t = trackOf(UI.track || S.track);
     UI.open[t.id] = UI.open[t.id] === el.dataset.id ? '-' : el.dataset.id;
+    UI.just = UI.open[t.id];
     buzz('tick');
     render();
+    UI.just = '';
   },
   track: (el) => { UI.track = el.dataset.v; S.track = el.dataset.v; save(); buzz('tick'); render(); },
   test: (el) => startTest(el.dataset.id),
@@ -65,8 +67,19 @@ const ACTIONS = {
   'ob-feel': (el) => { UI.feel = el.dataset.v; buzz('tick'); renderOnboarding(); },
   'ob-finish': () => { if (UI.feel) finishOnboarding(); },
   // lab
+  'first-model': () => { if (L) closeSession(); labNew({ first: true }); },
+  remind: () => openReminder(),
+  'remind-pick': (el) => setReminder(el.dataset.v),
+  'ladder-run': () => openLadderRun(),
+  'ladder-adapt': () => { UI.track = 'builder'; UI.open.builder = 'c5'; go('journey'); toast('Start with “Finetune Your Model” in the Builder track.', 3400); },
+  'ladder-locked': () => { toast(`Reach level ${BIG_BRAIN_LEVEL} to unlock the Bigger Brain.`); buzz('bad'); },
   'lab-new': () => labNew(),
   'lab-close': () => labClose(),
+  'lab-resume': () => { closeSheet(); if (LAB && LAB.step === 'train' && LAB.brain && LAB.brain.step < LAB.target) labRun(); },
+  'lab-discard': () => labClose(true),
+  'lab-main': () => labMain(),
+  'lab-train': () => labTrain(LAB.id),
+  'lab-export-go': () => labExport(true),
   'lab-pack': (el) => { LAB.pack = el.dataset.v; buzz('tick'); labRender(); },
   'lab-kind': (el) => { LAB.kind = el.dataset.v; buzz('tick'); labRender(); },
   'lab-next': () => labNext(),
@@ -93,8 +106,14 @@ const INPUTS = {
 const SUBMITS = {
   name: () => { S.name = $('#name-input').value.trim().slice(0, 24); save(); closeSheet(); render(); },
   'ob-name': () => { S.name = $('#ob-name').value.trim().slice(0, 24); save(); UI.onboard = 2; renderOnboarding(); },
+  'remind-custom': () => setReminder($('#remind-time').value),
   restore: () => {
-    try { importCode($('#restore-input').value); closeSheet(); applyTheme(); render(); toast('Progress restored.'); }
+    try {
+      importCode($('#restore-input').value);
+      closeSheet(); applyTheme();
+      if (S.onboarded) { $('#onboard').hidden = true; $('#onboard').innerHTML = ''; document.documentElement.classList.remove('locked'); }
+      render(); toast('Progress restored.');
+    }
     catch (e) { toast(e.message && /backup/.test(e.message) ? e.message : 'That code could not be read. Check you copied all of it.'); }
   },
   'lab-save': () => labSave($('#lab-name').value),
@@ -127,6 +146,7 @@ document.addEventListener('change', (e) => {
   const k = e.target.dataset && e.target.dataset.change;
   if (k === 'setting') { S.settings[e.target.dataset.v] = e.target.checked; save(); if (e.target.checked) { buzz('ok'); sound('good'); } }
   else if (k === 'photo') { const f = e.target.files && e.target.files[0]; if (f) setPhoto(f); e.target.value = ''; }
+  else if (k === 'ladder') tickLadder(Number(e.target.dataset.v), e.target.checked);
 });
 document.addEventListener('submit', (e) => {
   const k = e.target.dataset && e.target.dataset.submit;
@@ -153,9 +173,14 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) refr
 function start() {
   applyTheme();
   if (!TRACKS.length) { $('#view').innerHTML = '<p class="card">No lessons were bundled with this build.</p>'; return; }
+  // People who played before practice steps existed get some for the sessions they already finished.
+  if (!S.seen.steps) { S.seen.steps = 1; if (S.stats.sessions > 0 && !S.steps) S.steps = Math.min(5, S.stats.sessions) * STEPS.session; save(); }
   render();
   refreshClock();
+  // A shared Daily Drop link opens the Drop itself.
+  UI.goDrop = new URLSearchParams(location.search).get('go') === 'drop';
   if (!S.onboarded) renderOnboarding();
+  else if (UI.goDrop) startDrop();
 }
 if ('serviceWorker' in navigator && location.protocol === 'https:' && !inFrame() && window.AS_PWA) {
   const had = !!navigator.serviceWorker.controller;

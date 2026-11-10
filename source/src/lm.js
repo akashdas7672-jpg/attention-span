@@ -512,6 +512,8 @@ const LM = (() => {
   const EXPORT_CSS = `:root{--bg:#f3f5fb;--card:#fff;--ink:#15171f;--mute:#585e72;--line:#d5d9ea;--acc:#3b5bff;--on:#fff}
 @media (prefers-color-scheme:dark){:root{--bg:#0f1117;--card:#191c26;--ink:#f2f3f8;--mute:#a4a9bd;--line:#2f3447;--acc:#93a4ff;--on:#0c0e15}}
 *{box-sizing:border-box}
+.who{width:64px;height:64px;border-radius:50%;object-fit:cover;display:block;margin:0 0 12px}
+footer a{color:var(--acc)}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
 main{max-width:34rem;margin:0 auto;padding:calc(28px + env(safe-area-inset-top,0px)) 16px calc(36px + env(safe-area-inset-bottom,0px))}
@@ -571,12 +573,15 @@ footer{color:var(--mute);font-size:13px;text-align:center}`;
   function exportHtml(packed, meta) {
     const m = meta || {}, brain = packed.kind === 'nn', model = unpack(packed);
     const info = { name: clip(m.name, 80) || 'My tiny model', madeBy: clip(m.madeBy, 80), trainedOn: clip(m.trainedOn, 120), date: clip(m.date, 40) };
+    // A photo is embedded only as a small base64 image, and a link back only as a plain https address.
+    const photo = typeof m.photo === 'string' && m.photo.length < 60000 && /^data:image\/(jpeg|png);base64,[A-Za-z0-9+/=]+$/.test(m.photo) ? m.photo : '';
+    const link = typeof m.link === 'string' && /^https:\/\/[A-Za-z0-9.-]+(\/[A-Za-z0-9._~\/-]*)?$/.test(m.link) ? m.link : '';
     const samples = [1, 2, 3].map((seed) => (brain
       ? NN.generate(model, '', { seed, maxChars: 140 })
       : NG.generate(model, '', { seed, maxTokens: 28 })).text.trim());
     const how = brain
       ? `This is a tiny neural network. It reads the last ${model.ctx} characters and guesses the next one, using ${count(model.P.length)} numbers it tuned over ${count(model.step)} practice steps.`
-      : `This is a copycat model. It looks at the last ${model.n === 1 ? 'word' : `${model.n} words`} and picks a word that followed ${model.n === 1 ? 'it' : 'them'} somewhere in its ${count(model.tokens)}-word training text.`;
+      : `This is a copycat model. It looks at the last ${model.n === 1 ? 'word' : `${model.n} words`} and picks a word that followed ${model.n === 1 ? 'it' : 'them'} somewhere in its ${count(model.tokens)}-word training text. That text is stored inside this file.`;
     const by = [info.madeBy && `Made by ${esc(info.madeBy)}`, esc(info.date)].filter(Boolean).join(' &middot; ');
     const engine = brain
       ? `var Engine = (function (B) { var R = (${nnRt})(B); return { load: R.load, generate: R.generate }; })((${baseRt})());`
@@ -587,7 +592,7 @@ footer{color:var(--mute);font-size:13px;text-align:center}`;
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'">
 <title>${esc(info.name)}</title>
 <style>
 ${EXPORT_CSS}
@@ -595,7 +600,7 @@ ${EXPORT_CSS}
 </head>
 <body>
 <main>
-<p class="kind">${brain ? 'Tiny Brain' : 'Copycat'}</p>
+${photo ? `<img class="who" src="${photo}" alt="">\n` : ''}<p class="kind">${brain ? 'Tiny Brain' : 'Copycat'}</p>
 <h1>${esc(info.name)}</h1>
 ${by ? `<p class="meta">${by}</p>\n` : ''}${info.trainedOn ? `<p class="meta">Trained on ${esc(info.trainedOn)}</p>\n` : ''}<p class="how">${how}</p>
 <section class="card" id="play" hidden>
@@ -612,7 +617,7 @@ ${by ? `<p class="meta">${by}</p>\n` : ''}${info.trainedOn ? `<p class="meta">Tr
 <p class="meta">This preview cannot run the model. Open the file in a web browser to write with it yourself.</p>
 ${samples.map((s) => `<pre>${esc(s)}</pre>`).join('\n')}
 </section>
-<footer>Built in the Attention Span Lab. The whole model lives in this file and it works offline.</footer>
+<footer>Built in the Attention Span Lab. The whole model lives in this file and it works offline.${link ? ` Make your own: <a href="${link}" rel="noopener">${esc(link.replace(/^https:\/\//, ''))}</a>` : ''}</footer>
 </main>
 <script type="application/json" id="model">${scriptJson({ meta: info, model: packed })}<\/script>
 <script id="engine">

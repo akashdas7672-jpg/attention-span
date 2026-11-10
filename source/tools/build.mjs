@@ -7,9 +7,9 @@ import { fileURLToPath } from 'node:url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (p) => readFileSync(join(root, p), 'utf8');
 const readJson = (p, fallback) => (existsSync(join(root, p)) ? JSON.parse(read(p)) : fallback);
-const FLUENCY_ORDER = ['f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8'];
+const FLUENCY_ORDER = ['f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9'];
 const BUILDER_ORDER = ['intro', 'c1', 'c2', 'ml', 'c3', 'c4', 'c5', 'c7', 'c8', 'frontier'];
-const SRC = ['core.js', 'icons.js', 'fx.js', 'lm.js', 'widgets.js', 'session.js', 'ui.js', 'lab.js', 'main.js'];
+const SRC = ['core.js', 'icons.js', 'fx.js', 'lm.js', 'model.js', 'widgets.js', 'session.js', 'ui.js', 'lab.js', 'main.js'];
 
 // A Builder skill (cards + a pool of exercises) becomes two sessions: the ideas with the easier half, then the harder half.
 function builderChapter(u) {
@@ -31,7 +31,7 @@ function builderChapter(u) {
 const fluency = FLUENCY_ORDER.filter((id) => existsSync(join(root, 'content', 'fluency', `${id}.json`))).map((id) => readJson(`content/fluency/${id}.json`));
 const builder = BUILDER_ORDER.filter((id) => existsSync(join(root, 'content', 'builder', `${id}.json`))).map((id) => builderChapter(readJson(`content/builder/${id}.json`)));
 const tracks = [];
-if (fluency.length) tracks.push({ id: 'fluency', title: 'AI Fluency', note: 'Eight chapters, about four minutes at a time. Plain language, no code.', chapters: fluency });
+if (fluency.length) tracks.push({ id: 'fluency', title: 'AI Fluency', note: 'Nine chapters, about four minutes at a time. Plain language, no code.', chapters: fluency });
 if (builder.length) tracks.push({ id: 'builder', title: 'Builder', note: 'The hands-on track, adapted from Google DeepMind’s course notebooks. Includes Python and some maths. Every chapter is open.', chapters: builder });
 const bundle = {
   tracks,

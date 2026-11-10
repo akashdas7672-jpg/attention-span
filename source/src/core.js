@@ -8,6 +8,8 @@ const MAX_MODELS = 4;
 const DROP_SIZE = 5;
 const DROP_DAY_ONE = Date.UTC(2026, 10, 10) / 864e5; // Daily Drop #1
 const LAB_TEXT_MAX = 20000;
+const STEPS = { session: 400, replay: 100, drop: 150, warmup: 100 };
+const BIG_BRAIN_LEVEL = 3;
 
 const LEVELS = [
   { at: 0, title: 'Curious' }, { at: 50, title: 'Tuned In' }, { at: 130, title: 'Switched On' },
@@ -135,8 +137,14 @@ function defaultState() {
     theme: 'indigo',
     stats: {
       sessions: 0, perfect: 0, answers: 0, correct: 0, bestCombo: 0, warmups: 0, drops: 0, dropPerfect: 0,
-      shares: 0, models: 0, trained: 0, exports: 0, builder: 0,
+      shares: 0, models: 0, trained: 0, exports: 0, builder: 0, surprises: 0,
     },
+    mainModel: '',
+    steps: 0,
+    packs: ['hype', 'fables'],
+    remind: { time: '', set: false },
+    resume: null,
+    ladder: { run: [false, false, false, false] },
     claimed: {},
     seen: {},
     settings: { sound: true, haptics: true },
@@ -226,15 +234,25 @@ function applyTheme() {
 }
 
 // ---------- streak ----------
-// Spends streak savers on missed days, or resets the streak when there are not enough.
+// Weekends are free: a streak only needs the working days.
+function isWeekend(i) { const d = idxToDate(i).getDay(); return d === 0 || d === 6; }
+function missedWorkdays(from, to) {
+  if (to - from > 120) return 99;
+  let n = 0;
+  for (let i = from + 1; i < to; i++) if (!isWeekend(i)) n++;
+  return n;
+}
+function streakAlive() { return S.streak.count > 0 && missedWorkdays(S.streak.last, todayIdx()) === 0; }
+// Spends streak savers on missed working days, or resets the streak when there are not enough.
 function refreshStreak() {
   const t = todayIdx();
   const st = S.streak;
   if (st.count > 0 && st.last < t - 1) {
-    const missed = t - 1 - st.last;
+    const missed = missedWorkdays(st.last, t);
+    if (missed === 0) return {};
     if (st.savers >= missed) {
       st.savers -= missed;
-      for (let i = st.last + 1; i < t; i++) st.saved.push(i);
+      for (let i = st.last + 1; i < t; i++) if (!isWeekend(i)) st.saved.push(i);
       st.saved = st.saved.slice(-60);
       st.last = t - 1;
       return { saved: missed };
@@ -250,7 +268,7 @@ function extendStreak() {
   const st = S.streak;
   if (st.last === t) return { extended: false };
   refreshStreak();
-  st.count = (st.last === t - 1 ? st.count : 0) + 1;
+  st.count = (st.count > 0 && missedWorkdays(st.last, t) === 0 ? st.count : 0) + 1;
   st.last = t;
   st.best = Math.max(st.best, st.count);
   let gotSaver = false;
@@ -341,6 +359,7 @@ const BADGES = [
   { id: 'maker', title: 'Model maker', desc: 'Build your first model in the Lab', icon: 'flask', tone: 5, prog: () => [S.stats.models, 1] },
   { id: 'trainer', title: 'Brain trainer', desc: 'Give Tiny Brains 6,000 practice steps in total', icon: 'brain', tone: 0, prog: () => [Math.min(S.stats.trained, 6000), 6000] },
   { id: 'takehome', title: 'Take-home', desc: 'Export a model you built', icon: 'gift', tone: 6, prog: () => [S.stats.exports, 1] },
+  { id: 'graduate', title: 'Graduate', desc: 'Run a real open model on your own computer', icon: 'chip', tone: 2, prog: () => [S.ladder.run.filter(Boolean).length, 4] },
   { id: 'builder', title: 'Under the hood', desc: 'Finish a Builder session', icon: 'code', tone: 7, prog: () => [S.stats.builder, 1] },
   { id: 'share', title: 'Show and tell', desc: 'Share a result with your team', icon: 'share', tone: 1, prog: () => [S.stats.shares, 1] },
 ];

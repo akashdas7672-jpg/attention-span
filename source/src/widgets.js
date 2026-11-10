@@ -39,7 +39,7 @@ const PLAYS = {
     html(p) {
       const probs = predictProbs(p, W.t);
       return `<p class="pw-prompt">${esc(p.prompt)} <span class="pw-slot${W.last !== null ? ' pop' : ''}">${W.last !== null ? esc(p.words[W.last][0]) : '?'}</span></p>
-        <div class="pw-bars">${p.words.map((w, i) => `<div class="pw-row${W.last === i ? ' hit' : ''}"><span class="pw-word">${esc(w[0])}</span><span class="pw-track"><i style="width:${Math.max(2, probs[i] * 100)}%"></i></span><span class="pw-pct">${pct(probs[i])}</span><span class="pw-n">${W.picks[i] ? '×' + W.picks[i] : ''}</span></div>`).join('')}</div>
+        <div class="pw-bars">${p.words.map((w, i) => `<div class="pw-row${W.last === i ? ' hit' : ''}"><span class="pw-word">${esc(w[0])}</span><span class="pw-track"><i style="--p:${Math.max(2, probs[i] * 100)}%"></i></span><span class="pw-pct">${pct(probs[i])}</span><span class="pw-n">${W.picks[i] ? '×' + W.picks[i] : ''}</span></div>`).join('')}</div>
         ${p.slider ? `<label class="slider"><span>Safe</span><input type="range" min="0.2" max="2.2" step="0.1" value="${W.t}" data-input="w-temp" aria-label="Creativity"><span>Wild</span></label>` : ''}
         <button class="btn soft wide" data-action="w-draw">${icon('dice')} Draw a word</button>
         <p class="play-note">${W.n ? `Drawn ${plural(W.n, 'time')}.${W.n >= 5 ? ' Likely words win most often, not every time.' : ''}` : 'Tap a few times and watch which word comes out.'}</p>`;
@@ -49,7 +49,7 @@ const PLAYS = {
     init: () => ({ stage: 0 }),
     html(p) {
       const st = W.stage;
-      const piece = (t, i) => `<span class="tk tone-${i % 8}" style="animation-delay:${i * 55}ms"><b>${esc(t).replace(/^ /, '<i>·</i>')}</b>${st === 2 ? `<small>${100 + (hashStr(t) % 49900)}</small>` : ''}</span>`;
+      const piece = (t, i) => `<span class="tk tone-${i % 8}" style="animation-delay:${Math.min(i, 5) * 60}ms"><b>${esc(t).replace(/^ /, '<i>·</i>')}</b>${st === 2 ? `<small>${100 + (hashStr(t) % 49900)}</small>` : ''}</span>`;
       return `<div class="tk-text">${st === 0 ? `<span class="tk-whole">${esc(p.text)}</span>` : p.pieces.map(piece).join('')}</div>
         <button class="btn soft wide" data-action="w-step">${st === 0 ? 'Split it into pieces' : st === 1 ? 'Show the ID numbers' : 'Start again'}</button>
         <p class="play-note">${st === 0 ? 'This is what you typed.' : st === 1 ? `${p.pieces.length} pieces. A dot marks a space. The model only ever sees these.` : 'Each piece is swapped for a number, because numbers are all a model works with.'}</p>`;
@@ -147,7 +147,7 @@ function fitDraw() {
   const err = fitError(m);
   const good = err < 3.4;
   const bar = $('#fit-bar');
-  bar.style.width = `${clamp(err * 2.4, 3, 100)}%`;
+  bar.style.setProperty('--p', `${clamp(err * 2.4, 3, 100)}%`);
   bar.parentNode.classList.toggle('good', good);
   $('#fit-note').textContent = good
     ? 'Snug. That is training in miniature: nudge the dial until the error is small.'
@@ -188,7 +188,7 @@ function wTemp(v) {
   W.t = Number(v);
   const probs = predictProbs(W.p, W.t);
   $$('#play .pw-row').forEach((row, i) => {
-    $('.pw-track i', row).style.width = `${Math.max(2, probs[i] * 100)}%`;
+    $('.pw-track i', row).style.setProperty('--p', `${Math.max(2, probs[i] * 100)}%`);
     $('.pw-pct', row).textContent = pct(probs[i]);
   });
 }

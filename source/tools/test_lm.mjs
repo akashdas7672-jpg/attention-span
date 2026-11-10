@@ -61,6 +61,9 @@ for (const p of packs) {
     for (const [kind, pk] of [['brain', packed], ['copycat', LM.pack(LM.ngram.train(text, 2))]]) {
       const html = LM.exportHtml(pk, { name: '</script><b>"x\'', madeBy: 'A & B', trainedOn: p.title, date: '2026-11-09' });
       ok(!/https?:\/\/|src=["']\/\//.test(html) && html.length < 150000 && (html.match(/<\/script>/g) || []).length === 3, `exported ${kind} page is self-contained and survives a hostile name`, `${html.length} bytes`);
+      const extra = LM.exportHtml(pk, { name: 'x', photo: 'data:image/jpeg;base64,AAAA', link: 'https://example.org/app/' });
+      const hostile = LM.exportHtml(pk, { name: 'x', photo: 'data:text/html;base64,AAAA', link: 'javascript:alert(1)' });
+      ok(extra.includes('<img class="who" src="data:image/jpeg;base64,AAAA"') && extra.includes('href="https://example.org/app/"') && !hostile.includes('<img') && !hostile.includes('javascript:'), `exported ${kind} page takes a safe photo and link and drops unsafe ones`);
       const engine = html.split('<script id="engine">')[1].split('</script>')[0];
       let ran = true;
       try { vm.runInNewContext(engine, {}); } catch (e) { ran = false; console.log(e.message); }

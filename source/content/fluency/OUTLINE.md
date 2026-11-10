@@ -1,6 +1,6 @@
 # Fluency track outline
 
-Eight chapters, five sessions each. Each session lists its three ideas (a, b, c) in teaching order.
+Nine chapters, five sessions each. Each session lists its three ideas (a, b, c) in teaching order.
 "Play:" names the interactive toy to put on that idea's card (see GUIDE.md). Keep the titles as given
 unless one breaks a length limit. "Facts from:" points at the technical lesson files in `content/builder/`
 that were written from Google DeepMind's course notebooks; use them to check facts, not for wording.
@@ -188,3 +188,27 @@ Facts from: intro.json (Generative models, Reinforcement learning, Folding prote
    a. Three everyday jobs: sort things into labels (classify), shorten (summarise), and create or converse (generate).
    b. Match the job: 5,000 comments by mood is a sorting job; a long report is a shortening job. Include a `match` or `sort` question.
    c. You stay the editor. AI drafts; a person decides and is accountable.
+
+## f9 · Running your own — "Open models you can keep and run on your own machine."
+Facts from: c7.json (Small vs large models, Hitting the memory wall), c5.json (Base models and questions). Readers have finished f1 to f8.
+This chapter must be careful and durable: no prices, no version numbers, no claims that one tool or model is best. Never tell the reader to install anything without also saying to check their company's policy first.
+1. **Open models** (icon compass)
+   a. Some makers keep their models on their own computers and rent out access, by the message or by the month.
+   b. Others publish the finished model as a file anyone can download. These are called **open models**. Families you may hear named include Gemma, Llama, Mistral, Phi and Qwen.
+   c. Open does not mean anything goes. Each one comes with a licence that says what you may do with it, including for paid client work. Read it, or ask.
+2. **Will it fit?** (icon memory)
+   a. A model's size is counted in dials. Small open models have a few billion; the largest assistants have far more.
+   b. The whole model has to fit in your machine's memory. A recent laptop can hold a small one; a phone can hold only the very smallest.
+   c. Models are often shrunk by storing each dial less precisely, like saving a photo at lower quality: much smaller, slightly worse.
+3. **Running one yourself** (icon chip)
+   a. A runner is an ordinary app that loads the model file and gives you a chat window. Ollama and LM Studio are two widely used ones.
+   b. Once the file is downloaded it works with no internet, because the predicting happens on your own chip. There is no fee per message; the cost is your hardware, your electricity and your patience.
+   c. Expect it to be slower and less capable than the big hosted assistants. You trade power for control. tryit should send them to the Lab tab to look at step four of the ownership ladder.
+4. **Private, not perfect** (icon shield)
+   a. Run on your own machine, what you type stays on your machine. Nothing is sent to anyone else's computers. That is the main safety gain.
+   b. Local does not fix wrong answers. A local model can be fluent and wrong like any other, so every checking habit still applies.
+   c. You take on new duties: download models and runners only from sources you trust, check the licence, and check your company's policy before installing anything on a work machine.
+5. **Is local enough?** (icon scale)
+   a. Small local models do well at contained jobs: rewriting, tidying notes, tagging, short summaries.
+   b. They struggle with long documents, hard multi-step reasoning and anything that needs fresh facts.
+   c. Test before you trust: run the same handful of real tasks through both and compare. Use local where it is good enough and the big hosted tools where you need the power. Include a `sort` or `match` question.

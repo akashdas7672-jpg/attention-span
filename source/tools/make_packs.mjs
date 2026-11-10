@@ -69,6 +69,28 @@ const fortunes = lines(37, 230, [
   (p) => `Lucky today: ${lower(p(WHO))}. ${p(TIP)}`,
 ]);
 
+// ---------- tiny reviews of ordinary things ----------
+const ITEM = ['The office kettle', 'This stapler', 'My desk chair', 'The lift', 'A Tuesday', 'The corner cafe', 'This umbrella', 'The 8:15 bus', 'My old backpack', 'The meeting room', 'A paper notebook', 'The vending machine', 'This pen', 'The stairs', 'Our printer'];
+const VERDICT = ['Five stars', 'Four stars', 'Three stars', 'Two stars', 'One star'];
+const WHY = ['does exactly what it promises', 'has never once let me down', 'works better after a short rest', 'is louder than it needs to be', 'smells faintly of toast', 'knows too much', 'could use a fresh coat of paint', 'is always there when it rains', 'has seen better days and so have I', 'made my Monday easier', 'arrives late but apologises', 'is smaller than the photos suggest'];
+const AGAIN = ['Would use again.', 'Would recommend to a friend.', 'Not for beginners.', 'Bring your own snacks.', 'Best enjoyed before noon.', 'Still thinking about it.', 'No further questions.', 'Ask me again on Friday.'];
+const reviews = lines(41, 230, [
+  (p) => `${p(VERDICT)}. ${p(ITEM)} ${p(WHY)}. ${p(AGAIN)}`,
+  (p) => `${p(ITEM)} ${p(WHY)}. ${p(VERDICT)}.`,
+  (p) => `${p(VERDICT)} for ${lower(p(ITEM))}. ${p(AGAIN)}`,
+]);
+
+// ---------- good-news headlines ----------
+const TOWN = ['Local', 'Village', 'Seaside', 'City', 'Hilltop', 'Riverside', 'Night-shift', 'Retired', 'Part-time'];
+const HERO = ['baker', 'librarian', 'bus driver', 'gardener', 'choir', 'postman', 'lifeguard', 'dog', 'teacher', 'bookshop', 'cafe', 'football team'];
+const DID = ['wins award for', 'breaks record for', 'celebrates ten years of', 'raises funds with', 'surprises neighbours with', 'makes history with', 'is praised for', 'finally finishes', 'is thanked for'];
+const WHAT = ['the kindest queue', 'the longest scarf', 'free soup on Fridays', 'a very small parade', 'returning every lost glove', 'the quietest fireworks', 'a garden on the roof', 'remembering every name', 'the best bad jokes', 'a library of seeds', 'singing in the rain'];
+const headlines = lines(53, 230, [
+  (p) => `${p(TOWN)} ${p(HERO)} ${p(DID)} ${p(WHAT)}`,
+  (p) => `${p(TOWN)} ${p(HERO)} ${p(DID)} ${p(WHAT)}, again`,
+  (p) => `Good news: ${lower(p(TOWN))} ${p(HERO)} ${p(DID)} ${p(WHAT)}`,
+]);
+
 // ---------- tiny fables, retold in short sentences ----------
 const fables = `The Fox and the Grapes
 A hungry fox saw ripe grapes high on a vine. He jumped and missed. He jumped again and missed again. At last he walked away. "They were sour anyway," he said.
@@ -140,6 +162,8 @@ const packs = [
   { id: 'taglines', title: 'Ad taglines', blurb: 'Punchy lines for products that do not exist', icon: 'spark', text: taglines },
   { id: 'fables', title: 'Tiny fables', blurb: 'Old stories retold in short sentences', icon: 'book', text: fables },
   { id: 'fortunes', title: 'Office fortunes', blurb: 'Fortune-cookie wisdom for the working week', icon: 'dice', text: fortunes },
+  { id: 'reviews', title: 'Tiny reviews', blurb: 'Star ratings for ordinary things', icon: 'star', text: reviews },
+  { id: 'headlines', title: 'Good-news headlines', blurb: 'Small-town front pages on a slow news day', icon: 'chat', text: headlines },
 ];
 for (const p of packs) {
   if (/[^\x09\x0A\x20-\x7E]/.test(p.text)) throw new Error(`${p.id} has non-ASCII text`);

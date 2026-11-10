@@ -1,5 +1,6 @@
 // ---------- app shell ----------
-const UI = { tab: 'today', track: null, open: {}, onboard: 0, feel: '' };
+const UI = { tab: 'today', track: null, open: {}, onboard: 0, feel: '', just: '', line: null, goDrop: false };
+let sheetTimer = 0;
 const TABS = [['today', 'Today', 'home'], ['journey', 'Journey', 'route'], ['lab', 'Lab', 'flask'], ['rewards', 'Rewards', 'gift'], ['me', 'Me', 'user']];
 
 function isStandalone() {
@@ -19,13 +20,18 @@ function go(tab) {
   UI.tab = tab;
   render();
   window.scrollTo(0, 0);
+  // Replay the short entrance on the new tab's content.
+  const v = $('#view');
+  v.classList.remove('tab-in');
+  void v.offsetWidth;
+  v.classList.add('tab-in');
 }
 function avatar(size = 44) {
   const inner = S.photo ? `<img src="${S.photo}" alt="">` : S.name.trim() ? `<b>${esc(S.name.trim()[0].toUpperCase())}</b>` : mascot('happy', Math.round(size * 0.86));
   return `<span class="avatar" style="--s:${size}px">${inner}</span>`;
 }
 function firstName() { return S.name.trim().split(/\s+/)[0] || ''; }
-function bar(frac, cls = '') { return `<span class="bar ${cls}"><i style="width:${clamp(frac, 0, 1) * 100}%"></i></span>`; }
+function bar(frac, cls = '') { return `<span class="bar ${cls}"><i style="--p:${Math.max(3, clamp(frac, 0, 1) * 100)}%"></i></span>`; }
 
 // ---------- Today ----------
 function greeting() {
@@ -43,18 +49,19 @@ function heroHtml() {
   }
   const ch = s.chapter;
   const cards = s.steps.filter((x) => x.type === 'card').length;
-  return `<section class="hero tone-${ch.tone}"><span class="eyebrow">${activeToday() ? 'Done for today. One more?' : 'Today’s session'}</span>
+  const res = S.resume && S.resume.id === s.id && S.resume.n === s.steps.length && S.resume.i > 0 ? S.resume : null;
+  return `<section class="hero tone-${ch.tone}"><span class="eyebrow">${res ? 'Pick up where you left off' : activeToday() ? 'Done for today. One more?' : 'Today’s session'}</span>
     <h2>${esc(s.title)}${s.part ? ` <small>part ${s.part}</small>` : ''}</h2>
     <p>${esc(s.goal || ch.title)}</p>
-    <div class="hero-meta"><span>Chapter ${ch.index + 1} · ${s.index + 1} of ${ch.sessions.length}</span><span>${plural(cards, 'idea')} · about ${s.mins} min</span></div>
-    <button class="btn ink wide" data-action="start" data-id="${s.id}">${icon('play')} Start</button><span class="hero-art">${icon(s.icon)}</span></section>`;
+    <div class="hero-meta"><span>Chapter ${ch.index + 1} · ${s.index + 1} of ${ch.sessions.length}</span><span>${res ? `Step ${res.i + 1} of ${res.n}` : `${plural(cards, 'idea')} · about ${s.mins} min`}</span></div>
+    <button class="btn ink wide${activeToday() ? '' : ' nudge'}" data-action="start" data-id="${s.id}">${icon('play')} ${res ? 'Resume' : 'Start'}</button><span class="hero-art">${icon(s.icon)}</span></section>`;
 }
 function viewToday() {
   const lv = levelOf();
   const start = weekStartIdx();
   const due = dueKeys().length;
   const drop = dropResult();
-  const lit = S.streak.count > 0 && S.streak.last >= todayIdx() - 1;
+  const lit = streakAlive();
   const date = new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' });
   const install = IS_IOS && !isStandalone() && !inFrame() && !S.seen.install
     ? `<section class="card tip"><div><b>Put it on your Home Screen</b><p>Tap ${icon('share')} Share, then “Add to Home Screen”. It opens full screen and works offline.</p></div><button class="icon-btn" data-action="seen" data-v="install" aria-label="Dismiss">${icon('x')}</button></section>` : '';
@@ -64,13 +71,31 @@ function viewToday() {
     <section class="card week-card"><div class="week">${[0, 1, 2, 3, 4, 5, 6].map((i) => weekDot(start + i)).join('')}</div>
       <p>${activeToday() ? 'Today is done. See you tomorrow.' : S.streak.count > 0 && lit ? `Keep your ${plural(S.streak.count, 'day')} streak: one session or one Daily Drop.` : 'One session or one Daily Drop today starts a streak.'}</p></section>
     ${heroHtml()}
+    ${modelCardHtml()}
     <div class="duo"><button class="tile tone-3${drop ? ' done' : ''}" data-action="drop"><span class="tile-ic">${icon('target')}</span><b>Daily Drop</b>
         ${drop ? `<span class="mini-grid">${drop.map((x) => `<i class="${x ? 'y' : 'n'}"></i>`).join('')}</span><small>${drop.filter(Boolean).length} of ${drop.length} · next in ${untilTomorrow()}</small>` : `<small>#${dropNumber()} · 5 questions, the same for everyone today</small>`}</button>
       <button class="tile tone-4${due < 3 ? ' quiet' : ''}" data-action="warmup"><span class="tile-ic">${icon('refresh')}</span><b>Warm-up</b>
         <small>${due >= 3 ? `${Math.min(due, 5)} quick ones to keep it fresh` : 'Nothing to refresh yet'}</small></button></div>
     <button class="card level-strip" data-action="tab" data-v="rewards"><span class="level-badge"><small>Level</small><b>${lv.n}</b></span>
       <span class="ls-text"><b>${esc(lv.title)}</b>${bar(lv.frac, 'gold')}<small>${lv.next ? `${lv.toGo} points to ${esc(lv.nextTitle)}` : `${num(S.points)} points`}</small></span>${icon('right')}</button>
+    ${remindCardHtml()}
     ${install}`;
+}
+// The person's main model, with a fresh line from it. The line is kept for half a minute so it does not flicker.
+function modelCardHtml() {
+  if (!labReady()) return '';
+  const m = mainModel();
+  if (!m) {
+    return S.stats.sessions < 1 ? '' : `<button class="card model-card empty-model" data-action="first-model"><span class="badge tone-5 on">${icon('flask')}</span><span class="s-name"><b>Build your first AI model</b><small>About a minute. It runs on this phone and it is yours to keep.</small></span>${icon('right')}</button>`;
+  }
+  const k = KINDS[kindKey(m)];
+  if (!UI.line || UI.line.id !== m.id || Date.now() - UI.line.at > 30000) UI.line = { id: m.id, at: Date.now(), text: modelLine(m) };
+  return `<button class="card model-card" data-action="lab-open" data-id="${m.id}"><span class="mc-head"><span class="badge tone-${k.tone} on">${icon(k.icon)}</span><span class="s-name"><b>${esc(m.name)}</b><small>${k.name} · ${num(S.steps)} practice steps banked</small></span>${icon('right')}</span>
+    ${UI.line.text ? `<span class="mc-line">“${esc(UI.line.text)}”</span>` : ''}</button>`;
+}
+function remindCardHtml() {
+  if (S.remind.set || S.seen.remind || S.stats.sessions < 1) return '';
+  return `<section class="card tip"><div><b>When do you have four minutes?</b><p>Pick a moment and add a weekday reminder to your calendar.</p><button class="btn soft small" data-action="remind">${icon('clock')} Pick a time</button></div><button class="icon-btn" data-action="seen" data-v="remind" aria-label="Dismiss">${icon('x')}</button></section>`;
 }
 
 // ---------- Journey ----------
@@ -90,11 +115,11 @@ function viewJourney() {
     };
     const test = t.id === 'fluency' && unlocked && !cs.complete
       ? `<button class="btn ghost wide small" data-action="test" data-id="${ch.id}">Know this already? Take the 5-question test</button>` : '';
-    return `<section class="chapter tone-${ch.tone}${open ? ' open' : ''}${unlocked ? '' : ' locked'}${cs.complete ? ' complete' : ''}">
+    return `<section class="chapter tone-${ch.tone}${open ? ' open' : ''}${open && UI.just === ch.id ? ' just' : ''}${unlocked ? '' : ' locked'}${cs.complete ? ' complete' : ''}">
       <button class="ch-head" data-action="chapter" data-id="${ch.id}" aria-expanded="${open}"><span class="ch-num">${unlocked ? ch.index + 1 : icon('lock')}</span>
         <span class="ch-title"><b>${esc(ch.title)}</b><small>${esc(ch.blurb || '')}</small></span>
         <span class="ch-prog">${cs.complete ? icon('check') : `${cs.done}/${cs.total}`}</span></button>
-      ${open ? `<div class="ch-body">${unlocked ? '' : `<p class="ch-lock">Finish “${esc(t.chapters[ch.index - 1].title)}” to open this chapter.</p>`}${ch.sessions.map(row).join('')}${test}</div>` : ''}</section>`;
+      ${open ? `<div class="ch-body">${unlocked ? '' : `<p class="ch-lock">Finish “${esc(t.chapters[ch.index - 1].title)}” to open this chapter.</p>`}${test}${ch.sessions.map(row).join('')}</div>` : ''}</section>`;
   };
   return `<header class="page-head"><h1>Journey</h1><p>${st.done} of ${st.total} sessions done</p></header>
     <div class="seg big">${TRACKS.map((x) => `<button class="${x.id === t.id ? 'on' : ''}" data-action="track" data-v="${x.id}">${esc(x.title)}</button>`).join('')}</div>
@@ -182,6 +207,7 @@ function viewMe() {
       <p class="cal-key"><span><i class="done"></i>Active</span><span><i class="saved"></i>Streak saver</span><span>${S.streak.savers} ${S.streak.savers === 1 ? 'saver' : 'savers'} in hand</span></p></section>
     <h3 class="sec">Settings</h3>
     <section class="card set">${sw('sound', 'Sounds', 'Chimes for right and wrong answers')}${sw('haptics', 'Haptics', 'Small taps you can feel, on phones that support them')}
+      ${link('remind', 'clock', 'Daily reminder', S.remind.set ? `Weekdays at ${fmtTime(S.remind.time)}. Tap to change` : 'Add a weekday reminder to your calendar')}
       ${link('backup', 'copy', 'Back up progress', 'Get a code you can restore on another device')}${link('restore', 'download', 'Restore from a code')}
       ${link('install-help', 'home', 'Add to Home Screen', 'Full screen and offline')}${link('about', 'info', 'About and credits')}${link('reset', 'trash', 'Reset everything')}</section>`;
 }
@@ -217,8 +243,9 @@ function openInstallHelp() {
 }
 function openStreakInfo() {
   openSheet(`<div class="sheet-pad center"><div class="big-flame small">${flameGlyph(S.streak.count > 0, 84)}<b>${S.streak.count}</b></div><h3>${plural(S.streak.count, 'day')} streak</h3>
-    <p>Finish one session, one Daily Drop or one warm-up each day to keep it going. Your best so far is ${plural(S.streak.best, 'day')}.</p>
+    <p>Finish one session, one Daily Drop or one warm-up each working day to keep it going. Weekends are free and never break it. Your best so far is ${plural(S.streak.best, 'day')}.</p>
     <p><b>Streak savers: ${S.streak.savers}.</b> A saver covers a missed day automatically. You earn one for every 7 days in a row, and can hold ${MAX_SAVERS}.</p>
+    <button class="btn soft wide" data-action="remind">${icon('clock')} ${S.remind.set ? `Reminder: weekdays at ${fmtTime(S.remind.time)}` : 'Add a daily reminder'}</button>
     <button class="btn primary wide" data-action="close-sheet">Got it</button></div>`);
 }
 function openReset() {
@@ -229,15 +256,20 @@ function openReset() {
 // ---------- sheets and toasts ----------
 function openSheet(html) {
   const root = $('#sheet-root');
+  clearTimeout(sheetTimer);
   root.hidden = false;
+  root.classList.remove('out');
   root.innerHTML = `<div class="scrim" data-action="close-sheet"></div><div class="sheet" role="dialog" aria-modal="true"><div class="grab" data-action="close-sheet"></div>${html}</div>`;
   document.documentElement.classList.add('sheet-open');
 }
 function closeSheet() {
   const root = $('#sheet-root');
-  if (!root || root.hidden) return;
-  root.hidden = true; root.innerHTML = '';
+  if (!root || root.hidden || root.classList.contains('out')) return;
   document.documentElement.classList.remove('sheet-open');
+  const hide = () => { root.hidden = true; root.innerHTML = ''; root.classList.remove('out'); };
+  if (REDUCED_MOTION) { hide(); return; }
+  root.classList.add('out');
+  sheetTimer = setTimeout(hide, 200);
 }
 function toast(html, ms = 2400) {
   const root = $('#toast-root');
@@ -258,7 +290,7 @@ function renderOnboarding() {
   if (step === 0) {
     root.innerHTML = `<div class="ob"><div class="ob-main">${mascot('happy', 132)}<h1>Attention Span</h1><p class="ob-lede">Get fluent in AI, four minutes a day. No jargon. No code.</p>
       <ul class="ob-points"><li><span class="tone-0">${icon('spark')}</span>One small idea at a time, then a quick check</li><li><span class="tone-2">${icon('flask')}</span>Build your own tiny AI in the Lab and keep it</li><li><span class="tone-3">${icon('gift')}</span>Streaks, stars, levels and a daily team challenge</li></ul></div>
-      <div class="ob-foot">${dots}<button class="btn primary wide" data-action="ob-next">Let’s go</button></div></div>`;
+      <div class="ob-foot">${dots}<button class="btn primary wide" data-action="ob-next">Let’s go</button><button class="btn ghost wide" data-action="restore">I have a progress code</button></div></div>`;
   } else if (step === 1) {
     root.innerHTML = `<form class="ob" data-submit="ob-name"><div class="ob-main"><label class="avatar-edit" aria-label="Add a photo">${avatar(112)}<span class="cam">${icon('camera')}</span><input type="file" accept="image/*" data-change="photo" hidden></label>
       <h2>What should we call you?</h2><p class="ob-lede">Add a photo if you like. Both stay on this device.</p>
@@ -279,5 +311,6 @@ function finishOnboarding() {
   document.documentElement.classList.remove('locked');
   render();
   const s = nextSession();
-  if (s) startSession(s.id);
+  // Someone who arrived from a colleague's shared grid gets today's Drop first.
+  if (UI.goDrop && !dropResult()) startDrop(); else if (s) startSession(s.id);
 }

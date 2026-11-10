@@ -1,0 +1,470 @@
+{
+  "id": "f9",
+  "title": "Running your own",
+  "blurb": "Open models you can keep and run on your own machine.",
+  "sessions": [
+    {
+      "id": "f9-1",
+      "title": "Open models",
+      "icon": "compass",
+      "goal": "Tell a rented, hosted model from an open one, and know to read its licence.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "Models you rent",
+          "body": "When you stream a song, it stays on the service's computers and you pay for access. Many AI assistants work like that. The maker keeps the model, the trained pattern machine, on its own computers and rents out access, by the message or by the month. These are **hosted** models."
+        },
+        {
+          "type": "cloze",
+          "prompt": "A hosted model runs on ___ computers, and you pay for access to it.",
+          "options": ["its maker's", "your own", "your client's"],
+          "answer": 0,
+          "explain": "Hosted means the model stays with the company that made it. Your words go to its computers, the predicting happens there, and the answer comes back to your screen."
+        },
+        {
+          "type": "mcq",
+          "prompt": "Your team pays a monthly fee for a chat assistant. What does that fee buy?",
+          "options": [
+            "A copy of the model to keep for good",
+            "A new model trained for your team",
+            "Access to a model the maker keeps"
+          ],
+          "answer": 2,
+          "explain": "A monthly fee is rent. The model stays on its maker's computers the whole time, and you are paying to send it messages, not to own a copy."
+        },
+        {
+          "type": "card",
+          "title": "Models you can keep",
+          "body": "Some songs you can only stream. Others you can download and keep. Models are similar. Some makers publish the finished model as a file anyone can download. These are called **open models**. Families you may hear named include Gemma, Llama, Mistral, Phi and Qwen."
+        },
+        {
+          "type": "tf",
+          "prompt": "An open model is one its maker has published as a file that anyone can download.",
+          "answer": true,
+          "labels": { "true": "Fact", "false": "Myth" },
+          "explain": "That is all open means here. The finished model is a file you can download and keep, not a service you can only reach through its maker's computers."
+        },
+        {
+          "type": "sort",
+          "prompt": "Hosted or open? Sort each description.",
+          "buckets": ["Hosted", "Open"],
+          "items": [
+            ["Stays on its maker's computers", 0],
+            ["Published as a file", 1],
+            ["You rent access by the month", 0],
+            ["Anyone can download it", 1],
+            ["You pay by the message", 0],
+            ["You can keep your own copy", 1]
+          ],
+          "explain": "A hosted model never leaves its maker, so you rent your way in. An open model is handed over as a file, which is why you can keep a copy."
+        },
+        {
+          "type": "card",
+          "title": "Open is not anything goes",
+          "body": "A stock photo is easy to download, but its terms still say where you may use it. Open models are the same. Each comes with a **licence**, written terms that say what you may do with it, including for paid client work. Read it, or ask."
+        },
+        {
+          "type": "tf",
+          "prompt": "Because a model is open, you may use it for any purpose, paid client work included.",
+          "answer": false,
+          "labels": { "true": "Fact", "false": "Myth" },
+          "explain": "Open only means the file is published. What you may do with it is set by its licence, and licences differ, so one model's terms tell you nothing about another's."
+        },
+        {
+          "type": "mcq",
+          "prompt": "You would like to use an open model on a paid client project. What comes first?",
+          "options": [
+            "Reading its licence, or asking someone who can",
+            "Downloading it now and reading the terms afterwards",
+            "Nothing; open means every use is allowed"
+          ],
+          "answer": 0,
+          "explain": "The licence says whether paid client work is allowed, so it comes before anything else. Before any download, also check your company's policy and use a source you trust."
+        },
+        {
+          "type": "match",
+          "prompt": "Match each term to its meaning.",
+          "pairs": [
+            ["Hosted model", "Kept on its maker's computers and rented out"],
+            ["Open model", "Published as a file anyone can download"],
+            ["Licence", "Written terms saying what you may do with it"]
+          ],
+          "explain": "Hosted and open describe where the model lives: with its maker, or in a file you can keep. The licence travels with an open model and sets the rules for using it."
+        }
+      ],
+      "takeaway": "Hosted models are rented; open models are files you can keep. Read the licence, and check your company's policy, before using one.",
+      "tryit": "List the AI tools you use at work and ask of each: is the model on the maker's computers, or on mine?"
+    },
+    {
+      "id": "f9-2",
+      "title": "Will it fit?",
+      "icon": "memory",
+      "goal": "Explain why only small models fit on a laptop, and how models are shrunk.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "Size is counted in dials",
+          "body": "A book's length is counted in pages. A model's size is counted in dials, the inner settings that training sets. Small open models, the kind published as files, have a few billion dials. The largest assistants have far more. More dials can hold more patterns and take up more room."
+        },
+        {
+          "type": "cloze",
+          "prompt": "A model's size is counted in ___, the inner settings that training sets.",
+          "options": ["chats", "dials", "words"],
+          "answer": 1,
+          "explain": "Counting dials tells you how much there is to store and to work through. It is the number people have in mind when they call a model small or large."
+        },
+        {
+          "type": "mcq",
+          "prompt": "A small open model has a few billion dials. How do the largest assistants compare?",
+          "options": [
+            "They have about the same number",
+            "They have far fewer dials",
+            "They have far more dials"
+          ],
+          "answer": 2,
+          "explain": "A few billion sounds huge, yet it is the small end. The largest assistants have far more dials, which is part of why they can do more and why they need so much more room."
+        },
+        {
+          "type": "card",
+          "title": "The whole model has to fit",
+          "body": "Hand luggage only flies if the whole bag fits in the locker. A model only runs if all its dials fit in your machine's memory at once. A recent laptop can hold a small model. A phone can hold only the very smallest. The largest need buildings full of chips."
+        },
+        {
+          "type": "tf",
+          "prompt": "A model only runs if all of its dials fit in the machine's memory at once.",
+          "answer": true,
+          "explain": "Every dial has to be loaded before the first word can be predicted. A model that half fits does not run, just as a bag that half fits does not fly."
+        },
+        {
+          "type": "order",
+          "prompt": "Order these by the size of model each can hold, smallest first.",
+          "items": [
+            "A phone",
+            "A recent laptop",
+            "A building full of chips"
+          ],
+          "explain": "More memory holds more dials. A phone has room for only the very smallest models, a recent laptop for a small one, and the largest need whole buildings of chips."
+        },
+        {
+          "type": "card",
+          "title": "Shrinking a model to fit",
+          "body": "Save a photo at lower quality and the file gets much smaller, while the picture looks only slightly worse. Models are often shrunk the same way: each dial is stored less precisely, like a rounded-off number. The result is much smaller and slightly worse."
+        },
+        {
+          "type": "mcq",
+          "prompt": "How are models often shrunk so that they fit on smaller machines?",
+          "options": [
+            "By storing each dial less precisely",
+            "By training them on far fewer examples",
+            "By cutting their answers shorter"
+          ],
+          "answer": 0,
+          "explain": "Each dial's setting is rounded off, so it takes less room to store. The model keeps all of its dials; each one is just held a little less exactly."
+        },
+        {
+          "type": "tf",
+          "prompt": "A shrunk model answers exactly as well as the full-size original.",
+          "answer": false,
+          "labels": { "true": "Fact", "false": "Myth" },
+          "explain": "Like the photo saved at lower quality, a little is lost. A shrunk model is much smaller and slightly worse, a trade people accept so that it fits."
+        },
+        {
+          "type": "sort",
+          "prompt": "Will it fit? Sort each pairing.",
+          "buckets": ["Can fit", "Too big"],
+          "items": [
+            ["A small open model on a recent laptop", 0],
+            ["One of the largest assistants on a phone", 1],
+            ["The very smallest model on a phone", 0],
+            ["One of the largest assistants on a laptop", 1],
+            ["A shrunk small model on a recent laptop", 0]
+          ],
+          "explain": "It comes down to whether all the dials fit in memory. A recent laptop can hold a small model and a phone only the very smallest. The largest assistants are too big for either."
+        }
+      ],
+      "takeaway": "A model must fit whole in your machine's memory; small ones fit on a laptop, and shrinking makes them smaller but slightly worse.",
+      "tryit": "Open your laptop's settings and find how much memory it has. That figure limits how large a model it could ever hold."
+    },
+    {
+      "id": "f9-3",
+      "title": "Running one yourself",
+      "icon": "chip",
+      "goal": "Describe what it takes to run an open model on your own machine.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "A runner is just an app",
+          "body": "A music file is silent without a player app. An open model's file needs one too. A **runner** is an ordinary app that loads the model file and gives you a chat window. Ollama and LM Studio are two widely used ones. Check your company's policy before installing one."
+        },
+        {
+          "type": "mcq",
+          "prompt": "What does a runner do?",
+          "options": [
+            "Trains a new model from your own files",
+            "Loads a model file and opens a chat window",
+            "Sends your messages to a hosted assistant"
+          ],
+          "answer": 1,
+          "explain": "A runner makes nothing new. It opens a model file that already exists and gives you somewhere to type, much as a player app opens a music file."
+        },
+        {
+          "type": "order",
+          "prompt": "A colleague wants to try an open model on a work laptop. Put the steps in order.",
+          "items": [
+            "Check the company's policy",
+            "Install a runner from a trusted source",
+            "Use it to load a model file",
+            "Type a request in the chat window"
+          ],
+          "explain": "Policy comes before anything is installed. Then the runner must be in place before it can load a model file, and both should come from sources you trust."
+        },
+        {
+          "type": "card",
+          "title": "No internet, no fee per message",
+          "body": "A downloaded playlist still plays on a plane. Once the model file is downloaded from a source you trust, it works with no internet too, because the next-word predicting happens on your own chip. There is no fee per message. The cost is your hardware, your electricity and your patience."
+        },
+        {
+          "type": "tf",
+          "prompt": "A model on your own machine has no fee per message, but it still costs hardware, electricity and patience.",
+          "answer": true,
+          "labels": { "true": "Fact", "false": "Myth" },
+          "explain": "Nobody bills you for each message, because your own chip is doing the work. That work still needs a capable machine, uses electricity and takes time."
+        },
+        {
+          "type": "mcq",
+          "prompt": "You are on a train with no signal and want your rough meeting notes tidied. Which could still do it?",
+          "options": [
+            "A hosted assistant, run on its maker's computers",
+            "Neither; every AI model needs a signal to work",
+            "A model already downloaded to your laptop"
+          ],
+          "answer": 2,
+          "explain": "A hosted assistant needs the internet to reach its maker's computers. A downloaded model does its predicting on your own chip, so it carries on with no signal at all."
+        },
+        {
+          "type": "card",
+          "title": "You trade power for control",
+          "body": "A home printer cannot match a print shop for speed or finish, but it is yours and right there. A model on your own machine, a **local** model, is similar. Expect it to be slower and less capable than the big hosted assistants. You trade power for control."
+        },
+        {
+          "type": "cloze",
+          "prompt": "Next to the big hosted assistants, expect a local model to be slower and less ___.",
+          "options": ["private", "capable", "portable"],
+          "answer": 1,
+          "explain": "A model small enough for your machine has far fewer dials than the big hosted assistants, so it can do less, and your own chip is no match for a building full of them."
+        },
+        {
+          "type": "tf",
+          "prompt": "A colleague expects the model on her laptop to write as quickly and as well as the biggest hosted assistant.",
+          "answer": false,
+          "labels": { "true": "Realistic", "false": "Too hopeful" },
+          "explain": "She is trading power for control. The model is hers to run and works with no internet, but it is far smaller, so slower and less capable is the fair expectation."
+        },
+        {
+          "type": "sort",
+          "prompt": "You move a job from a hosted assistant to a local model. What do you gain, and what do you give up?",
+          "buckets": ["You gain", "You give up"],
+          "items": [
+            ["Working with no internet", 0],
+            ["Some speed", 1],
+            ["No fee per message", 0],
+            ["Some capability", 1],
+            ["Control over where it runs", 0]
+          ],
+          "explain": "Running it yourself brings control: it works with no internet, on your machine, with no fee per message. What you give up is power, because a model small enough to fit is slower and less capable."
+        }
+      ],
+      "takeaway": "A runner app lets a downloaded model work on your own chip: no internet, no fee per message, but slower and less capable.",
+      "tryit": "Open the Lab tab and look at step four of the ownership ladder. Check your company's policy before installing anything on a work machine."
+    },
+    {
+      "id": "f9-4",
+      "title": "Private, not perfect",
+      "icon": "shield",
+      "goal": "Explain what running a model locally protects, and what it leaves to you.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "Your words stay put",
+          "body": "Post a letter and it passes through other hands. Likewise, what you type into a hosted tool travels to the company's computers and may be stored there. With a local model, one running on your own machine, what you type stays there. That is the main safety gain."
+        },
+        {
+          "type": "tf",
+          "prompt": "With a local model, what you type stays on your own machine.",
+          "answer": true,
+          "labels": { "true": "Fact", "false": "Myth" },
+          "explain": "The model does its predicting on your own chip, so your words are not sent to anyone else's computers. That is the main safety gain over a hosted tool."
+        },
+        {
+          "type": "mcq",
+          "prompt": "A two-page client brief must not leave the building. If your company's policy allows a local model, why might one suit a summary?",
+          "options": [
+            "It writes better than the hosted tools do",
+            "What you type stays on your own machine",
+            "It has more up-to-date facts to draw on"
+          ],
+          "answer": 1,
+          "explain": "The brief never travels to another company's computers, which is what the client asked for. A local model is not a better or fresher writer; its gain is keeping your words where they are."
+        },
+        {
+          "type": "card",
+          "title": "Private does not mean right",
+          "body": "A locked diary keeps your words private. It does not make them true. A local model is the same. It still predicts words that sound likely, not facts it has checked, so it can be fluent and wrong like any other model. Every checking habit still applies."
+        },
+        {
+          "type": "cloze",
+          "prompt": "A local model keeps your words private, but its answers still need ___.",
+          "options": ["checking", "translating", "shortening"],
+          "answer": 0,
+          "explain": "Privacy is about where your words go. Accuracy is about what comes back. Running a model locally changes the first and does nothing for the second."
+        },
+        {
+          "type": "mcq",
+          "prompt": "A local model drafts a client email that quotes a market-size figure. What do you do before sending?",
+          "options": [
+            "Send it, since nothing left your machine",
+            "Ask the model whether it is sure, then send",
+            "Check the figure against a source you trust"
+          ],
+          "answer": 2,
+          "explain": "Numbers are where fluent and wrong hurts most, and a local model slips just as a hosted one can. Its own reassurance is only more predicted text, so the check has to be yours."
+        },
+        {
+          "type": "card",
+          "title": "New duties come with it",
+          "body": "Hire a car and the firm services it. Own one and the upkeep is yours. A local model brings duties too. Download models and runners, the apps that load them, only from sources you trust. Check the licence. Check your company's policy before installing anything on a work machine."
+        },
+        {
+          "type": "tf",
+          "prompt": "You find a runner on an unfamiliar website and install it on your work laptop without asking anyone.",
+          "answer": false,
+          "labels": { "true": "Safe", "false": "Risky" },
+          "explain": "Two duties were skipped. A file from a site you do not know may not be what it claims, and anything installed on a work machine needs your company's policy checked first."
+        },
+        {
+          "type": "match",
+          "prompt": "Match each duty to the reason for it.",
+          "pairs": [
+            ["Trusted sources only", "An unknown file may not be what it claims"],
+            ["Read the licence", "It says whether client work is allowed"],
+            ["Check company policy", "Your company sets the rules for its machines"]
+          ],
+          "explain": "None of this is difficult. It is the care you would take with any new software, plus one extra step: reading the terms that come with the model."
+        },
+        {
+          "type": "sort",
+          "prompt": "What does running a model locally take care of, and what is still your job?",
+          "buckets": ["Local covers it", "Still your job"],
+          "items": [
+            ["Keeping what you type on your machine", 0],
+            ["Checking names, numbers and quotes", 1],
+            ["Not sending your words to another company", 0],
+            ["Reading the model's licence", 1],
+            ["Choosing sources you trust", 1],
+            ["Following your company's policy", 1]
+          ],
+          "explain": "Running locally settles one thing: where your words go. Whether the answer is right, whether the licence allows the job and whether the software can be trusted are still yours to check."
+        }
+      ],
+      "takeaway": "A local model keeps your words on your machine, but its answers still need checking and the upkeep is yours.",
+      "tryit": "Ask your IT team whether your company's policy covers running AI models on a work laptop, and which sources they would trust."
+    },
+    {
+      "id": "f9-5",
+      "title": "Is local enough?",
+      "icon": "scale",
+      "goal": "Decide which jobs suit a small local model and which need more power.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "Good at contained jobs",
+          "body": "A bicycle is plenty for the corner shop. Small local models, the ones that run on your own machine, do well at contained jobs: rewriting a caption, tidying meeting notes, tagging survey comments, a short summary. The task is small and everything needed is on the page."
+        },
+        {
+          "type": "tf",
+          "prompt": "You use a small local model to turn rough meeting notes into a tidy list of actions.",
+          "answer": true,
+          "labels": { "true": "Good fit", "false": "Poor fit" },
+          "explain": "Tidying notes is a contained job. The task is small and everything the model needs is on the page, which is where small local models do well. Read the list through before you share it."
+        },
+        {
+          "type": "mcq",
+          "prompt": "Which of these jobs suits a small local model?",
+          "options": [
+            "Tagging 200 survey comments by topic",
+            "Finding this week's news about a rival",
+            "Planning a year-long, many-part campaign"
+          ],
+          "answer": 0,
+          "explain": "Tagging is a contained job: each comment is short and all the model needs is on the page. The other two ask for far more than a small, self-contained task."
+        },
+        {
+          "type": "card",
+          "title": "Where small models struggle",
+          "body": "The bicycle is the wrong choice for moving house. Small local models struggle with long documents, with hard problems that take many steps of reasoning, and with anything that needs fresh facts. On its own, a model knows nothing newer than its training."
+        },
+        {
+          "type": "sort",
+          "prompt": "Good fit or poor fit for a small local model?",
+          "buckets": ["Good fit", "Poor fit"],
+          "items": [
+            ["Rewrite a caption in a warmer tone", 0],
+            ["Summarise a 90-page research report", 1],
+            ["Fix the grammar in one paragraph", 0],
+            ["Find this week's news on a rival brand", 1],
+            ["Sum up one short email in two lines", 0],
+            ["Solve a tangled, many-step budget problem", 1]
+          ],
+          "explain": "Short, contained jobs suit a small local model. Long documents, many-step reasoning and fresh facts are where it struggles, and where a big hosted tool, run on its maker's computers, earns its place."
+        },
+        {
+          "type": "tf",
+          "prompt": "You ask a small local model which campaigns won industry awards last week.",
+          "answer": false,
+          "labels": { "true": "Good fit", "false": "Poor fit" },
+          "explain": "Last week's winners are fresh facts. On its own, a model knows nothing newer than its training, so it may answer with a confident list it has made up."
+        },
+        {
+          "type": "card",
+          "title": "Test before you trust",
+          "body": "To choose between two freelancers, give both the same brief. Do that here. Run the same handful of real tasks through a local model and a hosted tool, one run on its maker's computers, then compare. Use local where it is good enough, and hosted where you need the power."
+        },
+        {
+          "type": "order",
+          "prompt": "Put the steps of a fair local-versus-hosted test in order.",
+          "items": [
+            "Pick a handful of real tasks",
+            "Run the same tasks through both",
+            "Compare the answers side by side",
+            "Use local where it was good enough"
+          ],
+          "explain": "The same real tasks for both is what makes the test fair. Stick to tools your company's policy allows, and keep confidential material out of the hosted run."
+        },
+        {
+          "type": "mcq",
+          "prompt": "In your test, the local model tags comments well but muddles a long report. What is the sensible plan?",
+          "options": [
+            "Stop using the local model altogether",
+            "Use local for tagging, hosted for the report",
+            "Use the local model for both jobs anyway"
+          ],
+          "answer": 1,
+          "explain": "The test showed where local is good enough and where it is not. Matching each job to the tool that handles it keeps words on your machine where you can and brings power where you must."
+        },
+        {
+          "type": "match",
+          "prompt": "Match each situation to a sensible next step.",
+          "pairs": [
+            ["Tidying meeting notes", "A small local model is likely enough"],
+            ["A 90-page report", "Needs the power of a big hosted tool"],
+            ["Not sure which to use", "Run the same real tasks through both"],
+            ["Either tool's answer", "Check it before it leaves your desk"]
+          ],
+          "explain": "Contained jobs suit local, heavy jobs need more power, and a small test on your own tasks settles the doubtful cases. Whichever tool wrote the answer, you still check it."
+        }
+      ],
+      "takeaway": "Use a small local model for contained jobs, a big hosted tool where you need power, and test both on real tasks.",
+      "tryit": "Sort this week's AI jobs into two lists: small, contained ones, and big ones that need long documents, fresh facts or many steps."
+    }
+  ]
+}

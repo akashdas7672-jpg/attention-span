@@ -90,13 +90,13 @@ function dragStart(e, el, h) {
 
 // ---------- counters and confetti ----------
 function countUp(n) { return `<span class="count" data-to="${n}">${REDUCED_MOTION ? n : 0}</span>`; }
-function animateCounts(root = document) {
+function animateCounts(root = document, delay = 0) {
   if (REDUCED_MOTION) return;
   $$('.count', root).forEach((el) => {
     const to = Number(el.dataset.to);
-    const t0 = performance.now();
+    const t0 = performance.now() + delay;
     const step = (t) => {
-      const k = clamp((t - t0) / 700, 0, 1);
+      const k = clamp((t - t0) / 500, 0, 1);
       el.textContent = Math.round(to * (1 - Math.pow(1 - k, 3)));
       if (k < 1) requestAnimationFrame(step);
     };
@@ -108,11 +108,11 @@ function burstConfetti() {
   const cv = $('#confetti');
   const ctx = cv && cv.getContext && cv.getContext('2d');
   if (!ctx) return;
-  const dpr = window.devicePixelRatio || 1;
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
   cv.width = innerWidth * dpr; cv.height = innerHeight * dpr;
   ctx.scale(dpr, dpr);
   const colors = ['#FFD23F', '#34D399', '#6366F1', '#FF7AB6', '#38BDF8', '#FB923C'];
-  const parts = Array.from({ length: 90 }, () => ({
+  const parts = Array.from({ length: 60 }, () => ({
     x: innerWidth / 2 + (Math.random() - 0.5) * 120, y: innerHeight * 0.35,
     vx: (Math.random() - 0.5) * 11, vy: -Math.random() * 12 - 4, r: Math.random() * Math.PI, vr: (Math.random() - 0.5) * 0.4,
     w: 6 + Math.random() * 6, h: 8 + Math.random() * 8, c: colors[Math.floor(Math.random() * colors.length)],
@@ -120,7 +120,7 @@ function burstConfetti() {
   cv.hidden = false;
   const t0 = performance.now();
   const frame = (t) => {
-    const k = (t - t0) / 1600;
+    const k = (t - t0) / 1200;
     ctx.clearRect(0, 0, innerWidth, innerHeight);
     for (const p of parts) {
       p.vy += 0.35; p.x += p.vx; p.y += p.vy; p.r += p.vr; p.vx *= 0.99;

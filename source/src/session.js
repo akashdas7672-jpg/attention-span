@@ -1,14 +1,24 @@
 // ---------- sessions: teach a card, then check it ----------
 let L = null;
+let closeTimer = 0;
+let swapToken = 0;
 const PRAISE = ['Nice.', 'Exactly.', 'Sharp.', 'You got it.', 'Spot on.', 'Yes.', 'Nailed it.'];
 const Q_LABEL = { mcq: 'Quick check', cloze: 'Fill the gap', order: 'Put in order', match: 'Match the pairs', sort: 'Sort them' };
 
-function openSession(l) {
+function openSession(l, resume) {
   L = Object.assign({
-    i: 0, retry: [], results: [], combo: 0, bestCombo: 0, q: null, answered: false, panes: null, pi: 0,
-    cardTotal: l.steps.filter((s) => s.type === 'card').length, startedAt: Date.now(),
+    i: 0, retry: [], results: [], combo: 0, bestCombo: 0, shownCombo: 0, q: null, answered: false, busy: false, panes: null, pi: 0,
+    base: l.steps.length, cardTotal: l.steps.filter((s) => s.type === 'card').length, startedAt: Date.now(),
   }, l);
+  if (resume) {
+    L.results = resume.results.slice();
+    L.combo = resume.combo; L.bestCombo = resume.bestCombo;
+    L.retry = resume.retry.filter((n) => L.steps[n] && L.steps[n].type !== 'card').map((n) => ({ ...L.steps[n], retrying: true, src: n }));
+    L.i = clamp(resume.i, 0, L.base);
+    if (L.i >= L.base && !enterRetries()) L.i = L.base - 1;
+  }
   closeSheet();
+  clearTimeout(closeTimer);
   document.documentElement.classList.add('locked');
   const el = $('#session');
   el.hidden = false;
@@ -18,21 +28,28 @@ function openSession(l) {
     <main class="ss-body" id="ss-body"></main><footer class="ss-foot" id="ss-foot"></footer>`;
   audio();
   renderStep();
+  setCombo();
 }
 function closeSession() {
   L = null;
   W = null;
   const el = $('#session');
-  el.hidden = true; el.innerHTML = '';
   document.documentElement.classList.remove('locked');
   render();
+  const hide = () => { el.hidden = true; el.innerHTML = ''; el.classList.remove('closing'); };
+  clearTimeout(closeTimer);
+  if (REDUCED_MOTION) { hide(); return; }
+  el.classList.add('closing');
+  closeTimer = setTimeout(hide, 200);
 }
 
 function startSession(id) {
   const s = SESSIONS[id];
   if (!s) return;
   if (!sessionUnlocked(s)) { toast('Finish the session before this one first.'); return; }
-  openSession({ mode: 'learn', session: s, title: s.title, tone: s.chapter.tone, steps: s.steps.slice() });
+  const r = S.resume && S.resume.id === id && S.resume.n === s.steps.length ? S.resume : null;
+  openSession({ mode: 'learn', session: s, title: s.title, tone: s.chapter.tone, steps: s.steps.slice() }, r);
+  if (r && r.i > 0) toast('Picked up where you left off.', 1800);
 }
 function startDrop() {
   if (dropResult()) { openDropSheet(); return; }
@@ -51,40 +68,76 @@ function startTest(chapterId) {
   const qs = ch.sessions.map((s) => shuffle(s.qs)[0]).filter(Boolean).slice(0, 6);
   openSession({ mode: 'test', chapter: ch, title: `${ch.title}: test`, tone: ch.tone, steps: shuffle(qs) });
 }
+// Keeps the place in a session so that leaving half way loses nothing.
+function saveResume(at) {
+  if (!L || L.mode !== 'learn' || L.panes) return;
+  const inRetry = L.steps.length > L.base;
+  S.resume = {
+    id: L.session.id, n: L.base, i: Math.min(at, L.base), results: L.results.slice(), combo: L.combo, bestCombo: L.bestCombo,
+    retry: (inRetry ? L.steps.slice(L.base + 1) : L.retry).map((st) => st.src).filter((n) => typeof n === 'number'),
+  };
+  save();
+}
+// Questions missed the first time come back once at the end.
+function enterRetries() {
+  if (!L.retry.length) return false;
+  const n = L.retry.length;
+  L.steps = L.steps.concat([{ type: 'card', interlude: true, title: n === 1 ? 'One to revisit' : `${n} to revisit`, body: 'Here they are again while they are fresh. Getting it right the second time is how it sticks.' }], L.retry);
+  L.retry = [];
+  return true;
+}
 
 // ---------- step rendering ----------
 function setProgress() {
+  if (!L) return;
   const pending = L.retry.length ? L.retry.length + 1 : 0;
-  const frac = L.panes ? 1 : L.i / (L.steps.length + pending);
+  const frac = L.panes ? 1 : (L.i + (L.answered ? 1 : 0)) / (L.steps.length + pending);
   const f = $('#ss-fill');
-  if (f) f.style.width = `${Math.max(4, frac * 100)}%`;
+  if (f) f.style.setProperty('--p', `${Math.max(4, Math.min(100, frac * 100))}%`);
   const c = $('#ss-combo');
-  if (!c) return;
-  if (L.mode === 'drop' || L.mode === 'test') {
+  if (c && (L.mode === 'drop' || L.mode === 'test')) {
     const n = L.steps.filter((s) => s.type !== 'card').length;
     c.innerHTML = `<span class="count-chip">${Math.min(L.results.length + (L.answered ? 0 : 1), n)}/${n}</span>`;
-  } else {
-    c.innerHTML = L.combo >= 2 ? `<span class="combo-chip" key="${L.combo}">${flameGlyph(true, 18)}${L.combo}</span>` : '';
   }
+}
+// The run counter is redrawn, and so pops, only when its number changes.
+function setCombo() {
+  if (!L || L.mode === 'drop' || L.mode === 'test' || L.shownCombo === L.combo) return;
+  const c = $('#ss-combo');
+  if (!c) return;
+  L.shownCombo = L.combo;
+  c.innerHTML = L.combo >= 2 ? `<span class="combo-chip">${flameGlyph(true, 18)}${L.combo}</span>` : '';
+}
+// The outgoing step fades out briefly before the next one comes in.
+function swapBody(build) {
+  const body = $('#ss-body');
+  const old = body.firstElementChild;
+  const token = ++swapToken;
+  const at = L;
+  const run = () => { if (token !== swapToken || L !== at) return; body.scrollTop = 0; L.busy = false; build(body); };
+  if (!old || REDUCED_MOTION) { run(); return; }
+  L.busy = true;
+  old.classList.add('leave');
+  setTimeout(run, 100);
 }
 function renderStep() {
   const st = L.steps[L.i];
   L.answered = false; L.ok = null; W = null;
-  const body = $('#ss-body');
-  body.scrollTop = 0;
-  if (st.type === 'card') {
-    const n = L.steps.slice(0, L.i + 1).filter((s) => s.type === 'card' && !s.interlude).length;
-    const eyebrow = st.interlude ? 'Second look' : `Idea ${n} of ${L.cardTotal}`;
-    body.innerHTML = `<article class="s-card enter"><span class="eyebrow">${eyebrow}</span><h2>${fmt(st.title)}</h2>
-      <p class="s-text">${fmt(st.body)}</p>${st.code ? codeBlock(esc(st.code)) : ''}${st.play ? playHtml(st.play) : ''}</article>`;
-    $('#ss-foot').innerHTML = `<button class="btn primary wide" data-action="ss-next">${st.interlude ? 'Go' : 'Got it'}</button>`;
-    if (st.play) playInit(st.play);
-  } else {
-    L.q = prepareQuestion(st);
-    body.innerHTML = `<section class="s-q enter" id="s-q"></section>`;
-    refreshQ();
-  }
-  setProgress();
+  swapBody((body) => {
+    if (st.type === 'card') {
+      const n = L.steps.slice(0, L.i + 1).filter((s) => s.type === 'card' && !s.interlude).length;
+      const eyebrow = st.interlude ? 'Second look' : `Idea ${n} of ${L.cardTotal}`;
+      body.innerHTML = `<article class="s-card enter"><span class="eyebrow">${eyebrow}</span><h2>${fmt(st.title)}</h2>
+        <p class="s-text">${fmt(st.body)}</p>${st.code ? codeBlock(esc(st.code)) : ''}${st.play ? playHtml(st.play) : ''}</article>`;
+      $('#ss-foot').innerHTML = `<button class="btn primary wide" data-action="ss-next">${st.interlude ? 'Go' : 'Got it'}</button>`;
+      if (st.play) playInit(st.play);
+    } else {
+      L.q = prepareQuestion(st);
+      body.innerHTML = `<section class="s-q enter" id="s-q"></section>`;
+      refreshQ();
+    }
+    setProgress();
+  });
 }
 function codeBlock(html) { return `<pre class="code"><code>${html}</code></pre>`; }
 
@@ -92,8 +145,8 @@ function prepareQuestion(st) {
   const q = { type: st.type, misses: 0, sel: null };
   if (st.type === 'mcq' || st.type === 'cloze') q.order = shuffle(st.options.map((_, i) => i));
   else if (st.type === 'order') { q.list = shuffleMoved(st.items.map((_, i) => i)); q.pick = null; }
-  else if (st.type === 'match') { q.left = shuffle(st.pairs.map((_, i) => i)); q.right = shuffleMoved(q.left); q.done = []; q.pickL = null; q.bad = null; }
-  else if (st.type === 'sort') { q.items = shuffle(st.items.map((_, i) => i)); q.n = 0; q.counts = [0, 0]; q.busy = false; q.flash = null; }
+  else if (st.type === 'match') { q.left = shuffle(st.pairs.map((_, i) => i)); q.right = shuffleMoved(q.left); q.done = []; q.pickL = null; q.bad = null; q.fresh = null; }
+  else if (st.type === 'sort') { q.items = shuffle(st.items.map((_, i) => i)); q.n = 0; q.counts = [0, 0]; q.busy = false; q.flash = null; q.hint = -1; }
   return q;
 }
 function tfLabels(st) { return st.labels || { true: 'True', false: 'False' }; }
@@ -134,7 +187,7 @@ function questionHtml(st, q) {
   } else if (st.type === 'match') {
     const item = (i, side) => {
       const k = q.done.indexOf(i);
-      const cls = k >= 0 ? ` done tone-${k % 8}` : (side === 'l' && q.pickL === i ? ' sel' : '') + (q.bad && q.bad[side] === i ? ' shake' : '');
+      const cls = k >= 0 ? ` done tone-${k % 8}${q.fresh === i ? ' fresh' : ''}` : (side === 'l' && q.pickL === i ? ' sel' : '') + (q.bad && q.bad[side] === i ? ' shake' : '');
       return `<button class="m-item${cls}" data-action="q-match" data-side="${side}" data-v="${i}"${k >= 0 ? ' disabled' : ''}>${fmt(st.pairs[i][side === 'l' ? 0 : 1])}</button>`;
     };
     area = `<div class="match"><div class="m-col">${q.left.map((i) => item(i, 'l')).join('')}</div><div class="m-col">${q.right.map((i) => item(i, 'r')).join('')}</div></div>`;
@@ -145,7 +198,7 @@ function questionHtml(st, q) {
       const cur = st.items[q.items[q.n]];
       area = `<div class="sort"><div class="sort-stage"><div class="sort-card${q.flash ? ' ' + q.flash : ''}" id="sort-card" data-drag="sort">${fmt(cur[0])}${q.note ? `<small>${esc(q.note)}</small>` : ''}</div></div>
         <p class="sort-left">${q.n + 1} of ${q.items.length}</p>
-        <div class="buckets">${st.buckets.map((b, bi) => `<button class="bucket b${bi}" data-action="q-sort" data-v="${bi}">${bi === 0 ? icon('left') : ''}<b>${esc(b)}</b><span>${q.counts[bi]}</span>${bi === 1 ? icon('right') : ''}</button>`).join('')}</div></div>`;
+        <div class="buckets">${st.buckets.map((b, bi) => `<button class="bucket b${bi}${q.hint === bi ? ' hint' : ''}" data-action="q-sort" data-v="${bi}">${bi === 0 ? icon('left') : ''}<b>${esc(b)}</b><span>${q.counts[bi]}</span>${bi === 1 ? icon('right') : ''}</button>`).join('')}</div></div>`;
     }
   }
   return `<span class="eyebrow">${questionLabel(st)}</span><h2 class="q-prompt">${prompt}</h2>${code ? codeBlock(code) : ''}${area}`;
@@ -176,16 +229,16 @@ function refreshQ() {
 
 // ---------- answering ----------
 function qPick(v) {
-  if (!L || L.answered) return;
+  if (!L || L.answered || L.busy) return;
   const q = L.q;
   q.sel = q.type === 'cloze' && q.sel === v ? null : v;
   sound('tap'); buzz('tick');
   refreshQ();
 }
 function qGap() { if (L && !L.answered && L.q.sel !== null) { L.q.sel = null; refreshQ(); } }
-function qTf(v) { if (!L || L.answered) return; L.q.sel = v; resolve(v === L.steps[L.i].answer); }
+function qTf(v) { if (!L || L.answered || L.busy) return; L.q.sel = v; resolve(v === L.steps[L.i].answer); }
 function qCheck() {
-  if (!L || L.answered) return;
+  if (!L || L.answered || L.busy) return;
   const st = L.steps[L.i], q = L.q;
   if (st.type === 'order') {
     const ok = q.list.every((it, pos) => it === pos);
@@ -205,11 +258,11 @@ function qRow(pos) {
 function qMatch(side, v) {
   if (!L || L.answered) return;
   const st = L.steps[L.i], q = L.q;
-  q.bad = null;
+  q.bad = null; q.fresh = null;
   if (side === 'l') { q.pickL = q.pickL === v ? null : v; buzz('tick'); refreshQ(); return; }
   if (q.pickL === null) { toast('Tap one on the left first.', 1400); return; }
   if (q.pickL === v) {
-    q.done.push(v); q.pickL = null; sound('pop'); buzz('tick');
+    q.done.push(v); q.fresh = v; q.pickL = null; sound('pop'); buzz('tick');
     if (q.done.length === st.pairs.length) { resolve(q.misses === 0); return; }
   } else {
     q.misses++; q.bad = { l: q.pickL, r: v }; q.pickL = null; sound('bad'); buzz('bad');
@@ -226,51 +279,53 @@ function qSort(b) {
   q.counts[it[1]]++;
   q.flash = ok ? `fly${b}` : `nope fly${it[1]}`;
   q.note = ok ? '' : `Goes with: ${st.buckets[it[1]]}`;
+  q.hint = ok ? -1 : it[1];
   sound(ok ? 'pop' : 'bad'); buzz(ok ? 'tick' : 'bad');
   refreshQ();
   setTimeout(() => {
     if (!L || L.q !== q) return;
-    q.busy = false; q.flash = null; q.note = ''; q.n++;
+    q.busy = false; q.flash = null; q.note = ''; q.hint = -1; q.n++;
     if (q.n >= q.items.length) resolve(q.misses === 0); else refreshQ();
-  }, ok ? 260 : 1100);
+  }, REDUCED_MOTION ? (ok ? 60 : 500) : (ok ? 300 : 900));
 }
 function resolve(ok) {
   const st = L.steps[L.i];
+  const at = L;
   L.answered = true; L.ok = ok;
-  const first = !st.retrying;
-  if (first) {
+  if (!st.retrying) {
     L.results.push(ok);
     S.stats.answers++;
     if (ok) { S.stats.correct++; L.combo++; L.bestCombo = Math.max(L.bestCombo, L.combo); } else L.combo = 0;
     if (st.key && L.mode !== 'drop' && L.mode !== 'test') recordQ(st.key, ok);
-    if (!ok && L.mode === 'learn') L.retry.push({ ...st, retrying: true });
+    if (!ok && L.mode === 'learn') L.retry.push({ ...st, retrying: true, src: L.i });
   }
   sound(ok ? 'good' : 'bad'); buzz(ok ? 'ok' : 'bad');
   save();
+  saveResume(L.i + 1);
   refreshQ();
-  setProgress();
+  // The bar and the run counter follow the answer by a beat.
+  setTimeout(() => { if (L === at) setProgress(); }, REDUCED_MOTION ? 0 : 100);
+  setTimeout(() => { if (L === at) setCombo(); }, REDUCED_MOTION ? 0 : 200);
   const fb = $('.fb');
   if (fb && fb.scrollIntoView) fb.scrollIntoView({ block: 'end', behavior: REDUCED_MOTION ? 'auto' : 'smooth' });
 }
 function ssNext() {
-  if (!L) return;
+  if (!L || L.busy) return;
   if (L.panes) { paneNext(); return; }
   const st = L.steps[L.i];
   if (st.type !== 'card' && !L.answered) return;
   buzz('tick');
   L.i++;
-  if (L.i >= L.steps.length) {
-    if (!L.retry.length) { finishSession(); return; }
-    const n = L.retry.length;
-    L.steps = L.steps.concat([{ type: 'card', interlude: true, title: n === 1 ? 'One to revisit' : `${n} to revisit`, body: 'Here they are again while they are fresh. Getting it right the second time is how it sticks.' }], L.retry);
-    L.retry = [];
-  }
+  if (L.i >= L.steps.length && !enterRetries()) { finishSession(); return; }
+  saveResume(L.i);
   renderStep();
 }
 function ssQuit() {
   if (!L) return;
-  if (L.panes || L.i === 0) { closeSession(); return; }
-  openSheet(`<div class="sheet-pad center">${mascot('sad', 84)}<h3>Leave this session?</h3><p>Your answers in this session will not be saved.</p>
+  if (L.panes || (L.i === 0 && !L.results.length)) { closeSession(); return; }
+  const learn = L.mode === 'learn';
+  openSheet(`<div class="sheet-pad center">${mascot(learn ? 'idle' : 'sad', 84)}<h3>${learn ? 'Leave for now?' : 'Leave this one?'}</h3>
+    <p>${learn ? 'Your place is saved. You can pick up exactly where you left off.' : 'Your answers so far will not count.'}</p>
     <button class="btn primary wide" data-action="close-sheet">Keep going</button><button class="btn ghost wide" data-action="ss-leave">Leave</button></div>`);
 }
 
@@ -322,7 +377,7 @@ function dragSort(e, el) {
   dragStart(e, el, {
     start() { el.classList.add('dragging'); },
     move(dx) {
-      el.style.transform = `translateX(${dx}px) rotate(${dx / 20}deg)`;
+      el.style.transform = REDUCED_MOTION ? `translateX(${dx}px)` : `translateX(${dx}px) rotate(${clamp(dx / 20, -8, 8)}deg)`;
       const s = dx < -w * 0.17 ? 0 : dx > w * 0.17 ? 1 : -1;
       if (s === side) return;
       side = s;
@@ -364,20 +419,23 @@ function finishSession() {
   const total = L.results.length;
   const right = L.results.filter(Boolean).length;
   const misses = total - right;
-  const r = { mode: L.mode, total, right, misses, pts: 0, stars: 0, combo: L.bestCombo };
+  const r = { mode: L.mode, total, right, misses, pts: 0, stars: 0, steps: 0, combo: L.bestCombo };
   const d = today();
   if (L.mode === 'learn') {
     const s = L.session, prev = S.done[s.id];
     r.stars = misses === 0 ? 3 : misses <= 2 ? 2 : 1;
     r.first = !prev;
     r.pts = prev ? 3 + right + (r.stars > prev.stars ? 5 : 0) : 10 + 2 * right + (misses === 0 ? 5 : 0) + (L.bestCombo >= 3 ? Math.min(L.bestCombo, 6) : 0);
+    r.steps = prev ? STEPS.replay : STEPS.session;
     if (r.stars === 3 && (!prev || prev.stars < 3)) S.stats.perfect++;
     S.done[s.id] = { stars: Math.max(r.stars, prev ? prev.stars : 0), n: (prev ? prev.n : 0) + 1, at: Date.now() };
     S.stats.sessions++; d.sessions++;
     if (s.chapter.track.id === 'builder' && !prev) S.stats.builder++;
     r.chapterDone = !prev && chapterStats(s.chapter).complete;
+    if (S.resume && S.resume.id === s.id) S.resume = null;
   } else if (L.mode === 'drop') {
     r.pts = 2 * right + (misses === 0 ? 5 : 0);
+    r.steps = STEPS.drop;
     S.drops[dayKey()] = L.results.map((x) => (x ? 1 : 0));
     const keys = Object.keys(S.drops).sort();
     while (keys.length > 60) delete S.drops[keys.shift()];
@@ -385,6 +443,7 @@ function finishSession() {
     if (misses === 0) S.stats.dropPerfect++;
   } else if (L.mode === 'warmup') {
     r.pts = 2 + right;
+    r.steps = STEPS.warmup;
     S.stats.warmups++; d.warm = (d.warm || 0) + 1;
   } else if (L.mode === 'test') {
     r.pass = total > 0 && right / total >= 0.8;
@@ -395,6 +454,8 @@ function finishSession() {
     }
     d.warm = (d.warm || 0) + 1;
   }
+  S.steps += r.steps;
+  r.surprise = L.mode === 'learn' || L.mode === 'drop' ? rollSurprise() : null;
   S.stats.bestCombo = Math.max(S.stats.bestCombo, L.bestCombo);
   const lv = addPoints(r.pts);
   r.leveled = lv.leveled; r.level = lv.level;
@@ -407,22 +468,25 @@ function finishSession() {
   if (r.streak.extended) L.panes.push('streak');
   if (r.leveled) L.panes.push('level');
   if (r.badges.length) L.panes.push({ badges: r.badges });
+  if (r.surprise) L.panes.push('surprise');
+  if (L.mode === 'learn' && S.stats.sessions === 1 && IS_IOS && !isStandalone() && !inFrame() && !S.seen.install) L.panes.push('install');
+  if (L.mode === 'learn' && !MODELS.length && labReady() && !S.seen.firstModel) L.panes.push('model');
   L.pi = 0;
   $('.ss-top').classList.add('done');
   setProgress();
   renderPane();
   sound('done'); buzz('win');
-  if (r.stars === 3 || (L.mode === 'drop' && misses === 0) || r.pass) burstConfetti();
+  if (r.stars === 3 || (L.mode === 'drop' && misses === 0) || r.pass) setTimeout(burstConfetti, REDUCED_MOTION ? 0 : 150);
 }
 function tile(value, label, cls = '') { return `<div class="r-tile ${cls}"><b>${value}</b><span>${label}</span></div>`; }
 function dropSquares(res) { return res.map((x) => (x ? '🟩' : '🟥')).join(''); }
-function dropGrid(res) { return `<div class="drop-grid">${res.map((x, i) => `<i class="${x ? 'y' : 'n'}" style="animation-delay:${i * 90}ms">${icon(x ? 'check' : 'x')}</i>`).join('')}</div>`; }
+function dropGrid(res) { return `<div class="drop-grid">${res.map((x, i) => `<i class="${x ? 'y' : 'n'}" style="animation-delay:${200 + i * 90}ms">${icon(x ? 'check' : 'x')}</i>`).join('')}</div>`; }
 function shareMessage() {
   const r = L && L.result;
   const streak = S.streak.count > 1 ? `\n🔥 ${S.streak.count}-day streak` : '';
   if (r && r.mode === 'learn') return `Attention Span · “${L.session.title}” ${'⭐'.repeat(r.stars)}${streak}\n${appUrl()}`;
   const res = dropResult();
-  if (res) return `Attention Span · Daily Drop #${dropNumber()}\n${dropSquares(res)} ${res.filter(Boolean).length}/${res.length}${streak}\n${appUrl()}`;
+  if (res) return `Attention Span · Daily Drop #${dropNumber()}\n${dropSquares(res)} ${res.filter(Boolean).length}/${res.length}${streak}\nSame five for everyone today: ${appUrl()}?go=drop`;
   return `I am getting AI-fluent four minutes a day with Attention Span.${streak}\n${appUrl()}`;
 }
 async function doShare() {
@@ -437,6 +501,12 @@ function untilTomorrow() {
   const m = Math.ceil(msToMidnight() / 60000);
   return m >= 60 ? `${Math.floor(m / 60)}h ${m % 60}m` : `${m}m`;
 }
+// What the person's own model has to say, typed out last: the reward that is different every time.
+function modelNote(r) {
+  const m = mainModel();
+  if (!m || !r.steps) return '';
+  return `<div class="note model-line"><span class="eyebrow">${esc(m.name)} wrote</span><p id="ml-typed" data-line="${esc(modelLine(m))}"></p><small>+${num(r.steps)} practice steps banked for it</small></div>`;
+}
 function renderPane() {
   const p = L.panes[L.pi], r = L.result;
   const body = $('#ss-body');
@@ -445,51 +515,73 @@ function renderPane() {
   if (p === 'summary' && r.mode === 'learn') {
     const s = L.session;
     const head = r.stars === 3 ? 'Flawless.' : r.stars === 2 ? 'Nicely done.' : 'Done. That was a tough one.';
-    html = `<div class="pane"><div class="big-stars">${[1, 2, 3].map((i) => `<span class="bs${i <= r.stars ? ' on' : ''}" style="animation-delay:${200 + i * 180}ms">${starGlyph(i <= r.stars, 64)}</span>`).join('')}</div>
+    html = `<div class="pane sum"><div class="big-stars">${[1, 2, 3].map((i) => `<span class="bs${i <= r.stars ? ' on' : ''}" style="animation-delay:${i * 150}ms">${starGlyph(i <= r.stars, 64)}</span>`).join('')}</div>
       <h2>${head}</h2><p class="pane-sub">${esc(s.title)}${r.chapterDone ? ` · chapter complete` : ''}</p>
       <div class="tiles">${tile(`+${countUp(r.pts)}`, 'points', 'gold')}${tile(`${r.right}/${r.total}`, 'first try')}${tile(`${r.combo}`, 'best run')}</div>
       ${s.takeaway ? `<div class="note remember"><span class="eyebrow">Remember</span><p>${fmt(s.takeaway)}</p></div>` : ''}
       ${s.tryit ? `<div class="note tryit"><span class="eyebrow">Try it today</span><p>${fmt(s.tryit)}</p></div>` : ''}
-      ${s.lab ? `<a class="note lablink" href="${esc(labUrl(s))}" target="_blank" rel="noopener"><span class="eyebrow">Go hands-on</span><p>Open the matching DeepMind notebook in Colab ${icon('ext')}</p></a>` : ''}</div>`;
+      ${s.lab ? `<a class="note lablink" href="${esc(labUrl(s))}" target="_blank" rel="noopener"><span class="eyebrow">Go hands-on</span><p>Open the matching DeepMind notebook in Colab ${icon('ext')}</p></a>` : ''}
+      ${modelNote(r)}</div>`;
     foot = `<div class="foot-row"><button class="btn soft" data-action="share" aria-label="Share">${icon('share')}</button><button class="btn primary wide" data-action="ss-next">Continue</button></div>`;
   } else if (p === 'summary' && r.mode === 'drop') {
-    html = `<div class="pane">${mascot(r.misses === 0 ? 'wow' : 'happy', 92)}<h2>${r.right} of ${r.total}</h2><p class="pane-sub">Daily Drop #${dropNumber()}</p>
-      ${dropGrid(L.results)}<div class="tiles">${tile(`+${countUp(r.pts)}`, 'points', 'gold')}${tile(untilTomorrow(), 'to the next drop')}</div>
+    html = `<div class="pane sum">${mascot(r.misses === 0 ? 'wow' : 'happy', 92)}<h2>${r.right} of ${r.total}</h2><p class="pane-sub">Daily Drop #${dropNumber()}</p>
+      ${dropGrid(L.results)}<div class="tiles">${tile(`+${countUp(r.pts)}`, 'points', 'gold')}${tile(`+${r.steps}`, 'practice steps')}${tile(untilTomorrow(), 'to the next drop')}</div>
       <div class="note tryit"><span class="eyebrow">Same five for everyone</span><p>Share your grid and see how your team did. It gives nothing away.</p></div></div>`;
     foot = `<div class="foot-row"><button class="btn soft wide" data-action="share">${icon('share')} Share</button><button class="btn primary wide" data-action="ss-next">Continue</button></div>`;
   } else if (p === 'summary' && r.mode === 'warmup') {
-    html = `<div class="pane">${mascot('happy', 92)}<h2>Warmed up.</h2><p class="pane-sub">Each right answer comes back later, each miss comes back sooner.</p>
-      <div class="tiles">${tile(`+${countUp(r.pts)}`, 'points', 'gold')}${tile(`${r.right}/${r.total}`, 'right')}</div></div>`;
+    html = `<div class="pane sum">${mascot('happy', 92)}<h2>Warmed up.</h2><p class="pane-sub">Each right answer comes back later, each miss comes back sooner.</p>
+      <div class="tiles">${tile(`+${countUp(r.pts)}`, 'points', 'gold')}${tile(`${r.right}/${r.total}`, 'right')}${tile(`+${r.steps}`, 'practice steps')}</div></div>`;
   } else if (p === 'summary') {
     html = r.pass
-      ? `<div class="pane">${mascot('wow', 92)}<h2>Chapter cleared.</h2><p class="pane-sub">${r.right} of ${r.total}. Every session in “${esc(L.chapter.title)}” is marked done. Play any of them for stars.</p><div class="tiles">${tile(`+${countUp(r.pts)}`, 'points', 'gold')}</div></div>`
-      : `<div class="pane">${mascot('idle', 92)}<h2>Not this time.</h2><p class="pane-sub">${r.right} of ${r.total}, and it takes 4 in 5 to skip. The sessions cover exactly this and take about four minutes each.</p></div>`;
+      ? `<div class="pane sum">${mascot('wow', 92)}<h2>Chapter cleared.</h2><p class="pane-sub">${r.right} of ${r.total}. Every session in “${esc(L.chapter.title)}” is marked done. Play any of them for stars.</p><div class="tiles">${tile(`+${countUp(r.pts)}`, 'points', 'gold')}</div></div>`
+      : `<div class="pane sum">${mascot('idle', 92)}<h2>Not this time.</h2><p class="pane-sub">${r.right} of ${r.total}, and it takes 4 in 5 to skip. The sessions cover exactly this and take about four minutes each.</p></div>`;
   } else if (p === 'streak') {
     const start = weekStartIdx();
     html = `<div class="pane mid"><div class="big-flame">${flameGlyph(true, 120)}<b>${countUp(S.streak.count)}</b></div><h2>${S.streak.count === 1 ? 'Day one. Streak started.' : `${S.streak.count} days in a row.`}</h2>
       <div class="week">${[0, 1, 2, 3, 4, 5, 6].map((i) => weekDot(start + i)).join('')}</div>
-      <p class="pane-sub">${r.streak.gotSaver ? 'You earned a streak saver. It covers one missed day automatically.' : 'One session or one Daily Drop a day keeps it going.'}</p></div>`;
+      <p class="pane-sub">${r.streak.gotSaver ? 'You earned a streak saver. It covers one missed day automatically.' : 'One session or one Daily Drop each working day keeps it going. Weekends are free.'}</p></div>`;
   } else if (p === 'level') {
     const lv = levelOf();
     const th = THEMES.find((t) => t.level === lv.n);
+    const unlocks = [th ? `The ${th.name} colour theme. Switch it on in Rewards.` : '', lv.n === BIG_BRAIN_LEVEL ? 'The Bigger Brain: a model with four times the dials. Build one in the Lab.' : ''].filter(Boolean);
     html = `<div class="pane mid"><div class="level-badge big"><small>Level</small><b>${lv.n}</b></div><h2>${esc(lv.title)}</h2>
       <p class="pane-sub">${lv.next ? `${lv.toGo} points to ${esc(lv.nextTitle)}.` : 'Top level. Full attention.'}</p>
-      ${th ? `<div class="note tryit"><span class="eyebrow">Unlocked</span><p>The ${esc(th.name)} colour theme. Switch it on in Rewards.</p></div>` : ''}</div>`;
+      ${unlocks.map((u) => `<div class="note tryit"><span class="eyebrow">Unlocked</span><p>${esc(u)}</p></div>`).join('')}</div>`;
     sound('level');
+  } else if (p === 'surprise') {
+    const sp = r.surprise, m = mainModel();
+    html = `<div class="pane mid"><div class="badge big tone-3 on">${icon('gift')}</div><span class="eyebrow">Surprise</span>
+      ${sp.kind === 'pack'
+        ? `<h2>A new text pack</h2><p class="pane-sub">“${esc(sp.pack.title)}”: ${esc(sp.pack.blurb.replace(/^./, (c) => c.toLowerCase()))}. It is waiting in the Lab for your next model.</p>`
+        : `<h2>+${sp.n} practice steps</h2><p class="pane-sub">A bonus for ${m ? esc(m.name) : 'your first model'}. Spend them in the Lab to train it further.</p>`}</div>`;
+    sound('star');
+  } else if (p === 'install') {
+    html = `<div class="pane mid">${mascot('happy', 92)}<h2>Put it on your Home Screen</h2>
+      <p class="pane-sub">Best done now, before you build anything: the Home Screen app keeps its own progress. Tap Share ${icon('share')}, then “Add to Home Screen”.</p>
+      <div class="note"><span class="eyebrow">Keep what you just earned</span><p>Copy your progress code, open the Home Screen app, and choose Restore on its first screen.</p>
+        <button class="btn soft small" data-action="copy" data-v="${esc(exportCode())}">${icon('copy')} Copy my progress code</button></div></div>`;
+    S.seen.install = 1; save();
+  } else if (p === 'model') {
+    html = `<div class="pane mid">${mascot('wow', 96)}<span class="eyebrow">Your turn</span><h2>Build your first AI model</h2>
+      <p class="pane-sub">It takes about a minute, it runs on this phone, and it is yours to keep. Every session you finish earns it practice steps.</p></div>`;
+    foot = `<button class="btn primary wide" data-action="first-model">${icon('flask')} Build it now</button><button class="btn ghost wide" data-action="ss-next">Not now</button>`;
+    S.seen.firstModel = 1; save();
   } else if (p && p.badges) {
     const bs = p.badges;
     html = bs.length === 1
       ? `<div class="pane mid"><div class="badge big tone-${bs[0].tone} on">${icon(bs[0].icon)}</div><span class="eyebrow">Badge earned</span><h2>${esc(bs[0].title)}</h2><p class="pane-sub">${esc(bs[0].desc)}</p></div>`
-      : `<div class="pane mid"><span class="eyebrow">${bs.length} badges earned</span><h2>Nice haul.</h2><div class="badge-row">${bs.map((b, i) => `<div class="badge-cell on" style="animation-delay:${200 + i * 140}ms"><span class="badge tone-${b.tone} on">${icon(b.icon)}</span><b>${esc(b.title)}</b><small>${esc(b.desc)}</small></div>`).join('')}</div></div>`;
+      : `<div class="pane mid"><span class="eyebrow">${bs.length} badges earned</span><h2>Nice haul.</h2><div class="badge-row">${bs.map((b, i) => `<div class="badge-cell on" style="animation-delay:${200 + Math.min(i, 5) * 60}ms"><span class="badge tone-${b.tone} on">${icon(b.icon)}</span><b>${esc(b.title)}</b><small>${esc(b.desc)}</small></div>`).join('')}</div></div>`;
     sound('star');
   }
   body.innerHTML = html;
   $('#ss-foot').innerHTML = foot;
-  animateCounts(body);
+  animateCounts(body, p === 'summary' ? 700 : 0);
+  const ml = $('#ml-typed');
+  if (ml) typeInto(ml, ml.dataset.line || '', 1100);
 }
 function weekDot(i) {
   const st = dayStatus(i), t = todayIdx();
-  return `<div class="wd ${st}${i === t ? ' today' : ''}${i > t ? ' future' : ''}"><i>${st === 'done' ? icon('check') : st === 'saved' ? icon('shield') : ''}</i><span>${'MTWTFSS'[(idxToDate(i).getDay() + 6) % 7]}</span></div>`;
+  return `<div class="wd ${st}${i === t ? ' today' : ''}${i > t ? ' future' : ''}${isWeekend(i) ? ' rest' : ''}"><i>${st === 'done' ? icon('check') : st === 'saved' ? icon('shield') : ''}</i><span>${'MTWTFSS'[(idxToDate(i).getDay() + 6) % 7]}</span></div>`;
 }
 function paneNext() {
   buzz('tick');
