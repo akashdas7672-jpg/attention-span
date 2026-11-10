@@ -10,8 +10,9 @@ const ACTIONS = {
     buzz('tick');
     render();
     UI.just = '';
+    refocus(`[data-action="chapter"][data-id="${el.dataset.id}"]`);
   },
-  track: (el) => { UI.track = el.dataset.v; S.track = el.dataset.v; save(); buzz('tick'); render(); },
+  track: (el) => { UI.track = el.dataset.v; S.track = el.dataset.v; save(); buzz('tick'); render(); refocus(`[data-action="track"][data-v="${el.dataset.v}"]`); },
   test: (el) => startTest(el.dataset.id),
   drop: () => startDrop(),
   warmup: () => startWarmup(),
@@ -21,7 +22,7 @@ const ACTIONS = {
     const t = THEMES.find((x) => x.id === el.dataset.v);
     if (!t) return;
     if (!themeUnlocked(t)) { toast(`Reach level ${t.level} to unlock ${t.name}.`); buzz('bad'); return; }
-    S.theme = t.id; save(); buzz('ok'); render();
+    S.theme = t.id; save(); buzz('ok'); render(); refocus(`[data-action="theme"][data-v="${t.id}"]`);
   },
   badge: (el) => openBadge(el.dataset.id),
   claim: (el) => openClaim(el.dataset.id),
@@ -64,7 +65,7 @@ const ACTIONS = {
   'w-reveal': () => wSet('reveal'),
   // onboarding
   'ob-next': () => { UI.onboard++; buzz('tick'); renderOnboarding(); },
-  'ob-feel': (el) => { UI.feel = el.dataset.v; buzz('tick'); renderOnboarding(); },
+  'ob-feel': (el) => { UI.feel = el.dataset.v; buzz('tick'); renderOnboarding(); refocus(`[data-action="ob-feel"][data-v="${UI.feel}"]`); },
   'ob-finish': () => { if (UI.feel) finishOnboarding(); },
   // lab
   'first-model': () => { if (L) closeSession(); labNew({ first: true }); },
@@ -111,7 +112,7 @@ const SUBMITS = {
     try {
       importCode($('#restore-input').value);
       closeSheet(); applyTheme();
-      if (S.onboarded) { $('#onboard').hidden = true; $('#onboard').innerHTML = ''; document.documentElement.classList.remove('locked'); }
+      if (S.onboarded) { $('#onboard').hidden = true; $('#onboard').innerHTML = ''; document.documentElement.classList.remove('locked'); syncInert(); }
       render(); toast('Progress restored.');
     }
     catch (e) { toast(e.message && /backup/.test(e.message) ? e.message : 'That code could not be read. Check you copied all of it.'); }
@@ -123,7 +124,9 @@ const SUBMITS = {
     if (m && name) { m.name = name; saveModels(); closeSheet(); labOpen(m.id); }
   },
 };
-const DRAGS = { order: (e, el) => dragOrder(e, el), sort: (e, el) => dragSort(e, el), chip: (e, el) => dragChip(e, el) };
+const DRAGS = { order: (e, el) => dragOrder(e, el), sort: (e, el) => dragSort(e, el), chip: (e, el) => dragChip(e, el), sheet: (e, el) => dragSheet(e, el) };
+// After a redraw, puts the keyboard focus back on the control that was used.
+function refocus(sel) { const el = $(sel); if (el) el.focus({ preventScroll: true }); }
 
 document.addEventListener('click', (e) => {
   if (performance.now() < suppressClickUntil) { e.preventDefault(); return; }
@@ -155,8 +158,22 @@ document.addEventListener('submit', (e) => {
   SUBMITS[k]();
 });
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') { if (!$('#sheet-root').hidden) closeSheet(); else if (L) ssQuit(); return; }
-  const el = e.target.closest && e.target.closest('[role="button"][data-action]');
+  const sheetOpen = isOpen($('#sheet-root'), 'out');
+  if (e.key === 'Escape') { if (sheetOpen) closeSheet(); else if (L) ssQuit(); else if (LAB) labClose(); return; }
+  if (e.key === 'Tab') { trapTab(e); return; }
+  const t = e.target;
+  const typing = !!t.matches && t.matches('input, textarea, select');
+  const arrow = { ArrowUp: -1, ArrowLeft: -1, ArrowDown: 1, ArrowRight: 1 }[e.key];
+  if (arrow && !typing && !sheetOpen && L && !L.answered && !L.panes && !L.busy) {
+    const st = L.steps[L.i];
+    if (st.type === 'sort' && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) { e.preventDefault(); qSort(e.key === 'ArrowLeft' ? 0 : 1); return; }
+    const row = t.closest && t.closest('.row[data-pos]');
+    if (row && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) { e.preventDefault(); qRowKey(Number(row.dataset.pos), arrow); return; }
+    const opt = t.closest && t.closest('[role="radio"][data-v]');
+    if (opt) { e.preventDefault(); qPickKey(Number(opt.dataset.v), arrow); return; }
+  }
+  if ((e.key === 'Backspace' || e.key === 'Delete') && t.id === 'q-gap') { e.preventDefault(); qGap(); return; }
+  const el = t.closest && t.closest('[role="button"][data-action]');
   if (el && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); el.click(); }
 });
 

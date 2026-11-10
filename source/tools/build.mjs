@@ -81,6 +81,7 @@ ${css}</style>
 <div id="onboard" hidden></div>
 <div id="sheet-root" hidden></div>
 <div id="toast-root" aria-live="polite"></div>
+<div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 <canvas id="confetti" hidden></canvas>
 <script>window.CONTENT=${content};window.AS_PWA=true;window.AS_VERSION=${JSON.stringify(version)};</script>
 <script>(()=>{'use strict';

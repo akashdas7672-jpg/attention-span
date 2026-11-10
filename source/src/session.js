@@ -15,7 +15,8 @@ function openSession(l, resume) {
     L.combo = resume.combo; L.bestCombo = resume.bestCombo;
     L.retry = resume.retry.filter((n) => L.steps[n] && L.steps[n].type !== 'card').map((n) => ({ ...L.steps[n], retrying: true, src: n }));
     L.i = clamp(resume.i, 0, L.base);
-    if (L.i >= L.base && !enterRetries()) L.i = L.base - 1;
+    // Everything was answered before leaving and nothing needs a second look: go straight to the results.
+    if (L.i >= L.base && !enterRetries()) L.allDone = true;
   }
   closeSheet();
   clearTimeout(closeTimer);
@@ -23,10 +24,13 @@ function openSession(l, resume) {
   const el = $('#session');
   el.hidden = false;
   el.className = `ss tone-${L.tone ?? 0}`;
+  el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', L.title);
   el.innerHTML = `<header class="ss-top"><button class="icon-btn" data-action="ss-quit" aria-label="Leave">${icon('x')}</button>
-    <div class="ss-bar" role="progressbar" aria-label="Progress"><i id="ss-fill"></i></div><div class="ss-combo" id="ss-combo"></div></header>
+    <div class="ss-bar" id="ss-bar" role="progressbar" aria-label="Progress" aria-valuemin="0" aria-valuemax="100"><i id="ss-fill"></i></div><div class="ss-combo" id="ss-combo"></div></header>
     <main class="ss-body" id="ss-body"></main><footer class="ss-foot" id="ss-foot"></footer>`;
   audio();
+  syncInert();
+  if (L.allDone) { L.i = L.base; finishSession(); return; }
   renderStep();
   setCombo();
 }
@@ -36,11 +40,11 @@ function closeSession() {
   const el = $('#session');
   document.documentElement.classList.remove('locked');
   render();
-  const hide = () => { el.hidden = true; el.innerHTML = ''; el.classList.remove('closing'); };
+  const hide = () => { el.hidden = true; el.innerHTML = ''; el.classList.remove('closing'); syncInert(); };
   clearTimeout(closeTimer);
-  if (REDUCED_MOTION) { hide(); return; }
-  el.classList.add('closing');
-  closeTimer = setTimeout(hide, 200);
+  if (REDUCED_MOTION) hide();
+  else { el.classList.add('closing'); closeTimer = setTimeout(hide, 200); syncInert(); }
+  focusOn($('#view h1'));
 }
 
 function startSession(id) {
@@ -49,7 +53,7 @@ function startSession(id) {
   if (!sessionUnlocked(s)) { toast('Finish the session before this one first.'); return; }
   const r = S.resume && S.resume.id === id && S.resume.n === s.steps.length ? S.resume : null;
   openSession({ mode: 'learn', session: s, title: s.title, tone: s.chapter.tone, steps: s.steps.slice() }, r);
-  if (r && r.i > 0) toast('Picked up where you left off.', 1800);
+  if (r && r.i > 0 && L && !L.panes) toast('Picked up where you left off.', 1800);
 }
 function startDrop() {
   if (dropResult()) { openDropSheet(); return; }
@@ -94,6 +98,8 @@ function setProgress() {
   const frac = L.panes ? 1 : (L.i + (L.answered ? 1 : 0)) / (L.steps.length + pending);
   const f = $('#ss-fill');
   if (f) f.style.setProperty('--p', `${Math.max(4, Math.min(100, frac * 100))}%`);
+  const barEl = $('#ss-bar');
+  if (barEl) barEl.setAttribute('aria-valuenow', Math.round(Math.min(1, frac) * 100));
   const c = $('#ss-combo');
   if (c && (L.mode === 'drop' || L.mode === 'test')) {
     const n = L.steps.filter((s) => s.type !== 'card').length;
@@ -137,6 +143,7 @@ function renderStep() {
       refreshQ();
     }
     setProgress();
+    focusOn($('h2', body));
   });
 }
 function codeBlock(html) { return `<pre class="code"><code>${html}</code></pre>`; }
@@ -158,37 +165,40 @@ function questionLabel(st) {
 function gapHtml(st, q) {
   const filled = q.sel !== null;
   const state = L.answered ? (L.ok ? ' right' : ' wrong') : '';
-  return `<span class="gap${filled ? ' filled' : ''}${state}" id="q-gap" data-action="q-gap" role="button" aria-label="Gap">${filled ? esc(st.options[q.sel]) : '&nbsp;'}</span>`;
+  return `<span class="gap${filled ? ' filled' : ''}${state}" id="q-gap" data-action="q-gap" role="button" tabindex="0" aria-label="${filled ? `Gap, filled with ${esc(st.options[q.sel])}. Press to clear it` : 'Gap, empty'}">${filled ? esc(st.options[q.sel]) : '&nbsp;'}</span>`;
 }
 function questionHtml(st, q) {
   const done = L.answered;
   let prompt = fmt(st.prompt), code = st.code ? esc(st.code) : '', area = '';
   if (st.type === 'mcq') {
-    area = `<div class="opts">${q.order.map((i) => {
+    const verdict = (i) => (done && i === st.answer ? '<span class="sr-only">Correct answer: </span>' : done && i === q.sel ? '<span class="sr-only">Your answer, not right: </span>' : '');
+    area = `<div class="opts" role="radiogroup" aria-label="${esc(plain(st.prompt))}">${q.order.map((i) => {
       const cls = done ? (i === st.answer ? ' right' : i === q.sel ? ' wrong' : ' dim') : (i === q.sel ? ' sel' : '');
-      return `<button class="opt${cls}" data-action="q-pick" data-v="${i}"${done ? ' disabled' : ''}><span class="opt-dot">${done && i === st.answer ? icon('check') : done && i === q.sel ? icon('x') : ''}</span><span>${fmt(st.options[i])}</span></button>`;
+      const tab = (q.sel === null ? i === q.order[0] : i === q.sel) ? 0 : -1;
+      return `<button class="opt${cls}" role="radio" aria-checked="${i === q.sel}" tabindex="${tab}" data-action="q-pick" data-v="${i}"${done ? ' disabled' : ''}><span class="opt-dot">${done && i === st.answer ? icon('check') : done && i === q.sel ? icon('x') : ''}</span><span>${verdict(i)}${fmt(st.options[i])}</span></button>`;
     }).join('')}</div>`;
   } else if (st.type === 'tf') {
     const lab = tfLabels(st);
     area = `<div class="tf">${[true, false].map((v) => {
       const cls = done ? (v === st.answer ? ' right' : v === q.sel ? ' wrong' : ' dim') : '';
-      return `<button class="tf-btn${cls}" data-action="q-tf" data-v="${v ? 1 : 0}"${done ? ' disabled' : ''}>${esc(lab[v])}</button>`;
+      const said = done && v === st.answer ? '<span class="sr-only">Correct answer: </span>' : done && v === q.sel ? '<span class="sr-only">Your answer, not right: </span>' : '';
+      return `<button class="tf-btn${cls}" data-action="q-tf" data-v="${v ? 1 : 0}"${done ? ' disabled' : ''}>${said}${esc(lab[v])}</button>`;
     }).join('')}</div>`;
   } else if (st.type === 'cloze') {
     const gap = gapHtml(st, q);
     if (code.includes('___')) code = code.replace('___', gap); else prompt = prompt.replace('___', gap);
     area = `<div class="chips">${q.order.map((i) => {
       const cls = done ? (i === st.answer ? ' right' : ' dim') : (i === q.sel ? ' used' : '');
-      return `<button class="chip${cls}" data-action="q-pick" data-drag="chip" data-v="${i}"${done ? ' disabled' : ''}>${esc(st.options[i])}</button>`;
+      return `<button class="chip${cls}" aria-pressed="${i === q.sel}" data-action="q-pick" data-drag="chip" data-v="${i}"${done ? ' disabled' : ''}>${esc(st.options[i])}</button>`;
     }).join('')}</div>`;
   } else if (st.type === 'order') {
-    area = `<ol class="rows" id="q-rows">${q.list.map((it, pos) => `<li class="row${q.pick === pos ? ' sel' : ''}${done ? ' right' : ''}" ${done ? '' : `data-drag="order" data-action="q-row" role="button" tabindex="0"`} data-pos="${pos}"><span class="row-n">${pos + 1}</span><span class="row-t">${fmt(st.items[it])}</span>${done ? '' : `<span class="row-grip">${icon('grip')}</span>`}</li>`).join('')}</ol>
+    area = `<ol class="rows" id="q-rows">${q.list.map((it, pos) => `<li class="row${q.pick === pos ? ' sel' : ''}${done ? ' right' : ''}" ${done ? '' : `data-drag="order" data-action="q-row" role="button" tabindex="0" aria-pressed="${q.pick === pos}" aria-label="${esc(plain(st.items[it]))}, position ${pos + 1} of ${q.list.length}"`} data-pos="${pos}"><span class="row-n">${pos + 1}</span><span class="row-t">${fmt(st.items[it])}</span>${done ? '' : `<span class="row-grip">${icon('grip')}</span>`}</li>`).join('')}</ol>
       ${done && !L.ok ? '<p class="q-note">This is the right order.</p>' : ''}`;
   } else if (st.type === 'match') {
     const item = (i, side) => {
       const k = q.done.indexOf(i);
       const cls = k >= 0 ? ` done tone-${k % 8}${q.fresh === i ? ' fresh' : ''}` : (side === 'l' && q.pickL === i ? ' sel' : '') + (q.bad && q.bad[side] === i ? ' shake' : '');
-      return `<button class="m-item${cls}" data-action="q-match" data-side="${side}" data-v="${i}"${k >= 0 ? ' disabled' : ''}>${fmt(st.pairs[i][side === 'l' ? 0 : 1])}</button>`;
+      return `<button class="m-item${cls}"${side === 'l' ? ` aria-pressed="${q.pickL === i}"` : ''} data-action="q-match" data-side="${side}" data-v="${i}"${k >= 0 ? ' disabled' : ''}>${fmt(st.pairs[i][side === 'l' ? 0 : 1])}</button>`;
     };
     area = `<div class="match"><div class="m-col">${q.left.map((i) => item(i, 'l')).join('')}</div><div class="m-col">${q.right.map((i) => item(i, 'r')).join('')}</div></div>`;
   } else if (st.type === 'sort') {
@@ -198,7 +208,7 @@ function questionHtml(st, q) {
       const cur = st.items[q.items[q.n]];
       area = `<div class="sort"><div class="sort-stage"><div class="sort-card${q.flash ? ' ' + q.flash : ''}" id="sort-card" data-drag="sort">${fmt(cur[0])}${q.note ? `<small>${esc(q.note)}</small>` : ''}</div></div>
         <p class="sort-left">${q.n + 1} of ${q.items.length}</p>
-        <div class="buckets">${st.buckets.map((b, bi) => `<button class="bucket b${bi}${q.hint === bi ? ' hint' : ''}" data-action="q-sort" data-v="${bi}">${bi === 0 ? icon('left') : ''}<b>${esc(b)}</b><span>${q.counts[bi]}</span>${bi === 1 ? icon('right') : ''}</button>`).join('')}</div></div>`;
+        <div class="buckets">${st.buckets.map((b, bi) => `<button class="bucket b${bi}${q.hint === bi ? ' hint' : ''}" aria-label="Put in ${esc(b)}. ${q.counts[bi]} so far" data-action="q-sort" data-v="${bi}">${bi === 0 ? icon('left') : ''}<b>${esc(b)}</b><span>${q.counts[bi]}</span>${bi === 1 ? icon('right') : ''}</button>`).join('')}</div></div>`;
     }
   }
   return `<span class="eyebrow">${questionLabel(st)}</span><h2 class="q-prompt">${prompt}</h2>${code ? codeBlock(code) : ''}${area}`;
@@ -220,11 +230,15 @@ function footHtml(st, q) {
   if (st.type === 'sort') return `<p class="hint">Swipe the card to a side, or tap a side.</p>`;
   return `<p class="hint">Tap your answer.</p>`;
 }
-function refreshQ() {
+// Redraws the question. When the keyboard focus was inside it, focus goes back to `focusSel` so the place is not lost.
+function refreshQ(focusSel) {
   const st = L.steps[L.i];
-  const el = $('#s-q');
+  const el = $('#s-q'), foot = $('#ss-foot');
+  const a = document.activeElement;
+  const had = !!focusSel && !!a && ((el && el.contains(a)) || foot.contains(a));
   if (el) el.innerHTML = questionHtml(st, L.q);
-  $('#ss-foot').innerHTML = footHtml(st, L.q);
+  foot.innerHTML = footHtml(st, L.q);
+  if (had) { const t = $(focusSel, $('#session')); if (t) t.focus({ preventScroll: true }); }
 }
 
 // ---------- answering ----------
@@ -233,9 +247,16 @@ function qPick(v) {
   const q = L.q;
   q.sel = q.type === 'cloze' && q.sel === v ? null : v;
   sound('tap'); buzz('tick');
-  refreshQ();
+  refreshQ(`[data-action="q-pick"][data-v="${v}"]`);
 }
-function qGap() { if (L && !L.answered && L.q.sel !== null) { L.q.sel = null; refreshQ(); } }
+// Arrow keys move through a multiple-choice group, selecting as they go.
+function qPickKey(v, dir) {
+  if (!L || L.answered || L.busy) return;
+  const order = L.q.order, i = order.indexOf(v);
+  if (i < 0) return;
+  qPick(order[(i + dir + order.length) % order.length]);
+}
+function qGap() { if (L && !L.answered && L.q.sel !== null) { L.q.sel = null; say('Gap cleared.'); refreshQ('#q-gap'); } }
 function qTf(v) { if (!L || L.answered || L.busy) return; L.q.sel = v; resolve(v === L.steps[L.i].answer); }
 function qCheck() {
   if (!L || L.answered || L.busy) return;
@@ -249,25 +270,47 @@ function qCheck() {
 // Tap fallback for reordering: tap a row, then tap the row where it should go.
 function qRow(pos) {
   if (!L || L.answered) return;
-  const q = L.q;
-  if (q.pick === null) q.pick = pos;
-  else { if (q.pick !== pos) { const it = q.list.splice(q.pick, 1)[0]; q.list.splice(pos, 0, it); sound('pop'); } q.pick = null; }
+  const st = L.steps[L.i], q = L.q;
+  const name = (p) => plain(st.items[q.list[p]]);
+  if (q.pick === null) { q.pick = pos; say(`Picked up ${name(pos)}. Use the arrow keys to move it, or choose where it goes.`); }
+  else {
+    if (q.pick !== pos) { const it = q.list.splice(q.pick, 1)[0]; q.list.splice(pos, 0, it); sound('pop'); }
+    q.pick = null;
+    say(`${name(pos)} is now at position ${pos + 1} of ${q.list.length}.`);
+  }
   buzz('tick');
-  refreshQ();
+  refreshQ(`.row[data-pos="${pos}"]`);
+}
+// Arrow keys move a picked-up row, or move between rows when nothing is picked up.
+function qRowKey(pos, dir) {
+  if (!L || L.answered) return;
+  const q = L.q, to = pos + dir;
+  if (to < 0 || to >= q.list.length) return;
+  if (q.pick !== pos) { const el = $(`.row[data-pos="${to}"]`); if (el) el.focus(); return; }
+  const it = q.list.splice(pos, 1)[0];
+  q.list.splice(to, 0, it);
+  q.pick = to;
+  sound('pop'); buzz('tick');
+  say(`Position ${to + 1} of ${q.list.length}.`);
+  refreshQ(`.row[data-pos="${to}"]`);
 }
 function qMatch(side, v) {
   if (!L || L.answered) return;
   const st = L.steps[L.i], q = L.q;
   q.bad = null; q.fresh = null;
-  if (side === 'l') { q.pickL = q.pickL === v ? null : v; buzz('tick'); refreshQ(); return; }
+  if (side === 'l') { q.pickL = q.pickL === v ? null : v; buzz('tick'); refreshQ(`.m-item[data-side="l"][data-v="${v}"]`); return; }
   if (q.pickL === null) { toast('Tap one on the left first.', 1400); return; }
   if (q.pickL === v) {
     q.done.push(v); q.fresh = v; q.pickL = null; sound('pop'); buzz('tick');
     if (q.done.length === st.pairs.length) { resolve(q.misses === 0); return; }
-  } else {
-    q.misses++; q.bad = { l: q.pickL, r: v }; q.pickL = null; sound('bad'); buzz('bad');
+    say(`Matched: ${plain(st.pairs[v][0])} with ${plain(st.pairs[v][1])}.`);
+    refreshQ('.m-item[data-side="l"]:not([disabled])');
+    return;
   }
-  refreshQ();
+  const back = q.pickL;
+  q.misses++; q.bad = { l: q.pickL, r: v }; q.pickL = null; sound('bad'); buzz('bad');
+  say('Not a match. Try another.');
+  refreshQ(`.m-item[data-side="l"][data-v="${back}"]`);
 }
 function qSort(b) {
   if (!L || L.answered || L.q.busy) return;
@@ -281,11 +324,13 @@ function qSort(b) {
   q.note = ok ? '' : `Goes with: ${st.buckets[it[1]]}`;
   q.hint = ok ? -1 : it[1];
   sound(ok ? 'pop' : 'bad'); buzz(ok ? 'tick' : 'bad');
-  refreshQ();
+  refreshQ(`.bucket.b${b}`);
   setTimeout(() => {
     if (!L || L.q !== q) return;
     q.busy = false; q.flash = null; q.note = ''; q.hint = -1; q.n++;
-    if (q.n >= q.items.length) resolve(q.misses === 0); else refreshQ();
+    if (q.n >= q.items.length) { resolve(q.misses === 0); return; }
+    say(`${ok ? '' : `That one goes with ${st.buckets[it[1]]}. `}Next, ${q.n + 1} of ${q.items.length}: ${plain(st.items[q.items[q.n]][0])}`);
+    refreshQ(`.bucket.b${b}`);
   }, REDUCED_MOTION ? (ok ? 60 : 500) : (ok ? 300 : 900));
 }
 function resolve(ok) {
@@ -302,7 +347,9 @@ function resolve(ok) {
   sound(ok ? 'good' : 'bad'); buzz(ok ? 'ok' : 'bad');
   save();
   saveResume(L.i + 1);
-  refreshQ();
+  const verdict = ok ? 'Correct.' : st.type === 'mcq' || st.type === 'cloze' ? `Not quite. The answer is ${plain(st.options[st.answer])}.` : st.type === 'tf' ? `Not quite. The answer is ${tfLabels(st)[st.answer]}.` : st.type === 'order' ? 'Not quite. The right order is now shown.' : 'Not quite.';
+  say(`${verdict} ${plain(st.explain || '')}`);
+  refreshQ('[data-action="ss-next"]');
   // The bar and the run counter follow the answer by a beat.
   setTimeout(() => { if (L === at) setProgress(); }, REDUCED_MOTION ? 0 : 100);
   setTimeout(() => { if (L === at) setCombo(); }, REDUCED_MOTION ? 0 : 200);
@@ -366,6 +413,7 @@ function dragOrder(e, el) {
       q.list.splice(to, 0, it);
       q.pick = null;
       sound('pop');
+      say(`Moved to position ${to + 1} of ${q.list.length}.`);
       refreshQ();
     },
   });
@@ -575,6 +623,8 @@ function renderPane() {
   }
   body.innerHTML = html;
   $('#ss-foot').innerHTML = foot;
+  focusOn($('h2', body));
+  if (p === 'summary' && r.total) say(`${r.right} of ${r.total} right first time. Plus ${r.pts} points.`);
   animateCounts(body, p === 'summary' ? 700 : 0);
   const ml = $('#ml-typed');
   if (ml) typeInto(ml, ml.dataset.line || '', 1100);

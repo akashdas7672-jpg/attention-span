@@ -1,6 +1,7 @@
 // ---------- app shell ----------
 const UI = { tab: 'today', track: null, open: {}, onboard: 0, feel: '', just: '', line: null, goDrop: false };
 let sheetTimer = 0;
+let sheetReturn = null;
 const TABS = [['today', 'Today', 'home'], ['journey', 'Journey', 'route'], ['lab', 'Lab', 'flask'], ['rewards', 'Rewards', 'gift'], ['me', 'Me', 'user']];
 
 function isStandalone() {
@@ -25,6 +26,7 @@ function go(tab) {
   v.classList.remove('tab-in');
   void v.offsetWidth;
   v.classList.add('tab-in');
+  focusOn($('h1', v));
 }
 function avatar(size = 44) {
   const inner = S.photo ? `<img src="${S.photo}" alt="">` : S.name.trim() ? `<b>${esc(S.name.trim()[0].toUpperCase())}</b>` : mascot('happy', Math.round(size * 0.86));
@@ -53,7 +55,7 @@ function heroHtml() {
   return `<section class="hero tone-${ch.tone}"><span class="eyebrow">${res ? 'Pick up where you left off' : activeToday() ? 'Done for today. One more?' : 'Today’s session'}</span>
     <h2>${esc(s.title)}${s.part ? ` <small>part ${s.part}</small>` : ''}</h2>
     <p>${esc(s.goal || ch.title)}</p>
-    <div class="hero-meta"><span>Chapter ${ch.index + 1} · ${s.index + 1} of ${ch.sessions.length}</span><span>${res ? `Step ${res.i + 1} of ${res.n}` : `${plural(cards, 'idea')} · about ${s.mins} min`}</span></div>
+    <div class="hero-meta"><span>Chapter ${ch.index + 1} · ${s.index + 1} of ${ch.sessions.length}</span><span>${res ? (res.i >= res.n ? 'Nearly done' : `Step ${res.i + 1} of ${res.n}`) : `${plural(cards, 'idea')} · about ${s.mins} min`}</span></div>
     <button class="btn ink wide${activeToday() ? '' : ' nudge'}" data-action="start" data-id="${s.id}">${icon('play')} ${res ? 'Resume' : 'Start'}</button><span class="hero-art">${icon(s.icon)}</span></section>`;
 }
 function viewToday() {
@@ -108,9 +110,9 @@ function viewJourney() {
     const next = nextSession(t.id);
     const row = (s) => {
       const done = isDone(s.id), can = sessionUnlocked(s), cur = next && next.id === s.id;
-      return `<button class="s-row${done ? ' done' : can ? '' : ' locked'}${cur ? ' cur' : ''}" data-action="session" data-id="${s.id}">
+      return `<button class="s-row${done ? ' done' : can ? '' : ' locked'}${cur ? ' cur' : ''}"${done || can ? '' : ' aria-disabled="true"'} data-action="session" data-id="${s.id}">
         <span class="s-ic">${done ? icon('check') : can ? icon(s.icon) : icon('lock')}</span>
-        <span class="s-name"><b>${esc(s.title)}${s.part ? ` · part ${s.part}` : ''}</b><small>about ${s.mins} min</small></span>
+        <span class="s-name"><b>${esc(s.title)}${s.part ? ` · part ${s.part}` : ''}</b><small>${done ? 'Done · ' : can ? '' : 'Locked · '}about ${s.mins} min</small></span>
         ${done ? stars(starsOf(s.id), 16) : cur ? '<span class="pill">Start</span>' : ''}</button>`;
     };
     const test = t.id === 'fluency' && unlocked && !cs.complete
@@ -122,7 +124,7 @@ function viewJourney() {
       ${open ? `<div class="ch-body">${unlocked ? '' : `<p class="ch-lock">Finish “${esc(t.chapters[ch.index - 1].title)}” to open this chapter.</p>`}${test}${ch.sessions.map(row).join('')}</div>` : ''}</section>`;
   };
   return `<header class="page-head"><h1>Journey</h1><p>${st.done} of ${st.total} sessions done</p></header>
-    <div class="seg big">${TRACKS.map((x) => `<button class="${x.id === t.id ? 'on' : ''}" data-action="track" data-v="${x.id}">${esc(x.title)}</button>`).join('')}</div>
+    <div class="seg big">${TRACKS.map((x) => `<button class="${x.id === t.id ? 'on' : ''}" aria-pressed="${x.id === t.id}" data-action="track" data-v="${x.id}">${esc(x.title)}</button>`).join('')}</div>
     <p class="track-note">${esc(t.note || '')}</p>
     ${t.chapters.map(chapter).join('')}`;
 }
@@ -157,7 +159,7 @@ function viewRewards() {
     <h3 class="sec">Colour themes</h3>
     <section class="card themes">${THEMES.map((t) => {
       const ok = themeUnlocked(t);
-      return `<button class="theme th-${t.id}${S.theme === t.id ? ' on' : ''}${ok ? '' : ' locked'}" data-action="theme" data-v="${t.id}" aria-pressed="${S.theme === t.id}"><i>${ok ? (S.theme === t.id ? icon('check') : '') : icon('lock')}</i><span>${t.name}</span><small>${ok ? 'Unlocked' : `Level ${t.level}`}</small></button>`;
+      return `<button class="theme th-${t.id}${S.theme === t.id ? ' on' : ''}${ok ? '' : ' locked'}"${ok ? '' : ' aria-disabled="true"'} data-action="theme" data-v="${t.id}" aria-pressed="${S.theme === t.id}"><i>${ok ? (S.theme === t.id ? icon('check') : '') : icon('lock')}</i><span>${t.name}</span><small>${ok ? 'Unlocked' : `Level ${t.level}`}</small></button>`;
     }).join('')}</section>
     <h3 class="sec">Badges</h3>
     <section class="badges">${BADGES.map((b) => {
@@ -198,7 +200,7 @@ function viewMe() {
   }).join('');
   const sw = (key, label, note) => `<label class="set-row"><span><b>${label}</b><small>${note}</small></span><input type="checkbox" role="switch" data-change="setting" data-v="${key}"${S.settings[key] ? ' checked' : ''}><i class="switch"></i></label>`;
   const link = (action, ic, label, note = '') => `<button class="set-row" data-action="${action}"><span><b>${label}</b>${note ? `<small>${note}</small>` : ''}</span>${icon(ic)}</button>`;
-  return `<header class="me-head"><label class="avatar-edit" aria-label="Change your photo">${avatar(96)}<span class="cam">${icon('camera')}</span><input type="file" accept="image/*" data-change="photo" hidden></label>
+  return `<header class="me-head"><label class="avatar-edit">${avatar(96)}<span class="cam">${icon('camera')}</span><input type="file" accept="image/*" data-change="photo" aria-label="Choose a profile photo"></label>
       <h1>${S.name.trim() ? esc(S.name.trim()) : 'Your profile'}</h1><p>Level ${lv.n} · ${esc(lv.title)}</p>
       <div class="me-actions"><button class="btn soft small" data-action="edit-name">${icon('pencil')} ${S.name.trim() ? 'Edit name' : 'Add your name'}</button>${S.photo ? `<button class="btn ghost small" data-action="photo-remove">Remove photo</button>` : ''}</div></header>
     <section class="stats">${tile(S.streak.count, 'day streak', 'flame')}${tile(S.streak.best, 'best streak')}${tile(S.stats.sessions, 'sessions')}${tile(`${acc}%`, 'first-try right')}${tile(num(S.points), 'points', 'gold')}${tile(starSum, 'stars')}</section>
@@ -257,19 +259,63 @@ function openReset() {
 function openSheet(html) {
   const root = $('#sheet-root');
   clearTimeout(sheetTimer);
+  if (root.hidden || root.classList.contains('out')) sheetReturn = document.activeElement;
   root.hidden = false;
   root.classList.remove('out');
-  root.innerHTML = `<div class="scrim" data-action="close-sheet"></div><div class="sheet" role="dialog" aria-modal="true"><div class="grab" data-action="close-sheet"></div>${html}</div>`;
+  root.innerHTML = `<div class="scrim" data-action="close-sheet"></div><div class="sheet" role="dialog" aria-modal="true" tabindex="-1"><div class="grab" data-action="close-sheet" data-drag="sheet" role="button" aria-label="Close"></div>${html}</div>`;
   document.documentElement.classList.add('sheet-open');
+  const sheet = $('.sheet', root), title = $('h3', sheet);
+  if (title) { title.id = 'sheet-title'; sheet.setAttribute('aria-labelledby', 'sheet-title'); }
+  syncInert();
+  focusOn(sheet);
 }
 function closeSheet() {
   const root = $('#sheet-root');
   if (!root || root.hidden || root.classList.contains('out')) return;
   document.documentElement.classList.remove('sheet-open');
-  const hide = () => { root.hidden = true; root.innerHTML = ''; root.classList.remove('out'); };
-  if (REDUCED_MOTION) { hide(); return; }
-  root.classList.add('out');
-  sheetTimer = setTimeout(hide, 200);
+  const hide = () => { root.hidden = true; root.innerHTML = ''; root.classList.remove('out'); syncInert(); };
+  if (REDUCED_MOTION) hide();
+  else { root.classList.add('out'); sheetTimer = setTimeout(hide, 200); syncInert(); }
+  // Focus goes back to whatever opened the sheet, if it is still on screen.
+  const back = sheetReturn;
+  sheetReturn = null;
+  if (back && back.isConnected && back !== document.body) { try { back.focus({ preventScroll: true }); } catch (e) { /* gone */ } }
+}
+// Dragging the handle down closes a sheet; tapping it does too.
+function dragSheet(e, el) {
+  const sheet = el.closest('.sheet');
+  if (!sheet) return;
+  dragStart(e, el, {
+    move(dx, dy) { sheet.style.transform = `translateY(${Math.max(0, dy)}px)`; },
+    end(dx, dy, moved) { if (moved && dy > 80) closeSheet(); else sheet.style.transform = ''; },
+  });
+}
+
+// ---------- focus and modality ----------
+function isOpen(el, closingClass) { return !!el && !el.hidden && !el.classList.contains(closingClass); }
+// Whatever is on top is the only thing a keyboard or a screen reader can reach.
+function syncInert() {
+  const sheet = isOpen($('#sheet-root'), 'out');
+  const over = ['#session', '#lab', '#onboard'].map((s) => $(s));
+  const anyOver = over.some((el) => isOpen(el, 'closing'));
+  $('#app').inert = sheet || anyOver;
+  $('#tabbar').inert = sheet || anyOver;
+  over.forEach((el) => { el.inert = sheet; });
+}
+function focusOn(el) {
+  if (!el) return;
+  if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '-1');
+  try { el.focus({ preventScroll: true }); } catch (e) { /* not focusable */ }
+}
+// Tab stays inside an open sheet.
+function trapTab(e) {
+  if (!isOpen($('#sheet-root'), 'out')) return;
+  const sheet = $('.sheet');
+  const f = $$('button, [href], input, textarea, select, [tabindex="0"]', sheet).filter((x) => !x.disabled && x.offsetParent !== null);
+  if (!f.length) { e.preventDefault(); return; }
+  const a = document.activeElement;
+  if (e.shiftKey && (a === f[0] || a === sheet)) { e.preventDefault(); f[f.length - 1].focus(); }
+  else if (!e.shiftKey && a === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
 }
 function toast(html, ms = 2400) {
   const root = $('#toast-root');
@@ -292,15 +338,19 @@ function renderOnboarding() {
       <ul class="ob-points"><li><span class="tone-0">${icon('spark')}</span>One small idea at a time, then a quick check</li><li><span class="tone-2">${icon('flask')}</span>Build your own tiny AI in the Lab and keep it</li><li><span class="tone-3">${icon('gift')}</span>Streaks, stars, levels and a daily team challenge</li></ul></div>
       <div class="ob-foot">${dots}<button class="btn primary wide" data-action="ob-next">Let’s go</button><button class="btn ghost wide" data-action="restore">I have a progress code</button></div></div>`;
   } else if (step === 1) {
-    root.innerHTML = `<form class="ob" data-submit="ob-name"><div class="ob-main"><label class="avatar-edit" aria-label="Add a photo">${avatar(112)}<span class="cam">${icon('camera')}</span><input type="file" accept="image/*" data-change="photo" hidden></label>
+    root.innerHTML = `<form class="ob" data-submit="ob-name"><div class="ob-main"><label class="avatar-edit">${avatar(112)}<span class="cam">${icon('camera')}</span><input type="file" accept="image/*" data-change="photo" aria-label="Choose a profile photo"></label>
       <h2>What should we call you?</h2><p class="ob-lede">Add a photo if you like. Both stay on this device.</p>
       <input class="input big" id="ob-name" maxlength="24" autocomplete="given-name" placeholder="First name" value="${esc(S.name)}"></div>
       <div class="ob-foot">${dots}<button class="btn primary wide" type="submit">Continue</button></div></form>`;
   } else {
     root.innerHTML = `<div class="ob"><div class="ob-main top"><h2>How do you feel about AI right now?</h2><p class="ob-lede">There is no wrong answer. It only sets where you start.</p>
-      <div class="ob-opts">${FEELS.map((f) => `<button class="opt${UI.feel === f.id ? ' sel' : ''}" data-action="ob-feel" data-v="${f.id}"><span class="opt-dot"></span><span><b>${f.label}</b><small>${f.note}</small></span></button>`).join('')}</div></div>
+      <div class="ob-opts">${FEELS.map((f) => `<button class="opt${UI.feel === f.id ? ' sel' : ''}" aria-pressed="${UI.feel === f.id}" data-action="ob-feel" data-v="${f.id}"><span class="opt-dot"></span><span><b>${f.label}</b><small>${f.note}</small></span></button>`).join('')}</div></div>
       <div class="ob-foot">${dots}<button class="btn primary wide" data-action="ob-finish"${UI.feel ? '' : ' disabled'}>Start my first session</button></div></div>`;
   }
+  root.setAttribute('role', 'dialog');
+  root.setAttribute('aria-label', 'Welcome');
+  syncInert();
+  if (UI.obFocus !== step) { UI.obFocus = step; focusOn($('h1, h2', root)); }
 }
 function finishOnboarding() {
   S.onboarded = true;
@@ -309,6 +359,7 @@ function finishOnboarding() {
   save();
   $('#onboard').hidden = true; $('#onboard').innerHTML = '';
   document.documentElement.classList.remove('locked');
+  syncInert();
   render();
   const s = nextSession();
   // Someone who arrived from a colleague's shared grid gets today's Drop first.

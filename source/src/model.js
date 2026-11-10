@@ -11,7 +11,9 @@ function modelLine(m = mainModel()) {
     const raw = m.kind === 'ngram'
       ? LM.ngram.generate(live, '', { maxTokens: 40, temperature: 1, seed }).text
       : LM.nn.generate(live, '', { maxChars: 140, temperature: 0.8, seed }).text;
-    const line = raw.split('\n').map((x) => x.trim()).filter((x) => x.length > 8)[0] || raw.trim();
+    // Prefer a line that reads as a sentence over a bare title.
+    const lines = raw.split('\n').map((x) => x.trim()).filter((x) => x.length > 8);
+    const line = lines.find((x) => x.length > 24 && /[.!?"]/.test(x)) || lines[0] || raw.trim();
     if (line.length <= 110 && /[.!?"]$/.test(line)) return line;
     // Prefer to stop at the end of a sentence; otherwise at a word, with an ellipsis.
     const head = line.slice(0, 110);

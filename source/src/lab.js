@@ -48,11 +48,18 @@ function viewLab() {
 function labOverlay(title, body, foot) {
   const el = $('#lab');
   const fresh = el.hidden;
+  // Redrawing must not drop the keyboard focus: remember which control had it and give it back.
+  const a = document.activeElement;
+  const key = !fresh && a && el.contains(a) && a.dataset && a.dataset.action ? `[data-action="${a.dataset.action}"]${a.dataset.v ? `[data-v="${a.dataset.v}"]` : ''}` : '';
   el.hidden = false;
   document.documentElement.classList.add('locked');
   el.className = `ss lab tone-5${fresh ? '' : ' still'}`;
+  el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', title);
   el.innerHTML = `<header class="ss-top"><button class="icon-btn" data-action="lab-close" aria-label="Close">${icon('x')}</button><b class="ss-title">${esc(title)}</b><span class="ss-combo"></span></header>
     <main class="ss-body" id="lab-body">${body}</main><footer class="ss-foot" id="lab-foot">${foot}</footer>`;
+  syncInert();
+  const again = key && $(key, el);
+  if (again) again.focus({ preventScroll: true }); else focusOn($('h2', el) || $('.ss-title', el));
 }
 function labHide() {
   if (LAB) { LAB.running = false; clearInterval(LAB.typer); }
@@ -62,6 +69,8 @@ function labHide() {
   document.documentElement.classList.remove('locked');
   closeSheet();
   render();
+  syncInert();
+  focusOn($('#view h1'));
 }
 // Closing never throws away practice that was paid for; an unsaved new model asks first.
 function labClose(force) {
@@ -96,8 +105,8 @@ function labRender() {
     const st = own ? LM.stats(LM.clean(LAB.own)) : null;
     const locked = lockedPacks();
     labOverlay(LAB.first ? 'Your first model' : 'New model', `<section class="s-q">${head}<h2 class="q-prompt">What should it learn from?</h2>
-      <div class="opts">${PACKS.filter((p) => S.packs.includes(p.id)).map((p) => `<button class="opt${LAB.pack === p.id ? ' sel' : ''}" data-action="lab-pack" data-v="${p.id}"><span class="opt-ic">${icon(p.icon)}</span><span><b>${esc(p.title)}</b><small>${esc(p.blurb)}</small></span></button>`).join('')}
-        <button class="opt${own ? ' sel' : ''}" data-action="lab-pack" data-v="own"><span class="opt-ic">${icon('pencil')}</span><span><b>My own words</b><small>Paste captions, emails or notes you wrote</small></span></button>
+      <div class="opts">${PACKS.filter((p) => S.packs.includes(p.id)).map((p) => `<button class="opt${LAB.pack === p.id ? ' sel' : ''}" aria-pressed="${LAB.pack === p.id}" data-action="lab-pack" data-v="${p.id}"><span class="opt-ic">${icon(p.icon)}</span><span><b>${esc(p.title)}</b><small>${esc(p.blurb)}</small></span></button>`).join('')}
+        <button class="opt${own ? ' sel' : ''}" aria-pressed="${own}" data-action="lab-pack" data-v="own"><span class="opt-ic">${icon('pencil')}</span><span><b>My own words</b><small>Paste captions, emails or notes you wrote</small></span></button>
         ${locked.length ? `<div class="opt dim locked-pack"><span class="opt-ic">${icon('gift')}</span><span><b>${plural(locked.length, 'more text pack')}</b><small>They turn up as surprises after sessions</small></span></div>` : ''}</div>
       ${own ? `<textarea class="input" id="lab-own" rows="6" data-input="lab-own" placeholder="Paste at least a few paragraphs. More text makes a better model.">${esc(LAB.own)}</textarea>
         <p class="hint left" id="lab-count">${labCount(st)}</p><p class="hint left">${icon('shield')} Your text stays on this phone. Nothing is uploaded. If you later export a Copycat built from it, that file will contain the text.</p>` : ''}</section>`,
@@ -107,7 +116,7 @@ function labRender() {
     labOverlay('New model', `<section class="s-q">${head}<h2 class="q-prompt">Pick a kind of brain</h2>
       <div class="opts">${Object.entries(KINDS).map(([k, v]) => {
         const lock = k === 'big' && lv < BIG_BRAIN_LEVEL;
-        return `<button class="opt tall${LAB.kind === k ? ' sel' : ''}${lock ? ' dim' : ''}" data-action="lab-kind" data-v="${k}"${lock ? ' disabled' : ''}><span class="opt-ic tone-${v.tone}">${icon(lock ? 'lock' : v.icon)}</span><span><b>${v.name} <em>${lock ? `Level ${BIG_BRAIN_LEVEL}` : v.time}</em></b><small>${v.blurb}</small></span></button>`;
+        return `<button class="opt tall${LAB.kind === k ? ' sel' : ''}${lock ? ' dim' : ''}" aria-pressed="${LAB.kind === k}" data-action="lab-kind" data-v="${k}"${lock ? ' disabled' : ''}><span class="opt-ic tone-${v.tone}">${icon(lock ? 'lock' : v.icon)}</span><span><b>${v.name} <em>${lock ? `Level ${BIG_BRAIN_LEVEL}` : v.time}</em></b><small>${v.blurb}</small></span></button>`;
       }).join('')}</div>
       <p class="hint left">You can build several and compare them.</p></section>`,
     `<button class="btn primary wide" data-action="lab-next">${LAB.kind === 'ngram' ? 'Build it' : 'Start training'}</button>`);
@@ -117,7 +126,7 @@ function labRender() {
       <p class="s-text">It read every word once and noted what came next. To write, it looks back and picks a word that followed those words before.</p>
       <div class="tiles">${tile(num(m.tokens), 'words read')}${tile(num(m.vocab), 'different words')}${tile(num(m.patterns), 'patterns kept')}</div>
       <span class="eyebrow">How far back it looks</span>
-      <div class="seg">${[1, 2, 3].map((n) => `<button class="${LAB.n === n ? 'on' : ''}" data-action="lab-n" data-v="${n}">${plural(n, 'word')}</button>`).join('')}</div>
+      <div class="seg">${[1, 2, 3].map((n) => `<button class="${LAB.n === n ? 'on' : ''}" aria-pressed="${LAB.n === n}" data-action="lab-n" data-v="${n}">${plural(n, 'word')}</button>`).join('')}</div>
       <div class="lab-out" id="lab-sample">${esc(LAB.sample)}</div>
       <p class="hint left">${LAB.n === 1 ? 'One word back: it rambles and loses the thread.' : LAB.n === 2 ? 'Two words back: phrases start to hold together.' : 'Three words back: fluent, but it mostly repeats what it read.'}</p></section>`,
     `<div class="foot-row"><button class="btn soft" data-action="lab-resample" aria-label="Another sample">${icon('refresh')}</button><button class="btn primary wide" data-action="lab-next">Looks good</button></div>`);
@@ -336,14 +345,15 @@ function labOpen(id) {
         <p class="meta">${k.name} · trained on ${esc(m.sourceTitle)}<br>${modelFacts(m)}</p></div></div>
       <label class="field"><span class="eyebrow">Starting words (optional)</span><input class="input" id="lab-prompt" maxlength="60" placeholder="${m.kind === 'nn' ? 'Type a few letters' : 'Type a word or two'}" autocapitalize="off"></label>
       <label class="slider"><span>Safe</span><input type="range" min="0.3" max="1.6" step="0.1" value="${LAB.temp}" data-input="lab-temp" aria-label="Creativity"><span>Wild</span></label>
-      <div class="lab-out big${m.kind === 'nn' ? ' mono' : ''}" id="lab-out" aria-live="polite"><span class="ph">Tap Generate and it will start writing.</span></div>
+      <div class="lab-out big${m.kind === 'nn' ? ' mono' : ''}" id="lab-out"><span class="ph">Tap Generate and it will start writing.</span></div>
       <div id="lab-think"></div>
       <div class="model-actions">${m.kind === 'nn' ? `<button class="btn soft wide" data-action="lab-train">${icon('zap')} Train more · ${num(S.steps)} steps banked</button>` : ''}
         <button class="btn soft wide" data-action="lab-export">${icon('download')} Take it with you</button>
         <button class="btn ghost small" data-action="lab-share">${icon('share')} Share a line</button><button class="btn ghost small" data-action="lab-rename">${icon('pencil')} Rename</button>
         ${isMain ? `<span class="btn ghost small is-main">${icon('star')} Main model</span>` : `<button class="btn ghost small" data-action="lab-main">${icon('star')} Make main</button>`}<button class="btn ghost small" data-action="lab-delete">${icon('trash')} Delete</button></div></section>`,
-  `<button class="btn primary wide" data-action="lab-gen">${icon('spark')} Generate</button>`);
+  labGenFoot());
 }
+function labGenFoot() { return `<button class="btn primary wide" data-action="lab-gen">${icon('spark')} Generate</button>`; }
 function labGenerate() {
   if (!LAB || LAB.step !== 'view') return;
   const m = MODELS.find((x) => x.id === LAB.id);
@@ -360,6 +370,9 @@ function labGenerate() {
   let i = 0;
   LAB.out = res.text;
   buzz('tap');
+  // While it writes, the button says so and waits; the finished text is announced once, not piece by piece.
+  const go = $('#lab-foot .btn');
+  if (go) { go.disabled = true; go.setAttribute('aria-busy', 'true'); go.textContent = 'Writing…'; }
   const stepSize = m.kind === 'nn' ? 3 : 1;
   LAB.typer = setInterval(() => {
     if (!LAB || !typed.isConnected) return;
@@ -368,6 +381,10 @@ function labGenerate() {
     if (i >= res.pieces.length) {
       clearInterval(LAB.typer);
       out.querySelector('.caret').remove();
+      const had = $('#lab-foot').contains(document.activeElement) || document.activeElement === document.body;
+      $('#lab-foot').innerHTML = labGenFoot();
+      if (had) $('#lab-foot .btn').focus({ preventScroll: true });
+      say(`${m.name} wrote: ${res.text}`);
       const nxt = (m.kind === 'ngram' ? LM.ngram.next(live, res.text, LAB.temp) : LM.nn.next(live, res.text, LAB.temp)).slice(0, 4);
       $('#lab-think').innerHTML = `<span class="eyebrow">What it would write next</span><div class="pw-bars">${nxt.map((x) => `<div class="pw-row"><span class="pw-word">${esc(x.token === '\n' ? '↵ new line' : x.token === ' ' ? '␣ space' : x.token)}</span><span class="pw-track"><i style="--p:${Math.max(2, x.p * 100)}%"></i></span><span class="pw-pct">${pct(x.p)}</span></div>`).join('')}</div>`;
     }

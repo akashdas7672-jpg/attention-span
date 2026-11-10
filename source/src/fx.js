@@ -181,3 +181,14 @@ function readPhoto(file, size = 256) {
     img.src = url;
   });
 }
+
+// ---------- screen reader announcements ----------
+let sayTimer = 0;
+// Puts a message in the polite live region. Clearing it first makes a repeated message read again.
+function say(text) {
+  const el = $('#live');
+  if (!el) return;
+  clearTimeout(sayTimer);
+  el.textContent = '';
+  sayTimer = setTimeout(() => { el.textContent = plain(text); }, 60);
+}

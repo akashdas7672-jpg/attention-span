@@ -20,7 +20,7 @@ A four-minute daily habit for getting fluent in AI, built as an installable web 
 - `content/daily.json`: the Daily Drop question pool.
 - `content/lab/datasets.json`: starter text for the Lab, written by `tools/make_packs.mjs`.
 - `content/program.json`: optional team prizes (see below).
-- `docs/`: the journey map (`JOURNEY.md`) and the motion specification (`MOTION.md`) the app is built to.
+- `docs/`: the journey map (`JOURNEY.md`), the motion specification (`MOTION.md`) and the interaction and accessibility specification (`INTERACTION.md`) the app is built to.
 - `assets/`: app icons.
 - `dist/`: build output. Host this folder.
 
@@ -69,7 +69,7 @@ When someone reaches the points, they tap Claim and get a short code to show the
 - Progress is stored on the device. Me, Back up progress gives a code to restore elsewhere (Safari and the Home Screen app keep separate storage). The photo and Lab models are not in the code.
 - A streak needs working days only; weekends never break it. The daily reminder is a calendar event, so it needs no server.
 - Haptics use the vibration API where it exists and the system switch tick on recent iOS versions.
-- Drag interactions (reorder, swipe to sort, drag into a gap) all have a tap alternative.
+- Drag interactions (reorder, swipe to sort, drag into a gap) all have a tap alternative and a keyboard path. Results are announced to screen readers, and focus is kept inside whatever is on top.
 
 ## Credits
 

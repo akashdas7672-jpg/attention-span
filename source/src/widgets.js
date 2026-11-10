@@ -60,9 +60,9 @@ const PLAYS = {
     html(p) {
       const s = p.sets[W.set];
       const top = s.weights.reduce((b, w, i) => (i !== s.focus && w > s.weights[b] ? i : b), s.focus === 0 ? 1 : 0);
-      return `${p.sets.length > 1 ? `<div class="seg">${p.sets.map((_, i) => `<button class="${i === W.set ? 'on' : ''}" data-action="w-set" data-v="${i}">Sentence ${i + 1}</button>`).join('')}</div>` : ''}
+      return `${p.sets.length > 1 ? `<div class="seg">${p.sets.map((_, i) => `<button class="${i === W.set ? 'on' : ''}" aria-pressed="${i === W.set}" data-action="w-set" data-v="${i}">Sentence ${i + 1}</button>`).join('')}</div>` : ''}
         <p class="at-words">${s.words.map((w, i) => (i === s.focus
-          ? `<button class="at-w focus${W.on ? ' lit' : ''}" data-action="w-focus">${esc(w)}</button>`
+          ? `<button class="at-w focus${W.on ? ' lit' : ''}" aria-pressed="${W.on}" data-action="w-focus">${esc(w)}</button>`
           : `<span class="at-w${W.on && i === top ? ' top' : ''}" style="--a:${W.on ? s.weights[i] : 0}">${esc(w)}</span>`)).join(' ')}</p>
         <p class="play-note">${W.on ? esc(s.note) : `Tap “${esc(s.words[s.focus])}” to see which words it leans on.`}</p>`;
     },
@@ -83,7 +83,7 @@ const PLAYS = {
     init: () => ({ side: 'a', shown: {} }),
     html(p) {
       const s = p[W.side];
-      return `<div class="seg">${['a', 'b'].map((k) => `<button class="${k === W.side ? 'on' : ''}" data-action="w-side" data-v="${k}">${esc(p[k].label)}</button>`).join('')}</div>
+      return `<div class="seg">${['a', 'b'].map((k) => `<button class="${k === W.side ? 'on' : ''}" aria-pressed="${k === W.side}" data-action="w-side" data-v="${k}">${esc(p[k].label)}</button>`).join('')}</div>
         <div class="bubble user"><small>Prompt</small>${esc(s.prompt)}</div>
         ${W.shown[W.side] ? `<div class="bubble bot enter"><small>What comes back</small>${esc(s.result)}</div>` : `<button class="btn soft wide" data-action="w-reveal">See what comes back</button>`}
         <p class="play-note">${W.shown.a && W.shown.b ? 'Same model, same job. The only difference is what was on the page.' : 'Try both prompts.'}</p>`;
@@ -134,8 +134,15 @@ function playRedraw() {
   const el = $('#play');
   if (!el || !W) return;
   const def = PLAYS[W.p.kind];
+  // Keep the keyboard focus on the control that was just used, and read out what changed.
+  const a = document.activeElement;
+  const key = a && el.contains(a) && a.dataset && a.dataset.action ? `[data-action="${a.dataset.action}"]${a.dataset.v ? `[data-v="${a.dataset.v}"]` : ''}` : '';
   el.innerHTML = def.html(W.p);
   if (def.draw) def.draw();
+  const again = key && $(key, el);
+  if (again) again.focus({ preventScroll: true });
+  const note = $('.play-note', el);
+  if (note) say(`${W.p.kind === 'predict' && W.last !== null ? `Drew ${W.p.words[W.last][0]}. ` : ''}${note.textContent}`);
 }
 function fitDraw() {
   const line = $('#fit-line');
