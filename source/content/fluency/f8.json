@@ -1,0 +1,448 @@
+{
+  "id": "f8",
+  "title": "Beyond the chat box",
+  "blurb": "Images, agents and what comes next.",
+  "sessions": [
+    {
+      "id": "f8-1",
+      "title": "Pictures from noise",
+      "icon": "spark",
+      "goal": "Explain how an image generator turns static into a picture.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "Practice at clearing static",
+          "body": "An art restorer learns by cleaning one grimy painting after another. Many image generators learn in a similar way. In training, pictures are buried in static, the visual noise of an untuned TV, and the model practises undoing it. After a huge number of pictures, it becomes good at this."
+        },
+        {
+          "type": "cloze",
+          "prompt": "In training, an image generator practises removing ___ from pictures.",
+          "options": ["captions", "static", "colours"],
+          "answer": 1,
+          "explain": "Pictures are buried in static and the model practises undoing it. That one skill, clearing static to reveal a picture, is what it later uses to create."
+        },
+        {
+          "type": "tf",
+          "prompt": "To make an image generator better at food photos, you would give it more food pictures to practise on.",
+          "answer": true,
+          "labels": { "true": "Fact", "false": "Myth" },
+          "explain": "Its skill comes from practice, not from rules someone typed in. More food pictures mean more rounds of clearing static from exactly the kind of image you want."
+        },
+        {
+          "type": "card",
+          "title": "From static to picture",
+          "body": "A sculptor starts with a rough block. An image generator starts from pure static and removes a little noise at each step, steered by your words. Drag the slider to watch.",
+          "play": { "kind": "denoise", "art": "star" }
+        },
+        {
+          "type": "order",
+          "prompt": "Put the steps of making an image in order.",
+          "items": [
+            "You type a description",
+            "The model starts from pure static",
+            "It removes a little noise, step by step",
+            "A finished picture appears"
+          ],
+          "explain": "The picture is not fetched from anywhere. It begins as static and gets a little clearer at each step, with your description steering the way."
+        },
+        {
+          "type": "mcq",
+          "prompt": "You type \"a red bicycle on a beach\". What do your words do while the picture forms?",
+          "options": [
+            "Search the web for a matching photo",
+            "Pick the closest picture from a library",
+            "Steer each step toward that scene"
+          ],
+          "answer": 2,
+          "explain": "Nothing is searched or fetched. At every step the model clears static in the direction of a picture that fits your description, so your words do the steering."
+        },
+        {
+          "type": "card",
+          "title": "New pixels, not a found photo",
+          "body": "A stock photo library finds a photo that already exists. An image generator does not look anything up. It makes new pixels every time, guided by what usually looks right. That is why small exact details, such as hands or the lettering on a sign, can come out wrong."
+        },
+        {
+          "type": "sort",
+          "prompt": "Stock photo library or image generator?",
+          "buckets": ["Stock library", "Image generator"],
+          "items": [
+            ["Finds a photo that already exists", 0],
+            ["Starts from pure static", 1],
+            ["Makes new pixels every time", 1],
+            ["Gives everyone the same photo", 0],
+            ["May garble the lettering on a sign", 1]
+          ],
+          "explain": "A library hands out photos that already exist. A generator builds each picture afresh from static, which is also why its small details can slip."
+        },
+        {
+          "type": "mcq",
+          "prompt": "You generate a shop-front image for a campaign. Which part deserves the closest look before you use it?",
+          "options": [
+            "The lettering on the shop sign",
+            "The overall mood of the colours",
+            "The shape of the clouds above"
+          ],
+          "answer": 0,
+          "explain": "Lettering is an exact detail, and exact details are where newly made pixels most often go wrong. Mood and clouds have no single right answer to miss."
+        }
+      ],
+      "takeaway": "Image generators build new pictures out of static, step by step, so check small details such as hands and lettering.",
+      "tryit": "Look closely at one AI-made image today. Check the hands, any lettering and the background for details that came out wrong."
+    },
+    {
+      "id": "f8-2",
+      "title": "Learning by reward",
+      "icon": "trophy",
+      "goal": "Explain how software learns from rewards, and why the reward matters.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "Learning by playing",
+          "body": "Nobody learns a video game from the manual. You press buttons, lose a life, try again and keep whatever earns points. **Reinforcement learning** works the same way. Software tries actions, receives rewards (points) for good results and comes to favour the actions that score. Nobody tells it the right move."
+        },
+        {
+          "type": "cloze",
+          "prompt": "In reinforcement learning, software tries actions and receives ___ for good results.",
+          "options": ["rewards", "rules", "answers"],
+          "answer": 0,
+          "explain": "Rewards are the only feedback it gets. Nobody shows it the right move, so it finds out which actions pay off by trying them."
+        },
+        {
+          "type": "mcq",
+          "prompt": "Which of these is most like reinforcement learning?",
+          "options": [
+            "A cook following a recipe step by step",
+            "A student copying notes from the board",
+            "A puppy learning tricks through treats"
+          ],
+          "answer": 2,
+          "explain": "The puppy tries things and keeps what earns a treat. The cook and the student are handed the answer, which is not how learning by reward works."
+        },
+        {
+          "type": "card",
+          "title": "Try something new, or repeat?",
+          "body": "Friday lunch: return to the place you love, or try the new one? Stick to favourites and you may never find something better. Only try new places and you waste good lunches. Software that learns by reward faces this choice at every step, and it needs some of each."
+        },
+        {
+          "type": "sort",
+          "prompt": "Is each choice trying something new, or repeating what worked?",
+          "buckets": ["Trying new", "Repeating"],
+          "items": [
+            ["Testing an ad format you have never used", 0],
+            ["Re-running last month's best ad", 1],
+            ["Ordering your usual lunch", 1],
+            ["Taking an unfamiliar route to work", 0],
+            ["Reusing last year's winning subject line", 1],
+            ["Pitching to a brand-new audience", 0]
+          ],
+          "explain": "New formats, routes and audiences are bets that might turn up something better. Re-running, reordering and reusing cash in on what you already know works."
+        },
+        {
+          "type": "tf",
+          "prompt": "Software that learns by reward does best if it never tries anything new.",
+          "answer": false,
+          "explain": "If it never tries anything new, it can stay stuck on a so-so move and never meet a better one. It needs some exploring as well as some repeating."
+        },
+        {
+          "type": "card",
+          "title": "You get what you reward",
+          "body": "Pay a sales team only for the number of calls and you get lots of short, rushed calls. Software is even more literal. It chases exactly the reward it is given, not what you meant. Reward a system for clicks alone and it learns to serve clickbait."
+        },
+        {
+          "type": "match",
+          "prompt": "Match each reward to what it tends to produce.",
+          "pairs": [
+            ["Clicks alone", "Clickbait headlines"],
+            ["Number of calls made", "Lots of short, rushed calls"],
+            ["Words written", "Long, padded copy"]
+          ],
+          "explain": "In each case you get exactly what is counted, whether or not anyone wanted it. Count clicks and you get clickbait; count calls and you get rushed calls."
+        },
+        {
+          "type": "mcq",
+          "prompt": "You want a system that recommends articles readers truly value. Which reward fits that goal best?",
+          "options": [
+            "How many times each headline gets clicked on",
+            "How many readers finish and rate it highly",
+            "How many articles appear on each visit"
+          ],
+          "answer": 1,
+          "explain": "The system will chase whatever you count. Finishing and rating an article sits much closer to \"readers valued this\" than a click on a headline does."
+        }
+      ],
+      "takeaway": "Software can learn by trial and reward, and it chases exactly what you reward, so choose the reward with care.",
+      "tryit": "Name one number your team is judged on, then ask yourself what behaviour it rewards that nobody actually wants."
+    },
+    {
+      "id": "f8-3",
+      "title": "AI that takes action",
+      "icon": "robot",
+      "goal": "Describe what an AI agent does and where it needs a human check.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "From answering to doing",
+          "body": "A chat assistant is like an adviser who can only talk. Hand that adviser a phone, a diary and the filing cabinet and things get done. An **agent** is a model that can use tools, such as search, a calendar or files, and take several steps toward a goal."
+        },
+        {
+          "type": "mcq",
+          "prompt": "What turns a chat model into an agent?",
+          "options": [
+            "A friendlier, more confident writing tone",
+            "Tools to use, plus steps toward a goal",
+            "A much longer limit on each answer"
+          ],
+          "answer": 1,
+          "explain": "An agent is defined by what it can do, not by how it writes. It uses tools such as search or a calendar and strings several steps together to reach a goal."
+        },
+        {
+          "type": "tf",
+          "prompt": "A system searches the web, checks your calendar and books a meeting room to reach a goal you set.",
+          "answer": true,
+          "labels": { "true": "Agent", "false": "Not an agent" },
+          "explain": "It uses tools (search, calendar, booking) and takes several steps toward your goal. Tools plus steps is what makes it an agent, not just a chat."
+        },
+        {
+          "type": "card",
+          "title": "The agent loop",
+          "body": "Think of cooking without a recipe: you decide the next step, do it, taste, and adjust. An agent works in the same loop. It plans a step, acts using a tool, looks at the result, then repeats until the goal is met or it gets stuck."
+        },
+        {
+          "type": "order",
+          "prompt": "Put one turn of the agent loop in order.",
+          "items": [
+            "Plan the next step",
+            "Act using a tool",
+            "Look at the result",
+            "Repeat until the goal is met"
+          ],
+          "explain": "Plan, act, look, repeat. Looking at the result is what lets an agent correct its course, much as tasting lets a cook adjust the dish."
+        },
+        {
+          "type": "match",
+          "prompt": "An agent must find a venue for a client event. Match each stage to what it does.",
+          "pairs": [
+            ["Plan", "Decides to search for venues near the office"],
+            ["Act", "Runs the search with its search tool"],
+            ["Look at the result", "Reads the list and sees two venues that fit"]
+          ],
+          "explain": "Deciding is planning, running the search is acting, and reading what came back is looking at the result. Then the loop starts again with a new plan."
+        },
+        {
+          "type": "card",
+          "title": "More power, more guardrails",
+          "body": "A new intern gets a guest pass, not the master key, and someone reads their first email before it goes out. Treat an agent the same. Limit what it can open and change, and keep a human check before anything that cannot be undone, such as sending, paying or deleting."
+        },
+        {
+          "type": "sort",
+          "prompt": "An agent is helping with your work. Which actions need a human check first?",
+          "buckets": ["Human check", "Low stakes"],
+          "items": [
+            ["Send an email to every client", 0],
+            ["Search for venue ideas", 1],
+            ["Delete a shared project folder", 0],
+            ["Pay a supplier's invoice", 0],
+            ["Draft notes for you to review", 1]
+          ],
+          "explain": "Sending, deleting and paying cannot be taken back, so a person should approve them first. Searching and drafting are easy to redo if they go wrong."
+        },
+        {
+          "type": "mcq",
+          "prompt": "Why let an agent open only the folders one task needs, rather than the whole shared drive?",
+          "options": [
+            "So a mistake can only do limited damage",
+            "So the agent never needs a human check",
+            "So its drafts sound more professional"
+          ],
+          "answer": 0,
+          "explain": "An agent can misread a goal or a result. If it can only reach what the task needs, a wrong step stays small and easy to put right."
+        }
+      ],
+      "takeaway": "An agent plans, acts and checks in a loop, so limit what it can reach and approve anything that cannot be undone.",
+      "tryit": "List three tasks in your week you would let an agent do alone, and three you would want to approve first."
+    },
+    {
+      "id": "f8-4",
+      "title": "AI in the lab",
+      "icon": "dna",
+      "goal": "Explain how AI helps scientists predict the shapes of proteins.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "Shape decides the job",
+          "body": "A key works because of its shape. So do **proteins**, the tiny machines that keep living things running. Each one starts as a long chain, then folds into a 3D shape, and that shape decides what it does. Working out just one shape could take years in a lab."
+        },
+        {
+          "type": "cloze",
+          "prompt": "A protein's ___ decides what it does.",
+          "options": ["colour", "weight", "shape"],
+          "answer": 2,
+          "explain": "Like a key, a protein works because of its shape. The chain it starts as has to fold into the right 3D form to do its job."
+        },
+        {
+          "type": "tf",
+          "prompt": "Working out the shape of a single protein could take years of lab work.",
+          "answer": true,
+          "labels": { "true": "Fact", "false": "Myth" },
+          "explain": "Finding a shape by experiment is slow, careful work, and one protein could occupy a lab for years. That is why a faster route mattered so much."
+        },
+        {
+          "type": "card",
+          "title": "AlphaFold predicts the fold",
+          "body": "Imagine predicting a finished origami figure from the creased, unfolded paper. AlphaFold, an AI system from Google DeepMind, does that for proteins: given the chain, it predicts the 3D shape. Predicted shapes for about 200 million proteins have been shared freely with scientists."
+        },
+        {
+          "type": "mcq",
+          "prompt": "What does AlphaFold take in, and what does it predict?",
+          "options": [
+            "A 3D shape in, a new medicine out",
+            "A protein's chain in, its 3D shape out",
+            "A photo of a cell in, a diagnosis out"
+          ],
+          "answer": 1,
+          "explain": "AlphaFold is given the chain a protein starts as and predicts the 3D shape it folds into, the part that could take years in a lab."
+        },
+        {
+          "type": "mcq",
+          "prompt": "A researcher studying a rare disease needs the likely shape of one protein. What has changed for her?",
+          "options": [
+            "She can look up a freely shared prediction",
+            "She must wait years before any shape exists",
+            "She has to buy the shape from a private lab"
+          ],
+          "answer": 0,
+          "explain": "Predicted shapes for about 200 million proteins have been shared freely, so she can start from a prediction today and test it in the lab."
+        },
+        {
+          "type": "card",
+          "title": "Same recipe, new field",
+          "body": "The same alphabet writes poems, contracts and shopping lists. AI's basic recipe is just as flexible. AlphaFold uses the one you know from chat assistants: learn patterns from many examples, here proteins whose shapes were already known, then predict what is missing."
+        },
+        {
+          "type": "match",
+          "prompt": "Match each system to what it predicts.",
+          "pairs": [
+            ["Chat assistant", "The next word in a sentence"],
+            ["AlphaFold", "The 3D shape a protein folds into"],
+            ["Playlist app", "A song you are likely to enjoy"],
+            ["Map app", "Your likely arrival time"]
+          ],
+          "explain": "All four learned patterns from past examples and use them to predict something missing: a word, a shape, a song, an arrival time."
+        },
+        {
+          "type": "tf",
+          "prompt": "AlphaFold works in a way that has nothing in common with a chat assistant.",
+          "answer": false,
+          "labels": { "true": "Fact", "false": "Myth" },
+          "explain": "Both follow the same recipe: learn patterns from many examples, then predict what is missing. Only the field changes, from sentences to proteins."
+        }
+      ],
+      "takeaway": "AlphaFold predicts protein shapes with a familiar recipe: learn patterns from many examples, then predict what is missing.",
+      "tryit": "Explain to a colleague in two sentences how the idea behind autocomplete also helps scientists predict protein shapes."
+    },
+    {
+      "id": "f8-5",
+      "title": "Pick the right job",
+      "icon": "compass",
+      "goal": "Match a task to the right kind of AI job and own the result.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "Three everyday jobs",
+          "body": "A good office assistant does three things all day: files papers in the right folder, boils long documents down, and drafts new ones. AI has the same three everyday jobs. It can sort things into labels (classify), shorten (summarise), and create or converse (generate)."
+        },
+        {
+          "type": "match",
+          "prompt": "Match each AI job to what it does.",
+          "pairs": [
+            ["Classify", "Sorts things into labels"],
+            ["Summarise", "Makes something long shorter"],
+            ["Generate", "Creates something new, or converses"]
+          ],
+          "explain": "Think of the office assistant: filing is classifying, boiling down is summarising, drafting is generating. Most everyday uses of AI are one of these three, or a mix."
+        },
+        {
+          "type": "cloze",
+          "prompt": "Tagging each customer email as \"billing\", \"delivery\" or \"other\" is a job to ___.",
+          "options": ["summarise", "generate", "classify"],
+          "answer": 2,
+          "explain": "Each email is being put under a label, which is sorting. Nothing is being shortened and nothing new is being written."
+        },
+        {
+          "type": "card",
+          "title": "Name the job first",
+          "body": "A toolbox only helps if you reach for the right tool. Name the job before you open a chat. Grouping 5,000 comments by mood is a sorting job. Cutting a long report down to one page is a shortening job. Coming up with ten headline ideas is a creating job."
+        },
+        {
+          "type": "sort",
+          "prompt": "Sorting job or shortening job?",
+          "buckets": ["Sorting job", "Shortening job"],
+          "items": [
+            ["Group 5,000 comments by mood", 0],
+            ["Turn a long report into one page", 1],
+            ["Label invoices by client", 0],
+            ["Boil meeting notes down to five points", 1],
+            ["Mark reviews as praise or complaint", 0],
+            ["Give the gist of a long email thread", 1]
+          ],
+          "explain": "Grouping, labelling and marking put each item under a heading, which is sorting. Turning something long into something brief is shortening."
+        },
+        {
+          "type": "mcq",
+          "prompt": "A client wants twenty fresh tagline options by Friday. Which kind of AI job is this?",
+          "options": [
+            "Sorting (classify)",
+            "Creating (generate)",
+            "Shortening (summarise)"
+          ],
+          "answer": 1,
+          "explain": "Taglines that do not exist yet have to be created. Sorting and shortening both work on material you already have."
+        },
+        {
+          "type": "card",
+          "title": "You stay the editor",
+          "body": "A magazine has many writers, but the editor decides what is printed and answers for it. That is your role with AI. It can sort, shorten and draft at speed, but it cannot take responsibility. AI drafts; a person decides and is accountable."
+        },
+        {
+          "type": "tf",
+          "prompt": "If an AI-drafted email goes out with a mistake in it, the AI tool is accountable, not the sender.",
+          "answer": false,
+          "labels": { "true": "Fact", "false": "Myth" },
+          "explain": "A tool cannot answer for anything. Whoever decides to send the work is accountable for it, which is why your check comes before the send button."
+        },
+        {
+          "type": "sort",
+          "prompt": "Who does what when you work with AI?",
+          "buckets": ["AI can draft", "You decide"],
+          "items": [
+            ["A first pass at ten subject lines", 0],
+            ["Whether the work goes to the client", 1],
+            ["A summary of a long transcript", 0],
+            ["Which option suits the brand", 1],
+            ["A rough sort of survey answers", 0],
+            ["Whether a claim is safe to publish", 1]
+          ],
+          "explain": "Drafting, summarising and rough sorting are fast work AI can start. Choosing, checking and sending are judgement calls, and they stay with the accountable person."
+        },
+        {
+          "type": "card",
+          "title": "What you bring",
+          "body": "You do not need to build an engine to be a good driver. You now know how these tools learn, read and slip up, and how to brief them, check them and choose the right job. That takes judgement, not code, and you use judgement at work every day."
+        },
+        {
+          "type": "mcq",
+          "prompt": "An assistant hands you a strong first draft of a client proposal. What is your part now?",
+          "options": [
+            "Check it, improve it and decide what goes out",
+            "Send it on, since the draft reads so well",
+            "Start again by hand, to be on the safe side"
+          ],
+          "answer": 0,
+          "explain": "A strong draft is a head start, not a finished job. Your judgement about the client, the facts and the timing turns it into work you can stand behind."
+        }
+      ],
+      "takeaway": "Name the job, let AI draft it, then check and decide yourself, because you are the editor.",
+      "tryit": "Choose one task on today's list, name it as sorting, shortening or creating, and let an assistant draft it for you to edit."
+    }
+  ]
+}

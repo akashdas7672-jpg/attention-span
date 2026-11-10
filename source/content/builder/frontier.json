@@ -1,0 +1,853 @@
+{
+  "id": "frontier",
+  "title": "Frontier Topics",
+  "subtitle": "DeepMind Educational · Summer School",
+  "repo": "educational",
+  "skills": [
+    {
+      "id": "frontier-1",
+      "title": "Agents, rewards & returns",
+      "icon": "robot",
+      "lab": "colabs/summer_schools/intro_to_reinforcement_learning.ipynb",
+      "cards": [
+        {
+          "title": "The RL loop",
+          "body": "In reinforcement learning an agent acts in an environment. At each step it observes the state, picks an action and receives a numerical reward. From experience it learns a policy, a distribution over actions given a state, aiming to maximise its total reward. Unlike supervised learning, nobody tells it the right action."
+        },
+        {
+          "title": "The Catch game",
+          "body": "A ball drops down a 10 × 5 grid while the agent slides a paddle along the bottom row with three actions: left, stay and right. Every step gives reward 0 except the last: +1 for a catch, −1 for a miss. Each `env.step(action)` returns a TimeStep holding step_type, reward, discount and observation."
+        },
+        {
+          "title": "Returns and discounting",
+          "body": "An episode's return adds up its rewards, each weighted by the discount γ raised to how many steps away it arrives: G = r₀ + γ·r₁ + γ²·r₂ + … With γ < 1, quick rewards count more than slow ones, and endless episodes still have a finite return. Catch uses γ = 1, since only its final reward is non-zero."
+        },
+        {
+          "title": "Agent and run loop",
+          "body": "An agent is a class whose `actor_step` turns a timestep into an action; learning agents add a `learner_step`. The random agent ignores what it sees and returns `np.random.randint(num_actions)`.",
+          "code": "timestep = env.reset()\nwhile not timestep.last():\n  action = agent.actor_step(timestep)\n  timestep = env.step(action)"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each RL term to its meaning.",
+          "pairs": [
+            [
+              "Agent",
+              "The learner that chooses actions"
+            ],
+            [
+              "Environment",
+              "Responds to actions with states and rewards"
+            ],
+            [
+              "Reward",
+              "Scalar feedback after an action"
+            ],
+            [
+              "Policy",
+              "Distribution over actions given a state"
+            ],
+            [
+              "Episode",
+              "One run from reset until termination"
+            ]
+          ],
+          "explain": "The agent follows its policy inside the environment, collecting rewards over each episode."
+        },
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "In Catch, what reward arrives on a step in the middle of an episode?",
+          "options": [
+            "+1",
+            "0",
+            "−1",
+            "+0.1"
+          ],
+          "answer": 1,
+          "explain": "Catch only rewards the final step: +1 for catching the ball and −1 for missing it. Every intermediate step gives 0."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Catch's action spec has `num_values = 3`. What can `np.random.randint(3)` return?",
+          "options": [
+            "0, 1 or 2",
+            "1, 2 or 3",
+            "Any float in [0, 3)",
+            "Always 3"
+          ],
+          "answer": 0,
+          "explain": "randint excludes its upper bound, so it returns one of the action ids 0, 1 or 2: left, stay or right."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Rewards r₀…r₃ are 0, 0, 0, +1 and γ = 0.9. Using G = Σₜ γᵗ·rₜ, what is G?",
+          "options": [
+            "1",
+            "0.9",
+            "0.729",
+            "0.656"
+          ],
+          "answer": 2,
+          "explain": "Only r₃ is non-zero, so G = 0.9³ × 1 = 0.729. Without discounting (γ = 1) the return would be 1."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Rewards are 1, 1, 1 and γ = 0.5. What is G = r₀ + γ·r₁ + γ²·r₂?",
+          "options": [
+            "3",
+            "1.5",
+            "0.875",
+            "1.75"
+          ],
+          "answer": 3,
+          "explain": "G = 1 + 0.5 × 1 + 0.25 × 1 = 1.75. Each later reward is halved once more than the one before it."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "In Catch the discount hardly matters, since every episode lasts the same number of steps and only the last reward is non-zero.",
+          "answer": true,
+          "explain": "With a fixed episode length, discounting rescales every final reward by the same factor, so it never changes which behaviour is better."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "A reinforcement learning agent is shown the correct action for every state.",
+          "answer": false,
+          "explain": "That would be supervised learning. An RL agent only sees the rewards of its own actions and must discover good actions by trying them."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Complete the run loop so it stops at the end of the episode.",
+          "code": "timestep = env.reset()\nwhile not timestep.___():\n  action = agent.actor_step(timestep)\n  timestep = env.step(action)",
+          "options": [
+            "last",
+            "first",
+            "done",
+            "reset"
+          ],
+          "answer": 0,
+          "explain": "A dm_env TimeStep's `last()` is True on an episode's final step, so the loop runs until termination."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "An agent's ___ method maps the current timestep to an action.",
+          "options": [
+            "learner_step",
+            "reset",
+            "actor_step",
+            "observation_spec"
+          ],
+          "answer": 2,
+          "explain": "actor_step does the acting. learner_step, added for learning agents, updates their values or weights from experience."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order one episode of the run loop.",
+          "items": [
+            "Reset the environment for a first timestep",
+            "The agent picks an action",
+            "The environment steps to a new timestep",
+            "Repeat until the timestep is the last",
+            "Sum the rewards into the episode return"
+          ],
+          "explain": "Each episode starts with reset, alternates acting and stepping until termination, then totals the rewards it collected."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "What does a discount factor γ < 1 do?",
+          "options": [
+            "Makes every reward count equally",
+            "Makes sooner rewards count more",
+            "Makes later rewards count more",
+            "Turns negative rewards into zero"
+          ],
+          "answer": 1,
+          "explain": "A reward k steps away is weighted by γᵏ, which shrinks as k grows, so the agent prefers rewards it can collect quickly."
+        },
+        {
+          "type": "cloze",
+          "level": 3,
+          "prompt": "With γ = 0.5, a reward of +8 that arrives three steps away (weight γ³) is worth ___ now.",
+          "options": [
+            "4",
+            "2",
+            "0.5",
+            "1"
+          ],
+          "answer": 3,
+          "explain": "γ³ = 0.125, and 0.125 × 8 = 1. Each step of delay halves the reward's value."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "What does a Catch observation contain?",
+          "options": [
+            "The reward for every cell of the grid",
+            "Q-values for each paddle position",
+            "A 10 × 5 grid marking ball and paddle",
+            "RGB pixels from a game screenshot"
+          ],
+          "answer": 2,
+          "explain": "The observation is a (10, 5) array that is zero everywhere except the cells holding the ball and the paddle."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why does the random agent play Catch badly?",
+          "options": [
+            "It ignores the observation entirely",
+            "It can only move left",
+            "It never receives any reward",
+            "It changes the game's rules"
+          ],
+          "answer": 0,
+          "explain": "The random agent throws away the timestep and samples actions blindly, so it cannot follow the falling ball. Learning agents use the observation to act."
+        }
+      ]
+    },
+    {
+      "id": "frontier-2",
+      "title": "Q-learning & DQN",
+      "icon": "trophy",
+      "lab": "colabs/summer_schools/intro_to_reinforcement_learning.ipynb",
+      "cards": [
+        {
+          "title": "The value of an action",
+          "body": "Q(s, a) is the expected discounted return from taking action a in state s and following the policy afterwards. Value-based agents learn Q and act greedily, choosing argmaxₐ Q(s, a). The Bellman equation splits Q into the immediate reward plus the discounted value of whatever state comes next."
+        },
+        {
+          "title": "The Q-learning update",
+          "body": "After a transition (s, a, r, s′), form the TD error δ = r + γ·maxₐ′ Q(s′, a′) − Q(s, a), then nudge Q(s, a) ← Q(s, a) + α·δ with a small step size α. In Catch the table has c·r·c = 250 rows (paddle × ball positions) and 3 columns, one per action.",
+          "code": "a2 = np.argmax(q[s2])\ntd = r + g * q[s2, a2] - q[s, a]\nq[s, a] += alpha * td"
+        },
+        {
+          "title": "Explore a little",
+          "body": "Acting purely greedily, an agent may never try actions that look bad early on, so it can miss better ones. An ε-greedy policy takes a random action with probability ε and the greedy action otherwise. At evaluation time the agent switches back to fully greedy choices."
+        },
+        {
+          "title": "From tables to DQN",
+          "body": "Tables can't cover huge state spaces such as Atari screens, so a neural network maps an observation to Q-values for all actions, trained to shrink the squared TD error with the target frozen by `stop_gradient`. DQN adds a replay buffer of past transitions, sampled at random to break correlations, and a target network refreshed only periodically."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Q(s, a) = 0.5, r = 1, γ = 0.9 and maxₐ′ Q(s′, a′) = 0.2. What is the TD error δ?",
+          "options": [
+            "0.7",
+            "1.18",
+            "0.68",
+            "0.32"
+          ],
+          "answer": 2,
+          "explain": "δ = r + γ·max Q(s′, ·) − Q(s, a) = 1 + 0.9 × 0.2 − 0.5 = 1.18 − 0.5 = 0.68."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Q(s, a) = 0.5 and the TD error is 0.68. With step size α = 0.1, what is Q(s, a) after the update?",
+          "options": [
+            "0.568",
+            "1.18",
+            "0.068",
+            "0.432"
+          ],
+          "answer": 0,
+          "explain": "Q ← Q + α·δ = 0.5 + 0.1 × 0.68 = 0.568. The small step size moves Q only part of the way toward the target."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Complete the TD error so it uses the best next-state value.",
+          "code": "td = r + g * np.___(q[s2]) - q[s, a]",
+          "options": [
+            "argmax",
+            "max",
+            "mean",
+            "sum"
+          ],
+          "answer": 1,
+          "explain": "Q-learning bootstraps from the highest Q-value in the next state. argmax would return that action's index, not its value."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "A greedy policy always picks the action with the highest current Q-value.",
+          "answer": true,
+          "explain": "Greedy means π(s) = argmaxₐ Q(s, a). It fully trusts the current estimates, which is why it needs help to explore."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why switch from greedy to ε-greedy during training?",
+          "options": [
+            "To shrink the size of the Q-table",
+            "To remove the need for any reward",
+            "To make each env step run faster",
+            "To keep trying actions that look worse"
+          ],
+          "answer": 3,
+          "explain": "If early estimates are wrong, a greedy agent keeps repeating its current favourite. Occasional random actions gather the experience needed to correct Q."
+        },
+        {
+          "type": "cloze",
+          "level": 3,
+          "prompt": "Catch has 10 rows and 5 columns, so its tabular Q-table has ___ rows.",
+          "options": [
+            "50",
+            "150",
+            "250",
+            "15"
+          ],
+          "answer": 2,
+          "explain": "A state pairs the paddle column (5 options) with the ball cell (10 × 5 = 50), so c·r·c = 5 × 10 × 5 = 250 rows, each holding 3 action values."
+        },
+        {
+          "type": "match",
+          "level": 2,
+          "prompt": "Match each Q-learning idea to its description.",
+          "pairs": [
+            [
+              "Replay buffer",
+              "Stores past transitions for random sampling"
+            ],
+            [
+              "Target network",
+              "Periodically refreshed copy for TD targets"
+            ],
+            [
+              "TD error",
+              "Gap between target and current Q-value"
+            ],
+            [
+              "ε-greedy",
+              "Random action with probability ε"
+            ],
+            [
+              "Function approx.",
+              "A network computes Q instead of a table"
+            ]
+          ],
+          "explain": "Tabular Q-learning uses TD errors and ε-greedy exploration; DQN adds function approximation, a replay buffer and a target network."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Tabular Q-learning scales easily to Atari, since each screen only needs one row in the table.",
+          "answer": false,
+          "explain": "The number of possible screens grows exponentially with the pixel count, so no table could hold them. Function approximation, as in DQN, generalises across states."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "The target r + γ·max Q(s′, a′) is wrapped in `jax.lax.___` so no gradient flows through it.",
+          "options": [
+            "stop_gradient",
+            "select",
+            "cond",
+            "scan"
+          ],
+          "answer": 0,
+          "explain": "Only the prediction Q(s, a) should move toward the target, so stop_gradient treats the target as a fixed number when differentiating."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order one Q-learning step.",
+          "items": [
+            "Observe state s and choose action a",
+            "Receive reward r and next state s′",
+            "Form the target r + γ·max Q(s′, a′)",
+            "Compute the TD error: target − Q(s, a)",
+            "Move Q(s, a) by step size × TD error"
+          ],
+          "explain": "Act, observe the outcome, build a bootstrapped target, measure the error, then update only the Q-value of the action actually taken."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why does DQN learn from random minibatches drawn from a replay buffer?",
+          "options": [
+            "It avoids computing any TD error",
+            "Consecutive steps are highly correlated",
+            "It lets the agent skip the environment entirely",
+            "It keeps the policy purely greedy"
+          ],
+          "answer": 1,
+          "explain": "Back-to-back transitions are very similar, which destabilises training. Random samples from a buffer of past experience give more varied batches."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "What does the Bellman equation say about Q(s, a)?",
+          "options": [
+            "Sum of all past rewards this episode",
+            "Probability of picking action a in s",
+            "Average of Q over every possible action",
+            "Immediate reward + discounted next value"
+          ],
+          "answer": 3,
+          "explain": "Q(s, a) = r(s, a) + γ·Σ P(s′|s, a)·V(s′): what you get now, plus the discounted value of where you land."
+        },
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "How do policy gradient methods differ from Q-learning?",
+          "options": [
+            "They tune the policy directly to maximise return",
+            "They store a Q-value for every state–action pair",
+            "They never use neural networks",
+            "They learn without any reward signal"
+          ],
+          "answer": 0,
+          "explain": "Policy gradients adjust the parameters θ of π_θ(a|s) to maximise J(θ) = E[r(τ)] instead of first estimating action values."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "DQN's target network is updated at every gradient step, exactly like the online network.",
+          "answer": false,
+          "explain": "The target network copies the online weights only periodically, every 10 learner steps in the notebook, which keeps the TD targets stable."
+        }
+      ]
+    },
+    {
+      "id": "frontier-3",
+      "title": "Graphs as data in jraph",
+      "icon": "graph",
+      "lab": "colabs/summer_schools/intro_to_graph_nets_tutorial_with_jraph.ipynb",
+      "cards": [
+        {
+          "title": "Nodes, edges, direction",
+          "body": "A graph G = (V, E) is a set of nodes plus edges linking them. Undirected edges work both ways, like friendship; directed edges have a direction, like “A cites B”. A node's in-degree counts its incoming edges, its out-degree its outgoing ones, and its degree is their sum."
+        },
+        {
+          "title": "Three ways to store edges",
+          "body": "An edge list holds (u, v) pairs, one per edge u → v. An adjacency matrix A is |V| × |V| with A[u, v] = 1 when that edge exists. An adjacency list gives each node the set of nodes it points to. The toy graph's edges (0,1), (0,3), (1,2), (2,0), (3,0) give the list [{1, 3}, {2}, {0}, {0}]."
+        },
+        {
+          "title": "The GraphsTuple",
+          "body": "jraph stores graphs in a GraphsTuple. `nodes`, `edges` and `globals` hold features, and edge i runs from `senders[i]` to `receivers[i]`. `n_node` and `n_edge` have one entry per graph, so a single tuple can batch many graphs.",
+          "code": "feats = jnp.array([[0.], [2.], [4.], [6.]])\ngraph = jraph.GraphsTuple(\n    nodes=feats, edges=None, globals=None,\n    senders=jnp.array([0, 1, 2, 3, 0]),\n    receivers=jnp.array([1, 2, 0, 0, 3]),\n    n_node=jnp.array([4]),\n    n_edge=jnp.array([5]))"
+        },
+        {
+          "title": "Tasks and padding",
+          "body": "Node classification labels nodes (which instructor will a karate club member follow?). Graph classification labels whole graphs (is a MUTAG molecule mutagenic?). Link prediction asks whether an edge should exist (Cora citations). JAX recompiles for every new array shape, so batches are padded to the next power of two, plus a dummy graph that is masked out of the loss."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Toy graph edges: 0→1, 0→3, 1→2, 2→0, 3→0. What is node 0's in-degree?",
+          "options": [
+            "1",
+            "2",
+            "3",
+            "4"
+          ],
+          "answer": 1,
+          "explain": "Two edges point into node 0, from nodes 2 and 3. Node 0 also has out-degree 2, so its total degree is 4."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Same edges. In the adjacency matrix with rows as sources, what is node 0's row?",
+          "options": [
+            "[0, 1, 0, 1]",
+            "[0, 0, 1, 1]",
+            "[1, 0, 1, 0]",
+            "[0, 1, 1, 1]"
+          ],
+          "answer": 0,
+          "explain": "Node 0 sends edges to nodes 1 and 3, so A[0, 1] = A[0, 3] = 1. Column 0, [0, 0, 1, 1], would instead list who points to node 0."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "A citation network is most naturally modelled as an undirected graph.",
+          "answer": false,
+          "explain": "“A cites B” does not imply “B cites A”, so citations are directed. Mutual relationships such as friendship suit undirected graphs."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "In a GraphsTuple, edge i goes from `senders[i]` to `___[i]`.",
+          "options": [
+            "nodes",
+            "edges",
+            "receivers",
+            "globals"
+          ],
+          "answer": 2,
+          "explain": "Edges are two aligned index arrays: senders hold source nodes and receivers hold destination nodes, one entry per edge."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Which edge is NOT in this graph?",
+          "code": "senders   = jnp.array([0, 1, 2, 3, 0])\nreceivers = jnp.array([1, 2, 0, 0, 3])",
+          "options": [
+            "3 → 0",
+            "0 → 3",
+            "2 → 0",
+            "1 → 0"
+          ],
+          "answer": 3,
+          "explain": "Pair senders[i] with receivers[i]: 0→1, 1→2, 2→0, 3→0, 0→3. Node 1 points to node 2, never to node 0."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "One GraphsTuple batches 3 graphs. What is the length of `n_node`?",
+          "options": [
+            "3",
+            "1",
+            "The total node count",
+            "The largest graph's size"
+          ],
+          "answer": 0,
+          "explain": "n_node stores one node count per graph, so its length equals the number of graphs in the batch: 3."
+        },
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each GraphsTuple field to what it stores.",
+          "pairs": [
+            [
+              "`nodes`",
+              "Feature array with one row per node"
+            ],
+            [
+              "`edges`",
+              "Feature array with one row per edge"
+            ],
+            [
+              "`globals`",
+              "Features describing the whole graph"
+            ],
+            [
+              "`senders`",
+              "Source node index of each edge"
+            ],
+            [
+              "`n_edge`",
+              "Number of edges in each graph"
+            ]
+          ],
+          "explain": "Features live in nodes, edges and globals; senders and receivers encode structure; n_node and n_edge split a batch into graphs."
+        },
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "Predicting whether a molecule is mutagenic is which kind of task?",
+          "options": [
+            "Node classification",
+            "Link prediction",
+            "Graph classification",
+            "Density estimation"
+          ],
+          "answer": 2,
+          "explain": "One label belongs to the whole molecule, so it is graph classification. In MUTAG, nodes are atoms and edges are bonds."
+        },
+        {
+          "type": "order",
+          "level": 3,
+          "prompt": "Order the padding steps for a batch with 7 nodes across 3 graphs.",
+          "items": [
+            "Total the nodes in the batch: 7",
+            "Round up to a power of two: 8",
+            "Add one node for a dummy graph: 9",
+            "Mask the dummy graph out of the loss"
+          ],
+          "explain": "Rounding to powers of two limits how many shapes JAX compiles; the extra dummy graph absorbs the padding and is masked away."
+        },
+        {
+          "type": "cloze",
+          "level": 3,
+          "prompt": "`pad_graph_to_nearest_power_of_two` pads a batch of 13 nodes to ___ nodes.",
+          "options": [
+            "16",
+            "17",
+            "13",
+            "32"
+          ],
+          "answer": 1,
+          "explain": "The next power of two at or above 13 is 16, and one more node is added for the padding graph: 16 + 1 = 17."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Padding graphs to a few fixed sizes speeds up training because JAX recompiles for every new array shape.",
+          "answer": true,
+          "explain": "jit caches compiled programs per shape. With padding, many graphs share the same shapes, so compilation is paid only a few times."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "An adjacency matrix for a graph with |V| nodes has shape ___.",
+          "options": [
+            "|E| × 2",
+            "|V| × |E|",
+            "|V| × 1",
+            "|V| × |V|"
+          ],
+          "answer": 3,
+          "explain": "Entry A[u, v] records whether an edge goes from u to v, so there is one row and one column per node."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Karate club nodes get the features `jnp.eye(34)`. What is each node's feature vector?",
+          "options": [
+            "Its degree, as a single number",
+            "A one-hot vector marking its own index",
+            "A learned 34-dimensional embedding vector",
+            "Its instructor label"
+          ],
+          "answer": 1,
+          "explain": "Row i of the 34 × 34 identity matrix is 1 at position i and 0 elsewhere, so each node is identified only by its index."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "In Cora link prediction, what are the “negative” examples?",
+          "options": [
+            "Edges with negative feature values",
+            "Edges pointing back in time",
+            "Node pairs with no edge between them",
+            "Edges held out for the test set"
+          ],
+          "answer": 2,
+          "explain": "The model must separate real citations (positives) from unlinked pairs; training negatives are sampled afresh each epoch."
+        }
+      ]
+    },
+    {
+      "id": "frontier-4",
+      "title": "Message passing: GCN & GAT",
+      "icon": "chain",
+      "lab": "colabs/summer_schools/intro_to_graph_nets_tutorial_with_jraph.ipynb",
+      "cards": [
+        {
+          "title": "A GCN layer in two steps",
+          "body": "First, update each node's features, for example with an MLP; the result is the message that node will send. Second, every node aggregates the messages arriving along its incoming edges, by sum, mean or max. Each neighbour is treated the same, so unlike a CNN filter the layer ignores neighbour order and handles any number of neighbours."
+        },
+        {
+          "title": "Aggregating with segment_sum",
+          "body": "`nodes[senders]` gathers one message per edge, and `jax.ops.segment_sum` adds them up per receiving node. On the toy graph, features [0, 2, 4, 6] become [10, 0, 2, 0]: node 0 receives 4 + 6 from nodes 2 and 3, and node 2 gets 2 from node 1.",
+          "code": "msgs = nodes[senders]\nnew_nodes = jax.ops.segment_sum(\n    msgs, receivers, num_segments=4)"
+        },
+        {
+          "title": "Self-edges, scaling, depth",
+          "body": "Self-edges let a node include its own features in the sum. Degree normalisation, the symmetric D^(−1/2)·A·D^(−1/2) of Kipf and Welling, stops busy nodes from producing huge values that destabilise training. One layer only sees direct neighbours; stacking k layers spreads information k hops, much like stacked CNN layers widen their view."
+        },
+        {
+          "title": "Attention, graphs and links",
+          "body": "GCN weighs all neighbours equally, which can blur nodes that share neighbours. A GAT layer learns the weights: it scores each edge, eᵢⱼ = LeakyReLU(a·[Whᵢ ‖ Whⱼ]), softmaxes the scores over each node's neighbours into αᵢⱼ, and sums αᵢⱼ·Whⱼ. For whole graphs, a global update yields one vector per graph; for links, a dot product hᵢ·hⱼ scores the edge."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "order",
+          "level": 1,
+          "prompt": "Order the steps of a simple GCN layer.",
+          "items": [
+            "Transform each node's features, e.g. an MLP",
+            "Gather a message along each edge",
+            "Sum the messages arriving at each node",
+            "Store the sums as the new node features"
+          ],
+          "explain": "Update first, then pass messages: gather by senders, aggregate by receivers with segment_sum, and write the result back into the graph."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Toy graph: features [0, 2, 4, 6]; edges 0→1, 1→2, 2→0, 3→0, 0→3. With an identity update and sum aggregation, what does node 0 get?",
+          "options": [
+            "10",
+            "6",
+            "0",
+            "12"
+          ],
+          "answer": 0,
+          "explain": "Node 0's incoming edges come from nodes 2 and 3, with features 4 and 6, so it receives 4 + 6 = 10. Its own feature counts only with self-edges."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Same toy graph, now with self-edges added (sum, no normalisation). What is node 2's new feature?",
+          "options": [
+            "2",
+            "4",
+            "6",
+            "8"
+          ],
+          "answer": 2,
+          "explain": "Node 2 receives node 1's feature, 2, plus its own feature, 4, through the self-edge: 2 + 4 = 6."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Complete the aggregation so messages are summed per destination node.",
+          "code": "agg = jax.ops.segment_sum(\n    nodes[senders], ___,\n    num_segments=num_nodes)",
+          "options": [
+            "senders",
+            "receivers",
+            "n_edge",
+            "nodes"
+          ],
+          "answer": 1,
+          "explain": "segment_sum adds up rows that share a segment id. Using receivers as the ids collects every message at the node it points to."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Like a CNN filter, a GCN layer learns a separate weight for each neighbour position.",
+          "answer": false,
+          "explain": "A GCN applies the same weights to every neighbour and aggregates with a fixed sum or mean, so it ignores neighbour order and handles any neighbourhood size."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "How many stacked GCN layers does a node need to receive information from nodes 3 hops away?",
+          "options": [
+            "1",
+            "3",
+            "2",
+            "9"
+          ],
+          "answer": 1,
+          "explain": "Each layer passes messages one hop. After k layers a node's features reflect its k-hop neighbourhood, so 3 hops need 3 layers."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why normalise GCN aggregation by node degree?",
+          "options": [
+            "It lets the layer learn per-neighbour weights",
+            "It turns the graph undirected",
+            "It removes the self-edges",
+            "High-degree nodes would get outsized sums"
+          ],
+          "answer": 3,
+          "explain": "Summing over many neighbours inflates busy nodes' features, risking exploding or vanishing gradients. Dividing by square roots of degrees keeps scales comparable."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "GAT turns raw edge scores eᵢⱼ into weights αᵢⱼ with a ___ over each node's neighbours.",
+          "options": [
+            "softmax",
+            "segment_sum",
+            "ReLU",
+            "dot product"
+          ],
+          "answer": 0,
+          "explain": "The softmax exponentiates the scores and divides by their sum over the neighbourhood, so each node's attention weights are positive and add up to 1."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "A node has two neighbours with attention scores e = [0, ln 3]. What are the attention weights α?",
+          "options": [
+            "[0, 1]",
+            "[0.5, 0.5]",
+            "[0.25, 0.75]",
+            "[0.33, 0.67]"
+          ],
+          "answer": 2,
+          "explain": "exp(0) = 1 and exp(ln 3) = 3, so the softmax gives 1/4 and 3/4. The second neighbour's message counts three times as much."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "In the karate club task, the loss uses only the known labels of the two instructors.",
+          "answer": true,
+          "explain": "The loss is the negative log-likelihood of nodes 0 and 33 only. The other 32 labels are used just to measure accuracy, about 0.91 with the GCN."
+        },
+        {
+          "type": "match",
+          "level": 2,
+          "prompt": "Match each building block to its role.",
+          "pairs": [
+            [
+              "update_node_fn",
+              "Transforms node features, e.g. with an MLP"
+            ],
+            [
+              "segment_sum",
+              "Adds up messages arriving at each node"
+            ],
+            [
+              "Self-edge",
+              "Lets a node include its own features"
+            ],
+            [
+              "Attention weight α",
+              "Learned importance of a neighbour"
+            ],
+            [
+              "Global update",
+              "Produces one vector per whole graph"
+            ]
+          ],
+          "explain": "GCN combines update_node_fn, segment_sum and self-edges; GAT adds learned attention; a GraphNetwork's global update powers graph classification."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "In the Cora link-prediction model, how is a candidate edge (i, j) scored?",
+          "options": [
+            "Sum of the two nodes' degrees",
+            "Dot product of node embeddings hᵢ·hⱼ",
+            "Attention weight αᵢⱼ from a GAT",
+            "Number of shared neighbours"
+          ],
+          "answer": 1,
+          "explain": "A GNN encoder produces node embeddings and the decoder is simply their dot product; a sigmoid turns it into a score, evaluated with ROC-AUC."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why does the MUTAG loss multiply by `jraph.get_graph_padding_mask`?",
+          "options": [
+            "To drop atoms that have no bonds attached",
+            "To balance the two output classes",
+            "To hide test graphs while training",
+            "To ignore the dummy graph added by padding"
+          ],
+          "answer": 3,
+          "explain": "Padding appends a fake graph so shapes stay fixed. The mask zeroes its contribution, so only real molecules affect the loss and accuracy."
+        },
+        {
+          "type": "cloze",
+          "level": 3,
+          "prompt": "Each gathered row holds 64 features. Fill in the axis that yields one score per edge.",
+          "code": "def decode(h, senders, receivers):\n  return jnp.sum(\n      h[senders] * h[receivers],\n      axis=___)",
+          "options": [
+            "1",
+            "0",
+            "2",
+            "None"
+          ],
+          "answer": 0,
+          "explain": "h[senders] has shape (num_edges, 64). Summing the elementwise product over axis 1 collapses the features into one dot product per edge."
+        }
+      ]
+    }
+  ]
+}

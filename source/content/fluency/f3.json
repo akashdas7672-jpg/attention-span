@@ -1,0 +1,403 @@
+{
+  "id": "f3",
+  "title": "How it learns",
+  "blurb": "Dials, guesses and a lot of practice.",
+  "sessions": [
+    {
+      "id": "f3-1",
+      "title": "A machine made of dials",
+      "icon": "tune",
+      "goal": "Explain what the dials inside a model are and who sets them.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "Picture a mixing desk",
+          "body": "A sound engineer's mixing desk is covered in dials. Turn them and the same song sounds different. The model inside a chat assistant is like that desk. It is full of numbers that work like dials. Their proper name is **parameters**: the adjustable numbers inside a model."
+        },
+        {
+          "type": "cloze",
+          "prompt": "The adjustable numbers inside an AI model are called ___.",
+          "options": ["tokens", "parameters", "instructions"],
+          "answer": 1,
+          "explain": "Parameters are the numbers inside a model that can be turned up or down, like dials on a mixing desk. Tokens are the pieces of words a model reads."
+        },
+        {
+          "type": "mcq",
+          "prompt": "A colleague asks what is actually inside an AI model. Which answer is closest?",
+          "options": ["A library of saved web pages", "A list of rules typed in by hand", "A set of adjustable numbers"],
+          "answer": 2,
+          "explain": "A model is made of numbers that work like dials. It does not keep copies of web pages, and nobody wrote it a rulebook."
+        },
+        {
+          "type": "card",
+          "title": "The settings decide the sound",
+          "body": "On a mixing desk, the dial settings decide what you hear. In a model, the dial settings decide what comes out: which next word looks likely and which looks odd. A desk has a few dozen dials. A large model has billions."
+        },
+        {
+          "type": "tf",
+          "prompt": "A large AI model can have billions of dials inside it.",
+          "answer": true,
+          "labels": {"true": "Fact", "false": "Myth"},
+          "explain": "A mixing desk has a few dozen dials. A large model has billions, and the way they are set decides what it says."
+        },
+        {
+          "type": "match",
+          "prompt": "Match each part of the mixing desk to its partner in an AI model.",
+          "pairs": [
+            ["The whole desk", "The model"],
+            ["One dial", "One number inside the model"],
+            ["The sound you hear", "The words that come out"]
+          ],
+          "explain": "The desk is the model, each dial is one of its numbers, and the sound is its answer. Change the settings and the result changes."
+        },
+        {
+          "type": "card",
+          "title": "Nobody turns them by hand",
+          "body": "No person could set billions of dials one by one, so nobody tries. The dials start at random settings. Then the practice run called training turns them, a little at a time, until the model's guesses get good. People design the practice. The practice sets the dials."
+        },
+        {
+          "type": "tf",
+          "prompt": "Engineers type in the right setting for each dial inside a model.",
+          "answer": false,
+          "labels": {"true": "Fact", "false": "Myth"},
+          "explain": "There are far too many dials for that. They start at random settings, and training turns them a little at a time."
+        },
+        {
+          "type": "order",
+          "prompt": "Put the story of a model's dials in order.",
+          "items": [
+            "The dials start at random settings",
+            "Training turns them a little at a time",
+            "The model's guesses get good"
+          ],
+          "explain": "A new model has random settings, so its guesses are poor. Training adjusts the dials bit by bit, and the guesses improve as it goes."
+        }
+      ],
+      "takeaway": "A model is a machine with billions of dials, called parameters, and training sets every one of them.",
+      "tryit": "Slide your phone's screen brightness up and down. That is one dial. Now picture a machine with billions of them."
+    },
+    {
+      "id": "f3-2",
+      "title": "Guess, check, nudge",
+      "icon": "target",
+      "goal": "Describe the guess, check, nudge loop that trains a model.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "Training is a loop",
+          "body": "Getting a shower right is a loop: feel the water, nudge the tap, repeat. Training is the same loop. The model guesses the next word of a sentence, we measure how wrong it was (its **error**), and every dial inside the model is nudged to be slightly less wrong."
+        },
+        {
+          "type": "order",
+          "prompt": "Put one round of training in order.",
+          "items": [
+            "The model makes a guess",
+            "We measure how wrong the guess was",
+            "Every dial gets a small nudge",
+            "The model guesses again"
+          ],
+          "explain": "Guess, check, nudge, repeat. The check comes before the nudge because you need to know how you missed before you can correct it."
+        },
+        {
+          "type": "mcq",
+          "prompt": "In training, a model reads \"Twinkle, twinkle, little\" and guesses \"sandwich\". The real word was \"star\". What happens next?",
+          "options": [
+            "Training stops and starts again from zero",
+            "Its dials are nudged so \"star\" scores higher",
+            "The word \"sandwich\" is erased from the model"
+          ],
+          "answer": 1,
+          "explain": "The miss is measured, then every dial is nudged a little so that \"star\" looks more likely next time. Nothing is deleted and nothing restarts."
+        },
+        {
+          "type": "card",
+          "title": "You be the trainer",
+          "body": "Each dot is one week on a brand's account. Drag the slider until the line runs through the dots and the error bar shrinks. Each drag is a nudge; the bar is the check.",
+          "play": {"kind": "fit", "x": "Posts per week", "y": "New followers"}
+        },
+        {
+          "type": "cloze",
+          "prompt": "In the trainer, the closer your line sits to the dots, the ___ the error.",
+          "options": ["bigger", "slower", "smaller"],
+          "answer": 2,
+          "explain": "Error measures how far the guesses are from the real answers. A line that runs through the dots misses by less, so the error shrinks."
+        },
+        {
+          "type": "mcq",
+          "prompt": "Your line sits well above every dot and the error bar is long. What would a good trainer do next?",
+          "options": [
+            "Nudge the line down and check again",
+            "Keep the line and delete some of the dots",
+            "Stop, because the error cannot be changed"
+          ],
+          "answer": 0,
+          "explain": "A long error bar means the guesses are far off. A trainer nudges, checks whether the error shrank, and repeats: the same loop a model runs in training."
+        },
+        {
+          "type": "card",
+          "title": "Downhill in the fog",
+          "body": "Picture walking down a hill in thick fog, where lower ground means a smaller error. You cannot see the bottom, only feel which way the ground slopes, so you take one careful step down. Training does this automatically. Each nudge is tiny, and millions add up."
+        },
+        {
+          "type": "tf",
+          "prompt": "Training gets a model right in one big adjustment.",
+          "answer": false,
+          "labels": {"true": "Fact", "false": "Myth"},
+          "explain": "Each nudge is tiny, like one careful step downhill in fog. It takes millions of them to turn random dials into a useful model."
+        },
+        {
+          "type": "match",
+          "prompt": "Match each part of the foggy walk to its partner in training.",
+          "pairs": [
+            ["Height on the hill", "How wrong the model is"],
+            ["One careful step", "One tiny nudge to the dials"],
+            ["The bottom of the hill", "Where the error is as small as it gets"]
+          ],
+          "explain": "Height stands for error, so walking downhill means getting less wrong. Each step is one small nudge, and the bottom is where the guesses are at their best."
+        }
+      ],
+      "takeaway": "Training is guess, check, nudge, repeated millions of times, each tiny nudge leaving the model slightly less wrong.",
+      "tryit": "Open the Lab tab, train a Tiny Brain and watch its error fall as the practice rounds add up."
+    },
+    {
+      "id": "f3-3",
+      "title": "Memorising vs understanding",
+      "icon": "brain",
+      "goal": "Spot a model that memorised its examples instead of learning from them.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "The student who memorised",
+          "body": "A student memorises last year's exam answers. They ace that paper, then fail when the questions change. A model can make the same mistake with its practice examples. This is called **overfitting**: memorising the examples instead of learning the pattern."
+        },
+        {
+          "type": "tf",
+          "prompt": "Overfitting means a model has memorised its practice examples rather than learning the pattern behind them.",
+          "answer": true,
+          "explain": "Like the student with last year's answers, an overfitted model looks good on what it practised and stumbles on anything new."
+        },
+        {
+          "type": "mcq",
+          "prompt": "A model writes perfect captions for the 200 products it practised on, then nonsense for a new one. What is the likely problem?",
+          "options": [
+            "It memorised its practice examples",
+            "It has run out of working memory",
+            "The new product's name is far too long"
+          ],
+          "answer": 0,
+          "explain": "Perfect on the practice set and poor on anything new is the classic sign of overfitting. It learned those 200 by heart, not how to write a caption."
+        },
+        {
+          "type": "card",
+          "title": "Hold some examples back",
+          "body": "A fair exam uses questions the student has never seen. Model builders do the same. Before training, they set some examples aside and never show them to the model. Afterwards they test it on those. A good score on unseen examples means it learned the pattern."
+        },
+        {
+          "type": "order",
+          "prompt": "Put the steps of a fair test in order.",
+          "items": [
+            "Set some examples aside",
+            "Train the model on the rest",
+            "Test it on the examples set aside"
+          ],
+          "explain": "The held-back examples stay hidden during training. Because the model has never seen them, they show whether it learned the pattern or only memorised."
+        },
+        {
+          "type": "mcq",
+          "prompt": "A tool scores 99% on its practice examples and 60% on examples it has never seen. Which score tells you how it will do on your work?",
+          "options": ["The 99%", "The 60%", "The average of the two"],
+          "answer": 1,
+          "explain": "Your work is new to the tool, so the score on unseen examples is the honest one. The big gap between the two is a sign of memorising."
+        },
+        {
+          "type": "card",
+          "title": "Three cures for memorising",
+          "body": "There are three common cures. Give the model more varied examples, so there is too much to learn by heart. Use a simpler model with fewer dials, so it has less room to memorise. Or stop the practice sooner, before memorising sets in."
+        },
+        {
+          "type": "match",
+          "prompt": "Match each cure for overfitting to the reason it helps.",
+          "pairs": [
+            ["More varied examples", "Too much to learn by heart"],
+            ["A simpler model", "Less room to memorise"],
+            ["Stopping sooner", "Practice ends before memorising sets in"]
+          ],
+          "explain": "All three push the model toward the pattern: more to learn than it can memorise, less space to memorise in, or less time to do it."
+        },
+        {
+          "type": "mcq",
+          "prompt": "A headline-writing model has memorised 50 old headlines and keeps repeating them. Which fix is most likely to help?",
+          "options": [
+            "Practise longer on the same 50",
+            "Add many more dials to the model",
+            "Train on more varied headlines"
+          ],
+          "answer": 2,
+          "explain": "With more varied examples there is too much to learn by heart, so it has to pick up what makes a headline work. The other two give memorising more room."
+        }
+      ],
+      "takeaway": "A model that only memorises fails on anything new, so it is tested on examples it has never seen.",
+      "tryit": "Ask one question about the next impressive AI demo you see: was it tested on examples it had never seen?"
+    },
+    {
+      "id": "f3-4",
+      "title": "Signal vs noise",
+      "icon": "filter",
+      "goal": "Tell a real pattern from a coincidence in a set of examples.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "Patterns and coincidences",
+          "body": "Ice cream sells more on hot days. That is a real pattern, and it will hold next summer. One Tuesday, sales spiked because a tour bus happened to stop outside. That is a coincidence, with no reason to repeat. Real patterns are called **signal**. Coincidences are called noise."
+        },
+        {
+          "type": "cloze",
+          "prompt": "A real pattern, one that will hold next time, is called ___.",
+          "options": ["signal", "an error", "a fluke"],
+          "answer": 0,
+          "explain": "Signal is the part of the data that will repeat, like ice cream selling on hot days. Noise is the part that happened by chance."
+        },
+        {
+          "type": "sort",
+          "prompt": "Signal or noise? Sort each observation.",
+          "buckets": ["Signal", "Noise"],
+          "items": [
+            ["Umbrellas sell more on rainy days", 0],
+            ["Sales rose the week the office got a new kettle", 1],
+            ["Gym sign-ups jump every January", 0],
+            ["An ad with a typo got the most clicks, once", 1],
+            ["Toy searches climb before the holidays", 0]
+          ],
+          "explain": "Rain, January and the holidays come round again and have a clear link to what people buy. The kettle and the typo were one-off flukes."
+        },
+        {
+          "type": "card",
+          "title": "Too much freedom",
+          "body": "Give a model lots of dials and only a few examples, and it has room to store everything it sees, flukes included. If one practice sentence contains a typo, it may learn the typo as if it were a rule. Too much freedom means learning the noise too."
+        },
+        {
+          "type": "tf",
+          "prompt": "A model with too much freedom can learn coincidences as if they were real patterns.",
+          "answer": true,
+          "labels": {"true": "Fact", "false": "Myth"},
+          "explain": "With lots of dials and few examples, a model has room to store every quirk it sees, so flukes get learned alongside the real pattern."
+        },
+        {
+          "type": "mcq",
+          "prompt": "A model studied 20 winning ads. Three happened to have a blue background, and now it makes every ad blue. What has it learned?",
+          "options": [
+            "Signal: blue ads always win",
+            "Nothing: it picks colours at random",
+            "Noise: a fluke in a small set"
+          ],
+          "answer": 2,
+          "explain": "Three blue ads out of 20 is a coincidence, not a rule. With so few examples, the model had the freedom to treat that fluke as a pattern."
+        },
+        {
+          "type": "card",
+          "title": "One viral post is not a trend",
+          "body": "One post goes viral. Was it the topic, the timing or plain luck? From a single example you cannot tell. From a thousand posts you can: the flukes point in different directions and cancel out, while the real pattern keeps showing up. More examples make signal stand out."
+        },
+        {
+          "type": "cloze",
+          "prompt": "With more examples, the coincidences tend to ___ and the real pattern stands out.",
+          "options": ["cancel out", "multiply", "get stronger"],
+          "answer": 0,
+          "explain": "Flukes pull in different directions, so across many examples they wash out. The real pattern points the same way each time, so it remains."
+        },
+        {
+          "type": "mcq",
+          "prompt": "A client wants to rebuild the whole content plan around one post that went viral. What is the best advice?",
+          "options": [
+            "Copy that post exactly, every single week",
+            "Check whether similar posts also did well",
+            "Ignore results; they are always random"
+          ],
+          "answer": 1,
+          "explain": "One viral post could be luck. If many similar posts also did well, you are looking at signal and can plan around it with more confidence."
+        }
+      ],
+      "takeaway": "Data mixes real patterns with coincidences, and plenty of varied examples is what lets the real patterns win.",
+      "tryit": "Look at your last ten posts or campaign results. Pick the stand-out and ask whether it would happen again or was a one-off."
+    },
+    {
+      "id": "f3-5",
+      "title": "Layers of simple steps",
+      "icon": "layers",
+      "goal": "Explain what a neural network is and what deep learning means.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "Many tiny units",
+          "body": "The dials sit inside a **neural network**: a web of tiny units. Each unit does one small sum. It takes in a few numbers, uses its dials to decide how much each counts, adds them up and passes the result on. One unit is simple. Millions together are not."
+        },
+        {
+          "type": "mcq",
+          "prompt": "What does a single unit in a neural network do?",
+          "options": [
+            "Stores one whole sentence for later",
+            "Does a small sum and passes it on",
+            "Looks up one fact on the internet"
+          ],
+          "answer": 1,
+          "explain": "Each unit takes in a few numbers, weighs them, adds them up and hands the result to the next units. That is all it does."
+        },
+        {
+          "type": "tf",
+          "prompt": "Each unit in a neural network is clever enough to understand a sentence by itself.",
+          "answer": false,
+          "labels": {"true": "Fact", "false": "Myth"},
+          "explain": "A single unit only does a small sum. The ability comes from millions of them working together, the way plain dots of colour add up to a photo."
+        },
+        {
+          "type": "card",
+          "title": "Stacked in layers",
+          "body": "The units are arranged in layers, like stations on an assembly line. Each layer builds on the one before. With a photo, early layers pick out simple things such as edges and patches of colour. Later layers combine those into shapes, then into whole faces or logos."
+        },
+        {
+          "type": "order",
+          "prompt": "A network looks at a photo. Put what its layers pick out in order, from the first layer to the last.",
+          "items": [
+            "Edges and patches of colour",
+            "Simple shapes",
+            "A whole face or logo"
+          ],
+          "explain": "Early layers find simple things. Later layers combine them into richer ones, so the picture builds up from edges to shapes to whole objects."
+        },
+        {
+          "type": "sort",
+          "prompt": "A network is learning to spot a brand's logo in photos. Early layer or later layer?",
+          "buckets": ["Early layer", "Later layer"],
+          "items": [
+            ["Noticing a straight edge", 0],
+            ["Recognising the full logo", 1],
+            ["Noticing a patch of red", 0],
+            ["Telling one brand's logo from another", 1]
+          ],
+          "explain": "Edges and colours are the simple patterns early layers pick up. Recognising a whole logo needs those pieces combined, which is the later layers' job."
+        },
+        {
+          "type": "card",
+          "title": "What \"deep learning\" means",
+          "body": "You will hear the phrase **deep learning**. It sounds mysterious, but it simply means a neural network with many layers. Deep describes the stack, not the wisdom. The chat assistants you use are built this way."
+        },
+        {
+          "type": "cloze",
+          "prompt": "The \"deep\" in deep learning refers to having many ___.",
+          "options": ["examples", "users", "layers"],
+          "answer": 2,
+          "explain": "A deep network is one with many layers stacked up. Each extra layer is another chance to combine simple patterns into richer ones."
+        },
+        {
+          "type": "tf",
+          "prompt": "A sales deck says a tool \"uses deep learning\". That means the tool understands your industry deeply.",
+          "answer": false,
+          "labels": {"true": "Fact", "false": "Myth"},
+          "explain": "Deep only describes the shape of the network: many layers stacked up. It says nothing about how well the tool knows your industry."
+        }
+      ],
+      "takeaway": "A neural network is many tiny units stacked in layers, and deep learning simply means there are many layers.",
+      "tryit": "Explain deep learning to a colleague in one sentence, using the word layers and nothing more technical."
+    }
+  ]
+}

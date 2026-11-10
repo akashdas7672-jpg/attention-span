@@ -1,0 +1,1069 @@
+{
+  "id": "c8",
+  "title": "Capstone: Real-World Impact",
+  "subtitle": "AI Research Foundations · Course 8",
+  "repo": "ai-foundations",
+  "skills": [
+    {
+      "id": "c8-1",
+      "title": "Classification",
+      "icon": "filter",
+      "lab": "course_8/gdm_lab_8_3_classification_stage_3_train_and_evaluate_your_model.ipynb",
+      "cards": [
+        {
+          "title": "The task",
+          "body": "The capstone fine-tunes Gemma3-1B to label texts from the Africa Galore dataset, where each record has a name, a description and a category. The raw data is dominated by 'Story', so the worked example keeps four well-defined, mutually exclusive classes (Drink, Food, Music, Textile) and caps each at 100 examples for balance."
+        },
+        {
+          "title": "Rows become instructions",
+          "body": "Each row becomes an input/output pair. The input is an instruction listing every allowed class, followed by the description; the output is the category. Naming the classes removes ambiguity, and labels must be spelled identically everywhere. To predict two labels at once (say, category and region), the output can be a small JSON string.",
+          "code": "instruction = (\"Classify the following \"\n  \"text into one of the categories \"\n  \"'Drink', 'Food', 'Music', or \"\n  \"'Textile'.\\n\\n\")\ntext = row[\"description\"]\nreturn {\"input\": instruction + text,\n        \"output\": row[\"category\"]}"
+        },
+        {
+          "title": "Base model vs fine-tuned",
+          "body": "The base Gemma3-1B only learned next-token prediction, so when asked to classify it may ramble, drift off-topic or hallucinate. LoRA fine-tuning (rank 6, learning rate 5e-5, 3 epochs) trains a few extra parameters while the base stays frozen. Afterwards it should answer with a single label. Base models are used because they're a neutral starting point to steer."
+        },
+        {
+          "title": "Extracting the label",
+          "body": "Raw outputs include the prompt and special tokens, so extract_prediction grabs the text after the last `<start_of_turn>model` and before `<end_of_turn>`. If nothing matches, it returns 'Unknown', so a badly formatted answer is simply scored as wrong instead of crashing the evaluation.",
+          "code": "pattern = (r\"<start_of_turn>model\\s*\"\n           r\"([^<]*)<end_of_turn>\")\nmatches = re.findall(pattern, model_output)\nif matches:\n    return matches[-1].strip()\nreturn \"Unknown\""
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "Why does the worked example cap each category at 100 examples?",
+          "options": [
+            "Because Gemma can only read 100 examples at a time",
+            "To balance classes so none dominates training",
+            "To make the test set bigger than training",
+            "Because later rows contain broken HTML"
+          ],
+          "answer": 1,
+          "explain": "With roughly equal examples per class, the model gets balanced exposure and doesn't learn to favour the majority class."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "The raw Africa Galore data contains many more 'Story' records than any other category.",
+          "answer": true,
+          "explain": "Counting examples per category in lab 8.1 shows 'Story' dominates, which is one reason to filter and balance before training."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Four categories capped at 100 examples each give ___ training examples.",
+          "options": [
+            "100",
+            "104",
+            "400",
+            "25"
+          ],
+          "answer": 2,
+          "explain": "4 × 100 = 400 balanced training examples: 100 each of Drink, Food, Music and Textile."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why list every valid class inside the instruction?",
+          "options": [
+            "It tells the model exactly which labels are allowed",
+            "Gemma needs the full list in order to load its weights",
+            "It makes each prompt shorter and quicker to process",
+            "It lets the model invent extra categories when unsure"
+          ],
+          "answer": 0,
+          "explain": "An explicit class list makes the task unambiguous: the model knows its answer must be one of these four labels."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Fill in the field that holds the label the model should output.",
+          "code": "def to_instruction_record(row):\n  text = row[\"description\"]\n  return {\"input\": instruction + text,\n          \"output\": row[\"___\"]}",
+          "options": [
+            "name",
+            "description",
+            "category",
+            "label"
+          ],
+          "answer": 2,
+          "explain": "The category column ('Food', 'Music', …) is the target the model learns to output. The description is the text it reads."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Asked to classify an item, the base Gemma3-1B rambles off-topic. Why?",
+          "options": [
+            "It learned only next-token prediction, not instructions",
+            "Its weights were partly overwritten when LoRA was enabled",
+            "The item's name was missing from its vocabulary",
+            "The prompt was too short for it to understand"
+          ],
+          "answer": 0,
+          "explain": "A base model just continues text plausibly. It hasn't been trained on instruction-response pairs, so 'classify' isn't a command to it."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "What does this print?",
+          "code": "out = (\"<start_of_turn>user\\nClassify...\"\n       \"<end_of_turn>\\n<start_of_turn>model\"\n       \"\\nMusic<end_of_turn><end_of_turn>\")\nprint(extract_prediction(out))",
+          "options": [
+            "Music",
+            "Unknown",
+            "Classify...",
+            "Music<end_of_turn>"
+          ],
+          "answer": 0,
+          "explain": "The pattern captures the text between `<start_of_turn>model` and the next `<end_of_turn>`: 'Music'. Whitespace is stripped and the extra end token is ignored."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "The model replies 'This is a kind of food' with no turn tokens at all. What does extract_prediction return?",
+          "options": [
+            "Food",
+            "This is a kind of food",
+            "An empty string",
+            "Unknown"
+          ],
+          "answer": 3,
+          "explain": "With no `<start_of_turn>model … <end_of_turn>` match there's no label to extract, so it returns 'Unknown', which is counted as an incorrect prediction."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Gemma has a separate system role, so task instructions can sit outside the user prompt.",
+          "answer": false,
+          "explain": "Gemma supports only user and model roles. Any instruction or context must be written inside the user turn of each example."
+        },
+        {
+          "type": "match",
+          "level": 2,
+          "prompt": "Match each piece of Gemma's turn format to its job.",
+          "pairs": [
+            ["<start_of_turn>", "Marks where a turn begins"],
+            ["<end_of_turn>", "Marks where a turn ends"],
+            ["user", "Role for the text to be classified"],
+            ["model", "Role for the predicted category"]
+          ],
+          "explain": "These delimiters show the model when to 'listen' (the user turn) and when to 'respond' (the model turn)."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order the classification pathway across labs 8.1–8.3.",
+          "items": [
+            "Inspect data and category counts",
+            "Filter and balance the categories",
+            "Clean, split and format the data",
+            "Fine-tune Gemma with LoRA",
+            "Extract labels and compute metrics"
+          ],
+          "explain": "The labs move from inspecting the data to preparing it, then training, and finally evaluating the classifier."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "You want both category and region from one prompt. What should each training output be?",
+          "options": [
+            "Two answers in two separate model turns",
+            "Only the region, since category is implied",
+            "A JSON string with category and region",
+            "A number from 1 to 4 for each class"
+          ],
+          "answer": 2,
+          "explain": "For multi-task classification, the instruction asks for both fields and the output is a JSON string such as {\"category\": \"Food\", \"region\": \"West Africa\"}."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "LoRA trains a small set of extra parameters while the base model stays ___.",
+          "options": [
+            "frozen",
+            "deleted",
+            "random",
+            "unloaded"
+          ],
+          "answer": 0,
+          "explain": "Only small low-rank matrices are trained; the original Gemma weights stay frozen, which saves memory and time."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "Fill in the LoRA rank the classification worked example uses.",
+          "code": "lora_rank = ___\nlearning_rate = 5e-5\nnum_epochs = 3\nmodel.backbone.enable_lora(rank=lora_rank)",
+          "options": [
+            "450",
+            "6",
+            "16",
+            "3"
+          ],
+          "answer": 1,
+          "explain": "The classification and conversation labs start at rank 6, while summarization uses 16. 450 is the sequence length, not the rank."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "A higher LoRA rank can capture more complex patterns but uses more memory and training time.",
+          "answer": true,
+          "explain": "Rank sets the size of the added low-rank matrices. Bigger means more capacity but higher cost; rank 4 is often enough for simple classification."
+        }
+      ]
+    },
+    {
+      "id": "c8-2",
+      "title": "Summarization",
+      "icon": "book",
+      "lab": "course_8/gdm_lab_8_6_summarization_stage_3_train_and_evaluate_your_model.ipynb",
+      "cards": [
+        {
+          "title": "Shaping the dataset",
+          "body": "Each record pairs a full text (`expanded`) with a short `summary`. The worked example keeps 'Story' items with 250–320-word sources and 20–30-word summaries, drops duplicate summaries, caps each story name at 50 rows and the total at 700, then shuffles. Consistent lengths keep the task well defined: sources must be much longer than summaries."
+        },
+        {
+          "title": "Format and fine-tune",
+          "body": "The instruction is minimal: 'Summarize: ' plus the full text, with the reference summary as the output. Long inputs need sequence_length 530, near the limit for Gemma3-1B on a 16 GB T4 GPU, with LoRA rank 16, learning rate 1e-4 and 2 epochs. Before tuning, the base model may return nothing at all, or ramble.",
+          "code": "def to_instruction_record(row):\n  text = row[\"expanded\"]\n  return {\"input\": \"Summarize: \" + text,\n          \"output\": row[\"summary\"]}"
+        },
+        {
+          "title": "Judging a summary",
+          "body": "Summaries have no single right answer, so this pathway relies on human spot checks of four qualities: coverage (key points kept), faithfulness (nothing invented), conciseness (much shorter than the source) and fluency (readable, grammatical). For the same reason it uses only train and test splits: without automatic metrics, a validation set adds little."
+        },
+        {
+          "title": "Length ratio",
+          "body": "A quick numeric check: length ratio = summary words ÷ source words. A 28-word summary of a 280-word story gives 0.10, or 10%. Similar ratios on seen and unseen data suggest a consistent style. Fine-tuned models mimic the length of their training summaries, so to control length, curate the examples or pair prompts like 'Summarize briefly' with short targets."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "Which two things does each summarization training example pair up?",
+          "options": [
+            "A category label and a region",
+            "The full text and its reference summary",
+            "A user's question and the chatbot's friendly reply",
+            "A story name and its country"
+          ],
+          "answer": 1,
+          "explain": "Each example needs the source text (`expanded`) and a target summary (`summary`), so the model can learn to map one to the other."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "In the worked example, the full source text is stored in the ___ column.",
+          "options": [
+            "expanded",
+            "summary",
+            "description",
+            "name"
+          ],
+          "answer": 0,
+          "explain": "`expanded` holds the long text and `summary` holds the short target. `description` is a shorter version of the item text."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "A 300-word story gets a 24-word summary. What is the length ratio?",
+          "options": [
+            "24%",
+            "12.5%",
+            "8%",
+            "80%"
+          ],
+          "answer": 2,
+          "explain": "24 ÷ 300 = 0.08, so the summary is 8% of the source's length."
+        },
+        {
+          "type": "cloze",
+          "level": 3,
+          "prompt": "Sources are 250–320 words and summaries 20–30 words. The smallest possible ratio, 20 ÷ 320, is about ___.",
+          "options": [
+            "12%",
+            "6%",
+            "8%",
+            "16%"
+          ],
+          "answer": 1,
+          "explain": "20 ÷ 320 = 0.0625, about 6%. The largest is 30 ÷ 250 = 12%, so the targets compress each source to roughly 6–12%."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "A lower length ratio means the summary compresses the source more aggressively.",
+          "answer": true,
+          "explain": "The ratio is summary length over source length, so a smaller number means a shorter summary relative to the original."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why does the summarization pathway split only into train and test?",
+          "options": [
+            "Gemma cannot load more than two data files at once",
+            "Lacking automatic metrics, validation adds little",
+            "Summaries are too short to split three ways",
+            "The test set doubles as training data"
+          ],
+          "answer": 1,
+          "explain": "Open-ended outputs are hard to score automatically, so there's little to tune on a validation set. Quality is checked by humans on the test set."
+        },
+        {
+          "type": "match",
+          "level": 2,
+          "prompt": "Match each summary quality to the question it asks.",
+          "pairs": [
+            ["Coverage", "Does it keep the key points?"],
+            ["Faithfulness", "Does it avoid adding false facts?"],
+            ["Conciseness", "Is it much shorter than the source?"],
+            ["Fluency", "Is it grammatical and readable?"]
+          ],
+          "explain": "These four dimensions guide manual spot checks, since a single reference summary is never the only right answer."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "A summary claims baobabs grow in Asia, though the source never says so. Which quality fails?",
+          "options": [
+            "Conciseness",
+            "Fluency",
+            "Coverage",
+            "Faithfulness"
+          ],
+          "answer": 3,
+          "explain": "Faithfulness means sticking to the source. Introducing facts it doesn't contain is a hallucination."
+        },
+        {
+          "type": "cloze",
+          "level": 3,
+          "prompt": "Complete extract_summary so it stops where the model's turn ends.",
+          "code": "def extract_summary(out):\n  marker = \"<start_of_turn>model\"\n  if marker not in out:\n    return out.strip()\n  resp = out.split(marker)[1]\n  if \"<end_of_turn>\" in resp:\n    resp = resp.split(\"___\")[0]\n  return resp.strip()",
+          "options": [
+            "<start_of_turn>",
+            "<end_of_turn>",
+            "model",
+            "Summarize:"
+          ],
+          "answer": 1,
+          "explain": "Splitting on `<end_of_turn>` and keeping part [0] leaves only the text the model generated before closing its turn."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Before fine-tuning, the base model may return an empty output for a long passage.",
+          "answer": true,
+          "explain": "Base models haven't learned instruction-response patterns and often give high probability to end-of-sequence after long text, so generation can stop at once."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why drop rows that have duplicate summaries?",
+          "options": [
+            "Identical targets push the model to overfit",
+            "Duplicate rows would break the JSONL file format",
+            "So the dataset lands on exactly 700 rows",
+            "Because Gemma cannot read repeated text"
+          ],
+          "answer": 0,
+          "explain": "Repeated outputs encourage memorising specific instances instead of learning to condense diverse content."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order the worked example's filtering steps.",
+          "items": [
+            "Keep 'Story' rows within the length ranges",
+            "Drop rows with duplicate summaries",
+            "Cap each story name at 50 rows",
+            "Cap the total at 700 rows",
+            "Shuffle the rows"
+          ],
+          "explain": "Filter by category and length, remove duplicate targets, apply the per-name and total caps, then shuffle to avoid order artefacts."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "You want short summaries on request and longer ones otherwise. What does the lab suggest?",
+          "options": [
+            "Lower the LoRA rank until outputs shrink",
+            "Strip every end_of_turn token from the training data",
+            "Pair 'Summarize briefly' prompts with short targets",
+            "Raise the learning rate to 0.1"
+          ],
+          "answer": 2,
+          "explain": "Fine-tuned models copy the length patterns in their training data, so instruction-specific examples teach them to vary length on command."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "To fit long stories, the summarization run sets sequence_length = ___, near the T4 limit for Gemma3-1B.",
+          "options": [
+            "128",
+            "450",
+            "530",
+            "4096"
+          ],
+          "answer": 2,
+          "explain": "530 tokens holds a 250–320-word story plus its summary, close to the most a 16 GB T4 can handle for LoRA on Gemma3-1B."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "After filtering, the dataset hits its 700-row cap. With test_fraction = 0.2, how many items go to the test set?",
+          "options": [
+            "560",
+            "70",
+            "200",
+            "140"
+          ],
+          "answer": 3,
+          "explain": "20% of 700 is 140 test items, leaving 560 for training. The lab notes that about 140 summaries get generated during evaluation."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "An extractive summary rewrites the source entirely in new words.",
+          "answer": false,
+          "explain": "Extractive summaries reuse phrases from the source; abstractive summaries rephrase it. The lab asks you to decide which style you want."
+        }
+      ]
+    },
+    {
+      "id": "c8-3",
+      "title": "Conversation",
+      "icon": "chat",
+      "lab": "course_8/gdm_lab_8_7_conversation_worked_example.ipynb",
+      "cards": [
+        {
+          "title": "Q&A from paragraphs",
+          "body": "No chat data? Generate it. Lab 8.7 turns Africa Galore food descriptions into prompt-response pairs. assign_region tags each item with a country and its UN region if a country name appears in its text; build_prompt picks a random question template; generate_response fills a fixed answer template from a matching item. Exact duplicate pairs are then removed."
+        },
+        {
+          "title": "One consistent style",
+          "body": "Questions vary, from 'What is one popular dish from Kenya?' to 'Recommend a well-known local dish from Ghana.' Every answer follows one pattern: 'This dish captures the authentic flavor and spirit of {location}. {name} — {description}', with the description trimmed to about 400 characters. A fixed style makes the effect of fine-tuning easy to spot.",
+          "code": "food_prompts = [\n  f\"What is one popular dish from {loc}?\",\n  f\"Recommend a well-known local dish \"\n  f\"from {loc}.\",\n]"
+        },
+        {
+          "title": "Data pitfalls",
+          "body": "Plain substring matching misses alternate spellings, abbreviations and indirect mentions, and can't spot regions. Upgrades include word-boundary regex, fuzzy matching (Côte d'Ivoire vs Ivory Coast), TF-IDF cosine similarity and sentence embeddings. Also avoid identical prompts paired with different answers: they send conflicting signals, making training unstable and replies bland."
+        },
+        {
+          "title": "Talking to Gemma",
+          "body": "Gemma has only user and model roles, so instructions live inside the user turn. generate_answer wraps a question as a user turn, opens a model turn, generates with max_length 600 (training used 450) and strips the prompt from the output. Each call is stateless: multi-turn chat would need the history in every input. Dialogue may also need more epochs than classification."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "What does the conversation worked example (lab 8.7) produce?",
+          "options": [
+            "Prompt-response pairs built from descriptions",
+            "Category labels for every food item",
+            "Short summaries of each Africa Galore story",
+            "A table of African countries ranked by population"
+          ],
+          "answer": 0,
+          "explain": "It converts descriptive paragraphs into synthetic Q&A pairs that can be used to fine-tune a conversational model."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order the steps inside generate_dataset.",
+          "items": [
+            "Tag items with a country and region",
+            "Build a question from a random template",
+            "Fill the answer template from a match",
+            "Remove exact duplicate pairs"
+          ],
+          "explain": "assign_region runs first. Then, for each location, a prompt is built and a response generated, and duplicates are dropped at the end."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "assign_region can work out an item's country from context, even when no country name appears in its text.",
+          "answer": false,
+          "explain": "It only checks whether a country name appears as text in the name or description. Indirect mentions are missed, and untagged items are dropped."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why might an item that says 'Ivory Coast' miss the country entry 'Côte d'Ivoire'?",
+          "options": [
+            "That country is missing from the UN region table",
+            "Substring matching can't link two names for a place",
+            "Python string matching can't handle apostrophes at all",
+            "The description passed 400 characters"
+          ],
+          "answer": 1,
+          "explain": "Plain containment only finds the exact string. Fuzzy matching or embeddings can connect different names for the same place."
+        },
+        {
+          "type": "match",
+          "level": 3,
+          "prompt": "Match each upgrade to what it adds over plain substring matching.",
+          "pairs": [
+            ["Word-boundary regex", "Stops 'Niger' matching inside 'Nigeria'"],
+            ["Fuzzy matching", "Tolerates typos and small spelling changes"],
+            ["TF-IDF cosine", "Scores weighted word overlap in context"],
+            ["Sentence embeddings", "Compares meaning, catching related phrases"]
+          ],
+          "explain": "Each option trades more computation for smarter matching. For small datasets, regex or fuzzy matching is often enough."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "A dish's text mentions only 'Nigeria'. The country list checks 'Niger' just before 'Nigeria'. What does assign_region assign?",
+          "options": [
+            "Nigeria, the exact name in the text",
+            "Unknown, because two different countries match",
+            "Both Niger and Nigeria",
+            "Niger, since 'niger' is inside 'nigeria'"
+          ],
+          "answer": 3,
+          "explain": "Containment finds 'niger' inside 'nigeria', and the loop stops at the first match. A word-boundary regex would prevent this mistake."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Fill in the role that opens the model's turn in generate_answer.",
+          "code": "prompt = (\n  f\"{sot}user\\n\"\n  f\"{question}{eot}\\n\"\n  f\"{sot}___\\n\"\n)\nraw = model.generate(prompt, max_length=600)",
+          "options": [
+            "user",
+            "system",
+            "model",
+            "assistant"
+          ],
+          "answer": 2,
+          "explain": "Gemma's roles are user and model. Ending the prompt with an open model turn tells it to start answering."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "generate_answer remembers earlier questions, so follow-up questions work out of the box.",
+          "answer": false,
+          "explain": "Each call is stateless. Multi-turn dialogue needs the conversation history included in every input."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why must any instruction go inside the user turn when fine-tuning Gemma?",
+          "options": [
+            "User turns are processed faster",
+            "Gemma has no system role, only user and model",
+            "The model turn is reserved for special tokens only",
+            "Kaggle requires it for licensing"
+          ],
+          "answer": 1,
+          "explain": "Larger models like Gemini have a system role for global instructions. Gemma doesn't, so each example must carry its own context."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Your data pairs one prompt with several different responses. What is the likely effect?",
+          "options": [
+            "Conflicting signals and bland, averaged replies",
+            "Faster training and lower memory use",
+            "None, because the duplicate filter already removes them",
+            "More creative and varied answers"
+          ],
+          "answer": 0,
+          "explain": "The same input pulls toward different targets, giving contradictory updates: unstable loss and generic responses that fully satisfy none of them."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Dialogue models may need more ___ than classifiers, since they learn free-form replies, not fixed labels.",
+          "options": [
+            "epochs",
+            "categories",
+            "GPUs",
+            "labels"
+          ],
+          "answer": 0,
+          "explain": "Learning open-ended generation and conversational structure usually takes more passes over the data. Watch for overfitting as you add them."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "'Recommend a dish from Kenya' works well, but 'What food should I try in Kenya?' doesn't. What is this called?",
+          "options": [
+            "Class imbalance",
+            "Data leakage",
+            "Prompt sensitivity",
+            "Under-sized LoRA rank"
+          ],
+          "answer": 2,
+          "explain": "Small fine-tuned models can react strongly to changes in wording. Diversifying the prompt templates in training improves robustness."
+        },
+        {
+          "type": "match",
+          "level": 2,
+          "prompt": "Match each test-prompt type to an example.",
+          "pairs": [
+            ["Baseline", "Like training: 'Recommend a dish from Nigeria'"],
+            ["Regional query", "'What food should I try in Eastern Africa?'"],
+            ["Format deviation", "'I'm visiting Morocco, what should I eat?'"],
+            ["Edge case", "'What's the best African food?'"]
+          ],
+          "explain": "Start with familiar phrasings, then deviate step by step to find where the model keeps its format and where it breaks down."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "In lab 8.8, each record's input is the prompt and its output is the response.",
+          "answer": true,
+          "explain": "The data is already Q&A pairs, so formatting just maps `prompt` to input and `response` to output."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Asked about Ghana, the model says: '…spirit of Nigeria. Banku — a fermented corn…'. How would the lab rate this?",
+          "options": [
+            "Excellent: authentic dish, engaging tone",
+            "Poor: completely irrelevant answer",
+            "Mixed: right dish, wrong location text",
+            "Fine: Ghana and Nigeria share a region"
+          ],
+          "answer": 2,
+          "explain": "Banku suits Ghana, but the response names Nigeria, a geographic inconsistency. The lab marks this kind of answer as MIXED."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "The worked example generates Q&A for just one topic: TOPICS = [\"___\"].",
+          "options": [
+            "food",
+            "music",
+            "place",
+            "story"
+          ],
+          "answer": 0,
+          "explain": "Only 'food' items are used. You could add topics such as places by extending TOPICS and the prompt templates."
+        }
+      ]
+    },
+    {
+      "id": "c8-4",
+      "title": "Data prep and splits",
+      "icon": "layers",
+      "lab": "course_8/gdm_lab_8_2_classification_stage_2_prepare_your_data_for_building_your_model.ipynb",
+      "cards": [
+        {
+          "title": "Load, then look",
+          "body": "Choose the loader that fits the file: `pd.read_csv` for CSV, `pd.read_json(path, lines=True)` for JSONL, where each line is one JSON object. Then inspect with `df.head()`, `df.info()` and `df.columns`: confirm which columns hold text and labels, check non-English characters survived, count examples per category, and look for duplicates or extreme lengths."
+        },
+        {
+          "title": "Clean, but keep the original",
+          "body": "`clean_html` strips tags and turns entities such as &amp; back into symbols. `clean_unicode` keeps only letters, numbers, punctuation and whitespace, dropping emojis and other symbols. Save the original column, compare before and after, and drop rows that end up empty, like a description that was nothing but `<br><br>`.",
+          "code": "orig = df[\"description\"].astype(str)\ndf[\"description_original\"] = orig\ndf[\"description\"] = (\n    orig.map(clean_html).map(clean_unicode))"
+        },
+        {
+          "title": "Three splits, three jobs",
+          "body": "The training set fits the model's parameters. The validation set guides development: tuning hyperparameters, comparing versions, catching overfitting. The test set stays untouched until the end, for an unbiased final score. Stratified splitting keeps each class's share equal across splits, and a fixed random_state makes the split reproducible.",
+          "code": "df_train, df_val_test = train_test_split(\n    df, test_size=0.2, random_state=42,\n    stratify=df[\"category\"])"
+        },
+        {
+          "title": "Format for fine-tuning",
+          "body": "Each split is saved as JSONL: one record per line, with an 'input' (instruction plus text) and an 'output' (the target). For Gemma, each pair is then wrapped in turn tokens and collected into a dict with 'prompts' and 'responses' keys. Shuffle before training so the model can't pick up patterns from the original order."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "Which call loads a JSONL file, where each line is one JSON object?",
+          "options": [
+            "pd.read_csv(path, encoding=\"utf-8\")",
+            "pd.read_json(path, lines=True)",
+            "json.load(open(path))",
+            "pd.read_json(path)"
+          ],
+          "answer": 1,
+          "explain": "`lines=True` tells pandas to read each line as a separate JSON record, the JSONL format all of these labs save to."
+        },
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each split or method to its job.",
+          "pairs": [
+            ["Training set", "Fits the model's parameters"],
+            ["Validation set", "Guides tuning and model choice"],
+            ["Test set", "Held back for one unbiased final score"],
+            ["Stratified split", "Keeps class proportions equal in each split"]
+          ],
+          "explain": "Train to learn, validate to decide, test once at the end, while stratification keeps every split representative."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "1,000 examples (60% Food, 40% Music) are split 80/20 with stratification. How many Music items land in the test set?",
+          "options": [
+            "40",
+            "200",
+            "80",
+            "120"
+          ],
+          "answer": 2,
+          "explain": "The test set gets 20% of 1,000 = 200 items. Stratification keeps Music at 40%, so 0.4 × 200 = 80."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "It's fine to check scores on the test set while choosing the best learning rate.",
+          "answer": false,
+          "explain": "Tuning on the test set leaks information and inflates the final score. Use the validation set for choices and the test set only at the end."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Fill in the value for a standard 80/20 train/test split.",
+          "code": "df_train, df_test = train_test_split(\n    df, test_size=___, random_state=42)",
+          "options": [
+            "0.8",
+            "0.2",
+            "20",
+            "80"
+          ],
+          "answer": 1,
+          "explain": "test_size is a fraction of the data: 0.2 sends 20% to the test set and keeps 80% for training."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why keep a copy of the original text before cleaning it?",
+          "options": [
+            "To compare before/after and spot lost content",
+            "Because pandas deletes a column once you map it",
+            "So the model can train on both versions at once",
+            "To double the size of the dataset for training"
+          ],
+          "answer": 0,
+          "explain": "Cleaning can remove too much. Keeping the original lets you check that important content survived, and revert if needed."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "clean_unicode keeps letters, numbers, punctuation and whitespace. What happens to 'Jollof 🍚 rice!'?",
+          "options": [
+            "The emoji and the '!' are both removed",
+            "Nothing changes; emojis count as letters",
+            "Only the '!' is removed",
+            "The emoji is removed; the '!' stays"
+          ],
+          "answer": 3,
+          "explain": "The bowl emoji is a symbol, not a letter, number or punctuation mark, so it's dropped. The exclamation mark is punctuation, so it stays."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "After cleaning, a description that was only `<br><br>` is ___, so drop_empty_rows removes it.",
+          "options": [
+            "empty",
+            "unchanged",
+            "an emoji",
+            "a number"
+          ],
+          "answer": 0,
+          "explain": "clean_html strips the tags and leaves an empty string. Real-world data often needs this kind of check after cleaning."
+        },
+        {
+          "type": "cloze",
+          "level": 3,
+          "prompt": "Classification: 40 unseen items × 4 categories are split in half for validation and test. The test set holds ___ items.",
+          "options": [
+            "20",
+            "40",
+            "80",
+            "160"
+          ],
+          "answer": 2,
+          "explain": "40 × 4 = 160 unseen items, and half of 160 is 80: 20 per category, thanks to stratified splitting."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why take the classification validation and test items from beyond the first 100 per category?",
+          "options": [
+            "Those items were never seen in fine-tuning",
+            "They are much cleaner than the first 100 items",
+            "They all belong to the 'Story' category",
+            "Gemma was pretrained on the first 100"
+          ],
+          "answer": 0,
+          "explain": "Training used the first 100 per category, so later items are genuinely unseen and give a fair test of generalisation."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Shuffling with a fixed random_state gives the same order every time the code runs.",
+          "answer": true,
+          "explain": "Fixing the seed (random_state=42) makes the shuffle reproducible, so experiments can be repeated and compared fairly."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order the data-preparation activities.",
+          "items": [
+            "Load and inspect the dataset",
+            "Filter and balance categories",
+            "Clean the text fields",
+            "Split into train/validation/test",
+            "Format as input/output and save"
+          ],
+          "explain": "Labs 8.2, 8.5 and 8.8 follow this path: load and inspect, filter where needed, clean, split, then format and save as JSONL."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why shuffle the training data after filtering?",
+          "options": [
+            "So the categories become perfectly balanced",
+            "Because JSONL files only load when rows are shuffled",
+            "So the model can't learn patterns from data order",
+            "So duplicate rows are removed automatically"
+          ],
+          "answer": 2,
+          "explain": "After filtering, rows may be grouped by category. Shuffling breaks up that order so it can't become a spurious signal."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "Duplicate examples in training data can push a model to overfit to specific items.",
+          "answer": true,
+          "explain": "Repeats get extra weight, so the model may memorise them instead of learning general patterns. That's why the labs check for duplicates."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "How should you choose sequence_length for fine-tuning?",
+          "options": [
+            "Equal to the number of training examples",
+            "Slightly above your longest prompt plus response",
+            "Equal to the number of categories",
+            "Always the largest value that Gemma could ever support"
+          ],
+          "answer": 1,
+          "explain": "It must fit the full prompt and response, but longer sequences use more memory. Analyse your data and leave a small margin."
+        }
+      ]
+    },
+    {
+      "id": "c8-5",
+      "title": "Evaluating responsibly",
+      "icon": "scale",
+      "lab": "course_8/gdm_lab_8_9_conversation_stage_3_train_and_evaluate_your_model.ipynb",
+      "cards": [
+        {
+          "title": "Accuracy, precision, recall",
+          "body": "Accuracy: correct predictions ÷ all predictions. Simple, but misleading when classes are imbalanced. Precision: of the items predicted as a class, the share that truly belong (key when false alarms are costly). Recall: of the items truly in a class, the share the model found (key when misses are costly). The classification lab averages these across classes with weights.",
+          "code": "acc = accuracy_score(y_true, y_pred)\nprec = precision_score(\n    y_true, y_pred, average=\"weighted\")\nrec = recall_score(\n    y_true, y_pred, average=\"weighted\")"
+        },
+        {
+          "title": "Seen vs unseen",
+          "body": "Compare scores on training data with validation and test data. A moderate gap is normal; a large one signals overfitting, where the model learned noise instead of patterns. Try fewer epochs or more diverse data, and judge models by unseen performance. Remember that fine-tuning teaches how to respond, not encyclopaedic facts, so a model can still be wrong on unfamiliar items."
+        },
+        {
+          "title": "No single right answer",
+          "body": "For chat and summaries, human evaluation is the gold standard: is the reply accurate, relevant, fluent and well-toned? Automated helpers scale it up. BLEU and ROUGE count word overlap with a reference, METEOR and BERTScore account for synonyms and meaning, a stronger LLM can act as judge, and behavioral checks test specifics, like whether a dish comes from the requested region."
+        },
+        {
+          "title": "Failure analysis and care",
+          "body": "Spot-check the same examples before and after fine-tuning. Warning signs: off-format outputs, bias toward one class, hallucinated facts, geographic mismatches, stereotypes or disrespectful content. When iterating, change one thing at a time and log every run's settings. The capstone ends with reflection: which values and ethics should a responsible ML practitioner bring?"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "cloze",
+          "level": 3,
+          "prompt": "100 test items: 45 Food and 40 Music items are labelled correctly, 15 are wrong. Accuracy is ___.",
+          "options": [
+            "45%",
+            "85%",
+            "15%",
+            "90%"
+          ],
+          "answer": 1,
+          "explain": "Accuracy = correct ÷ total = (45 + 40) ÷ 100 = 85%."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "The model labels 20 items 'Textile', and 15 of them really are Textile. What is its precision for Textile?",
+          "options": [
+            "75%",
+            "25%",
+            "15%",
+            "80%"
+          ],
+          "answer": 0,
+          "explain": "Precision = true positives ÷ predicted positives = 15 ÷ 20 = 75%. The other 5 were false alarms."
+        },
+        {
+          "type": "cloze",
+          "level": 3,
+          "prompt": "There are 25 real Drink items, and the model finds 20 of them. Recall for Drink is ___.",
+          "options": [
+            "20%",
+            "25%",
+            "75%",
+            "80%"
+          ],
+          "answer": 3,
+          "explain": "Recall = found ÷ actually present = 20 ÷ 25 = 80%. Five Drink items were missed."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "90 of 100 test items are 'Story'. A lazy model always answers 'Story'. What accuracy does it get?",
+          "options": [
+            "10%",
+            "50%",
+            "90%",
+            "100%"
+          ],
+          "answer": 2,
+          "explain": "It's right on all 90 Story items, so 90% accuracy, while never finding any other class. That's why accuracy misleads on imbalanced data."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "A large gap between training accuracy and test accuracy suggests the model is overfitting.",
+          "answer": true,
+          "explain": "Doing much better on seen data than unseen data means it learned training-specific noise rather than general patterns."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Train accuracy is 99% but test accuracy is 62%. What does the lab suggest?",
+          "options": [
+            "Train many more epochs on the same data",
+            "Reduce epochs or add more diverse data",
+            "Report the training accuracy instead",
+            "Stop using a test set at all"
+          ],
+          "answer": 1,
+          "explain": "A big gap points to overfitting. Fewer epochs, more varied training data or regularisation help the model generalise."
+        },
+        {
+          "type": "match",
+          "level": 2,
+          "prompt": "Match each evaluation method to what it does.",
+          "pairs": [
+            ["BLEU / ROUGE", "Count word overlap with a reference"],
+            ["BERTScore", "Compares meaning, allowing synonyms"],
+            ["LLM as judge", "A stronger model rates relevance and tone"],
+            ["Behavioral check", "Tests one fact, e.g. the right region"],
+            ["Human evaluation", "Gold standard for fluency and helpfulness"]
+          ],
+          "explain": "No single metric captures conversational quality. Combining automated scores with selective human review is the most reliable approach."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Fine-tuning teaches a model how to respond; it is not a knowledge ___.",
+          "options": [
+            "database",
+            "tokenizer",
+            "metric",
+            "prompt"
+          ],
+          "answer": 0,
+          "explain": "The model can still misclassify or misdescribe items outside the patterns it learned, so don't treat it as an encyclopaedia."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why reuse the same spot-check examples before and after fine-tuning?",
+          "options": [
+            "The model can only read five prompts",
+            "So the test set never needs to be used",
+            "It gives a direct side-by-side comparison",
+            "To make the model memorise those examples"
+          ],
+          "answer": 2,
+          "explain": "Holding the inputs fixed means any change in the outputs comes from fine-tuning, which makes its effect easy to see."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "When iterating, changing many settings at once is the quickest way to learn what helps.",
+          "answer": false,
+          "explain": "If several things change together you can't tell which one mattered. Change one at a time and log each run."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order the classification evaluation workflow.",
+          "items": [
+            "Spot-check the base model",
+            "Fine-tune with LoRA",
+            "Re-run the same spot checks",
+            "Predict labels for every split",
+            "Compare metrics on seen vs unseen data"
+          ],
+          "explain": "Get a baseline, train, compare on the same examples, and finally measure systematically across train, validation and test."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Which output pattern is a warning sign for a classifier?",
+          "options": [
+            "It predicts 'Food' for nearly every input",
+            "It returns one clean label per item",
+            "Validation and test scores are similar",
+            "It handles varied items within each class"
+          ],
+          "answer": 0,
+          "explain": "Systematic bias toward one category means the model isn't really telling classes apart, even if some of its predictions are right."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Asked for food from Eastern Africa, a chatbot recommends pizza. Which dimension fails most clearly?",
+          "options": [
+            "Response length",
+            "Grammar and fluency",
+            "Format consistency",
+            "Content accuracy"
+          ],
+          "answer": 3,
+          "explain": "Pizza isn't an Eastern African dish, so the geographic and cultural content is wrong. The lab rates this kind of response POOR."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Text that sounds plausible but is factually wrong or off-task is called a ___.",
+          "options": [
+            "stratification",
+            "hallucination",
+            "tokenization",
+            "regularization"
+          ],
+          "answer": 1,
+          "explain": "Small base models are especially prone to hallucinating. Spot checks for faithfulness and accuracy help catch it."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "The lab's chat evaluation framework includes cultural sensitivity, such as avoiding stereotypes.",
+          "answer": true,
+          "explain": "Alongside accuracy, quality and structure, it asks whether responses represent cultures respectfully and reflect their diversity."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "When does precision matter most?",
+          "options": [
+            "When missing true cases is costly",
+            "When false positives are costly",
+            "When classes are perfectly balanced",
+            "When there is no reference label"
+          ],
+          "answer": 1,
+          "explain": "Precision asks how many flagged items are truly positive, so it matters when false alarms are expensive. Recall matters when misses are."
+        }
+      ]
+    }
+  ]
+}

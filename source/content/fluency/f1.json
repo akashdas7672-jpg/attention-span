@@ -1,0 +1,429 @@
+{
+  "id": "f1",
+  "title": "Meet the machine",
+  "blurb": "What AI actually is, minus the hype.",
+  "sessions": [
+    {
+      "id": "f1-1",
+      "title": "What counts as AI?",
+      "icon": "spark",
+      "goal": "Tell a hand-written rule from a learned pattern.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "Rules someone wrote",
+          "body": "Let's start with something you already own: an alarm clock. A person gave it a rule: if it is 7:00, then ring. Most software works this way. It follows instructions someone typed in, and it does the same thing every time."
+        },
+        {
+          "type": "tf",
+          "prompt": "An alarm that rings at 7:00 is following a rule that a person wrote.",
+          "answer": true,
+          "explain": "Someone typed in the instruction: if it is 7:00, then ring. The alarm follows it exactly and never works anything out for itself."
+        },
+        {
+          "type": "cloze",
+          "prompt": "Your out-of-office reply is ordinary software. It follows a ___ that you set up.",
+          "options": ["rule", "habit", "guess"],
+          "answer": 0,
+          "explain": "You told it what to do: if an email arrives while I am away, send this reply. It is an instruction from a person, just like the alarm's."
+        },
+        {
+          "type": "card",
+          "title": "Rules it worked out itself",
+          "body": "Some jobs have no tidy rule. Try writing instructions for spotting a cat in any photo. So people show the software thousands of examples and let it work out the pattern itself. That is today's **AI**: software that learns from examples, not from hand-written rules."
+        },
+        {
+          "type": "mcq",
+          "prompt": "How does AI get its rules?",
+          "options": [
+            "A person types in every rule by hand",
+            "It works them out by studying examples",
+            "It copies them from older, simpler software"
+          ],
+          "answer": 1,
+          "explain": "Nobody could write a rule for every possible cat photo. So the software is shown thousands of examples and finds the pattern for itself."
+        },
+        {
+          "type": "tf",
+          "prompt": "A tool sorts customer comments into happy and unhappy after studying thousands that people had already sorted.",
+          "labels": { "true": "AI", "false": "Not AI" },
+          "answer": true,
+          "explain": "Nobody wrote a rule for what an unhappy comment looks like. The tool found the pattern in examples, and that is what makes it AI."
+        },
+        {
+          "type": "card",
+          "title": "You already use it",
+          "body": "You have probably used AI today without noticing. A spam filter learned from emails people marked as junk. A playlist learned from what listeners skip and replay. Autocorrect learned from how people type. A map's arrival time learned from past journeys."
+        },
+        {
+          "type": "match",
+          "prompt": "Match each everyday helper to the examples it learned from.",
+          "pairs": [
+            ["Spam filter", "Emails people marked as junk"],
+            ["Playlist picks", "Songs listeners skipped or replayed"],
+            ["Autocorrect", "The way people type words"],
+            ["Map arrival time", "How long past journeys took"]
+          ],
+          "explain": "Each helper studied a mountain of real examples from its own corner of life and found the pattern in them. Nobody sat down and wrote its rules."
+        },
+        {
+          "type": "sort",
+          "prompt": "Did a person write the rule, or did the software learn it from examples?",
+          "buckets": ["Written rule", "Learned pattern"],
+          "items": [
+            ["An alarm that rings at 7:00", 0],
+            ["A spam filter catching junk email", 1],
+            ["A calculator adding two numbers", 0],
+            ["A playlist picked to suit your taste", 1],
+            ["A lift going to the floor you pressed", 0],
+            ["A map estimating your arrival time", 1]
+          ],
+          "explain": "The alarm, calculator and lift do exactly what someone told them to. The spam filter, playlist and map worked out their patterns from examples."
+        }
+      ],
+      "takeaway": "AI learns patterns from examples; ordinary software follows rules a person wrote.",
+      "tryit": "Spot three things on your phone today that learned from examples."
+    },
+    {
+      "id": "f1-2",
+      "title": "Learning from examples",
+      "icon": "book",
+      "goal": "Describe what training is and what a model is.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "Practice with examples",
+          "body": "A child learns what a dog is by meeting lots of dogs, not by reading a definition. AI learns in a similar way. People show the software a huge number of examples and let it find the patterns. This practice run is called **training**."
+        },
+        {
+          "type": "tf",
+          "prompt": "Training means a person types in every rule the software will need.",
+          "answer": false,
+          "explain": "It is the other way round. In training, the software is shown a huge number of examples and finds the patterns for itself."
+        },
+        {
+          "type": "mcq",
+          "prompt": "A team wants software that can tell good product reviews from bad ones. How would they train it?",
+          "options": [
+            "Give it a long list of negative words to find",
+            "Let it read the product's website a few times",
+            "Show it many reviews marked as good or bad"
+          ],
+          "answer": 2,
+          "explain": "Training means learning from examples. Thousands of reviews that are already marked let the software find what good ones and bad ones have in common."
+        },
+        {
+          "type": "card",
+          "title": "What training leaves behind",
+          "body": "A chef who has cooked thousands of meals does not carry the recipes around. The skill stays. Training is similar. What is left afterwards is called a **model**: a bundle of learned patterns, not a database of stored answers. It builds each answer fresh."
+        },
+        {
+          "type": "cloze",
+          "prompt": "What is left when training ends is called a ___.",
+          "options": ["model", "database", "rulebook"],
+          "answer": 0,
+          "explain": "A model is the bundle of patterns the software found during training. The examples are put away; the patterns are what remain."
+        },
+        {
+          "type": "mcq",
+          "prompt": "You ask a model for a tagline for a product you invented this morning. Can it write one?",
+          "options": [
+            "No, it can only repeat taglines it has stored",
+            "Yes, it builds a new one from learned patterns",
+            "Only if someone adds the product to its database"
+          ],
+          "answer": 1,
+          "explain": "A model is not a store of ready-made answers. It uses the patterns it picked up from many taglines to build a new one for your product."
+        },
+        {
+          "type": "card",
+          "title": "Learn once, use often",
+          "body": "Learning to drive takes months. Popping to the shops takes minutes. A model is similar. Training is slow and expensive, and it happens once, before you ever meet the model. Using it is fast, and it happens every time you ask."
+        },
+        {
+          "type": "order",
+          "prompt": "Put the life of a model in order, from first to last.",
+          "items": [
+            "People gather a huge number of examples",
+            "The software trains on them, slowly",
+            "The finished model is released",
+            "You ask it a question",
+            "It answers within seconds"
+          ],
+          "explain": "Training comes first and happens once. Only then can anyone use the model, and each use is quick because the slow learning is already done."
+        },
+        {
+          "type": "tf",
+          "prompt": "Each time you ask a model a question, it is trained all over again.",
+          "labels": { "true": "Fact", "false": "Myth" },
+          "answer": false,
+          "explain": "Training happened once, long before you typed anything. Asking a question only uses the finished model, which is why the reply comes back so quickly."
+        }
+      ],
+      "takeaway": "Training finds the patterns once; the finished model uses them every time you ask.",
+      "tryit": "Ask a chat assistant for a tagline for a product you just invented. It cannot look that up, so it builds one from patterns."
+    },
+    {
+      "id": "f1-3",
+      "title": "The next-word game",
+      "icon": "dice",
+      "goal": "Explain how a chat assistant writes, one word at a time.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "One job: guess the next word",
+          "body": "Your phone's keyboard suggests the next word as you type. A chat assistant such as ChatGPT, Claude or Gemini is built on the same idea, grown far bigger. Inside is a **language model**: software trained to predict the next word. That is its one job."
+        },
+        {
+          "type": "mcq",
+          "prompt": "What is the one thing a language model does?",
+          "options": [
+            "Predicts the next word",
+            "Looks up facts in a library",
+            "Checks text for mistakes"
+          ],
+          "answer": 0,
+          "explain": "Like the suggestions above your phone's keyboard, a language model takes the words so far and predicts what comes next. Everything it writes grows from that one skill."
+        },
+        {
+          "type": "match",
+          "prompt": "Play the model yourself. Match each opening to its most likely next word.",
+          "pairs": [
+            ["Once upon a", "time"],
+            ["Happy birthday to", "you"],
+            ["Thank you very", "much"],
+            ["Ladies and", "gentlemen"]
+          ],
+          "explain": "You predicted each next word from patterns you have met thousands of times. A language model does the same, having practised on far more text."
+        },
+        {
+          "type": "card",
+          "title": "Every word gets a score",
+          "body": "The model does not name one word outright. It gives every possible next word a score: its chance of coming next. The scores add up to 100%. Tap to see which comes up.",
+          "play": {
+            "kind": "predict",
+            "prompt": "Twinkle, twinkle, little",
+            "words": [["star", 92], ["bat", 5], ["sandwich", 3]],
+            "slider": false
+          }
+        },
+        {
+          "type": "mcq",
+          "prompt": "After 'Twinkle, twinkle, little', the word 'star' scores 92%. What does that score mean?",
+          "options": [
+            "It is spelled correctly 92% of the time",
+            "It appears in 92% of all nursery rhymes",
+            "It is very likely to be the next word"
+          ],
+          "answer": 2,
+          "explain": "A score is the model's estimate of a word's chance of coming next. 'Star' completes the rhyme, so it takes most of the 100%."
+        },
+        {
+          "type": "tf",
+          "prompt": "After 'Our summer sale starts', words such as 'today', 'soon' and 'Monday' would each get a score.",
+          "answer": true,
+          "explain": "Every possible next word gets a score, so several sensible words share the 100%. Odd words such as 'sandwich' get one too, just a tiny one."
+        },
+        {
+          "type": "card",
+          "title": "One word, then the next",
+          "body": "How do single words become a whole answer? By repeating one small step. The model picks a word, adds it to the text, then predicts again from the longer text. Word by word, like laying a path one paving stone at a time."
+        },
+        {
+          "type": "order",
+          "prompt": "Put the steps a model repeats to write an answer in order.",
+          "items": [
+            "Score the possible next words",
+            "Pick one word",
+            "Add it to the end of the text",
+            "Predict again from the longer text"
+          ],
+          "explain": "Score, pick, add, repeat. Each new word joins the text, so the next prediction can take it into account."
+        },
+        {
+          "type": "tf",
+          "prompt": "A chat assistant writes its whole reply in one go, then shows it to you.",
+          "labels": { "true": "Fact", "false": "Myth" },
+          "answer": false,
+          "explain": "It builds the reply one word at a time: pick, add, predict again. That is why answers often appear on your screen word by word."
+        }
+      ],
+      "takeaway": "A chat assistant writes by predicting the next word, again and again, from scores it gives every possible word.",
+      "tryit": "Open the Lab tab and build a Copycat model. Watch it write by guessing one word after another."
+    },
+    {
+      "id": "f1-4",
+      "title": "Why answers change",
+      "icon": "tune",
+      "goal": "Say why the same prompt can give different answers.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "A spin of the wheel",
+          "body": "A language model scores every possible next word. Picture the scores as slices of a prize wheel. After 'Twinkle, twinkle, little', 'star' fills most of the rim and 'bat' gets a sliver. The model does not just take the top word. It spins: likely words usually win, but not always."
+        },
+        {
+          "type": "mcq",
+          "prompt": "How does a language model choose its next word?",
+          "options": [
+            "It always takes the single top-scoring word",
+            "It picks any word, with all equally likely",
+            "It picks by chance, favouring likely words"
+          ],
+          "answer": 2,
+          "explain": "The choice works like a spin of a weighted wheel. Words with big slices win most often, but the top word is not guaranteed."
+        },
+        {
+          "type": "tf",
+          "prompt": "After 'Twinkle, twinkle, little', a model could write 'bat', even though 'star' scores far higher.",
+          "labels": { "true": "Fact", "false": "Myth" },
+          "answer": true,
+          "explain": "The word is picked by a spin, not simply taken from the top. 'Star' wins most spins, but the sliver belonging to 'bat' still comes up now and then."
+        },
+        {
+          "type": "card",
+          "title": "Same request, new answer",
+          "body": "Ask a friend to describe their weekend twice and the wording will differ. A model is similar. What you type is called a **prompt**. Because every word is picked by a spin, the same prompt can give a different answer each time. That is by design, not a fault."
+        },
+        {
+          "type": "cloze",
+          "prompt": "Because each word is picked by a spin of the wheel, the same prompt can give a ___ answer each time.",
+          "options": ["matching", "different", "shorter"],
+          "answer": 1,
+          "explain": "Every word comes from a fresh spin, and one changed word changes everything that follows. So two runs of the same prompt can take different paths."
+        },
+        {
+          "type": "tf",
+          "prompt": "You send the same prompt twice and get two different taglines. That shows the tool is faulty.",
+          "labels": { "true": "Fact", "false": "Myth" },
+          "answer": false,
+          "explain": "Variety is built in, because each word is picked by chance rather than fixed. It is handy too: ask again and you get fresh options."
+        },
+        {
+          "type": "card",
+          "title": "The creativity setting",
+          "body": "The wheel has a setting, from cautious to bold. It is often called **temperature**. Low sticks to the likeliest words: safe and repeatable. High gives unusual words a better chance: surprising. Try the slider.",
+          "play": {
+            "kind": "predict",
+            "prompt": "The best pizza topping is",
+            "words": [["pepperoni", 40], ["mushrooms", 25], ["ham", 15], ["pineapple", 12], ["anchovies", 8]],
+            "slider": true
+          }
+        },
+        {
+          "type": "sort",
+          "prompt": "Low or high temperature? Sort each description.",
+          "buckets": ["Low", "High"],
+          "items": [
+            ["Safe, predictable wording", 0],
+            ["Surprising word choices", 1],
+            ["Much the same answer each time", 0],
+            ["Wilder, more varied answers", 1],
+            ["Sticks to the likeliest words", 0],
+            ["Unusual words get a better chance", 1]
+          ],
+          "explain": "Low temperature keeps the spin close to the top-scoring words, so answers stay steady. High temperature evens out the odds, so answers vary more."
+        },
+        {
+          "type": "mcq",
+          "prompt": "You want twenty very different name ideas for a new snack. Which setting would help?",
+          "options": [
+            "A higher temperature, for more surprise",
+            "A lower temperature, for steadier answers",
+            "Temperature would make no difference here"
+          ],
+          "answer": 0,
+          "explain": "Higher temperature gives unusual words a better chance, so the ideas spread out. Not every app shows this setting, but where it exists, that is what it does."
+        }
+      ],
+      "takeaway": "Each word is picked by chance, not fixed, so answers vary; temperature sets how adventurous the pick is.",
+      "tryit": "Ask a chat assistant the same question in three new chats and compare the answers."
+    },
+    {
+      "id": "f1-5",
+      "title": "What it knows, and doesn't",
+      "icon": "compass",
+      "goal": "Judge what a model can know, and steer it with your wording.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "Its knowledge has a date",
+          "body": "A printed guidebook is useful, but it cannot list the café that opened last week. The model inside a chat assistant is like that. It learned from text up to a **cut-off date**. Unless the product connects it to search, it has not seen today's news."
+        },
+        {
+          "type": "mcq",
+          "prompt": "What is a model's cut-off date?",
+          "options": [
+            "The day its makers plan to switch it off",
+            "The date when your access to it runs out",
+            "Where the text it learned from stops"
+          ],
+          "answer": 2,
+          "explain": "A model learns from text gathered up to a certain date. Anything written later was never part of what it studied, like news printed after a guidebook went to press."
+        },
+        {
+          "type": "sort",
+          "prompt": "A model has no search connection. Was this in the text it learned from?",
+          "buckets": ["Probably seen", "Not seen"],
+          "items": [
+            ["How rainbows form", 0],
+            ["This morning's headlines", 1],
+            ["The plot of a classic novel", 0],
+            ["Last night's football score", 1],
+            ["Common grammar rules", 0],
+            ["A product launched yesterday", 1]
+          ],
+          "explain": "Long-standing knowledge was in the text the model learned from. Anything newer than its cut-off date was not, unless the product lets it search."
+        },
+        {
+          "type": "card",
+          "title": "Fluent is not the same as right",
+          "body": "You may know someone who answers every quiz question with total confidence, right or wrong. A model can do that too. It predicts what sounds right, not what has been checked. So an answer can read beautifully and still be wrong."
+        },
+        {
+          "type": "mcq",
+          "prompt": "Why can a model give an answer that is fluent but wrong?",
+          "options": [
+            "It only makes mistakes in very long answers",
+            "It predicts what sounds right, unchecked",
+            "It was built to agree with whatever you say"
+          ],
+          "answer": 1,
+          "explain": "A model writes the words most likely to come next. Likely words usually match the facts, but the model does not stop to check that they do."
+        },
+        {
+          "type": "tf",
+          "prompt": "You paste a statistic from a chat assistant straight into a client deck without checking it.",
+          "labels": { "true": "Safe", "false": "Risky" },
+          "answer": false,
+          "explain": "A model predicts what sounds right, so a number can look convincing and still be made up. Check it against a source you trust before a client sees it."
+        },
+        {
+          "type": "card",
+          "title": "Your words steer it",
+          "body": "Change one word and the odds change. After 'She was hungry, so she went looking for', the likely next word is 'food'. Swap 'hungry' for 'thirsty' and 'water' jumps to the top. The model predicts from what you wrote, your prompt, so your wording steers the answer."
+        },
+        {
+          "type": "cloze",
+          "prompt": "Swap 'hungry' for 'thirsty' and the likely next word shifts from 'food' to ___.",
+          "options": ["bread", "lunch", "water"],
+          "answer": 2,
+          "explain": "The model predicts from the words in front of it. 'Thirsty' makes a drink far more likely, so 'water' rises and 'food' falls."
+        },
+        {
+          "type": "mcq",
+          "prompt": "You want a playful tagline for a children's cereal. Which prompt steers the model best?",
+          "options": [
+            "Write a fun, silly tagline for a kids' cereal",
+            "Write one short tagline for a breakfast cereal",
+            "Write a serious tagline for a healthy cereal"
+          ],
+          "answer": 0,
+          "explain": "Words such as 'fun', 'silly' and 'kids' make playful words more likely to come next. The model can only be steered by what you put in the prompt."
+        }
+      ],
+      "takeaway": "A model's knowledge stops at its cut-off, it can sound right and be wrong, and your wording steers it.",
+      "tryit": "Ask a chat assistant for a tagline, then change one word of your request and watch the answer shift."
+    }
+  ]
+}

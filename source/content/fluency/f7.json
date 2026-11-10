@@ -1,0 +1,463 @@
+{
+  "id": "f7",
+  "title": "Trust, but verify",
+  "blurb": "Catch the mistake before your client does.",
+  "sessions": [
+    {
+      "id": "f7-1",
+      "title": "Confident and wrong",
+      "icon": "shield",
+      "goal": "Spot the parts of an AI answer that most need checking.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "A confident wrong turn",
+          "body": "Ask for directions in an unfamiliar town and someone may point the way confidently, without knowing. A chat assistant can do the same. It predicts words that sound likely, not facts it has checked, so it can state something false in smooth, sure prose. This is often called a **hallucination**."
+        },
+        {
+          "type": "cloze",
+          "prompt": "A false statement delivered in smooth, sure prose is often called a ___.",
+          "options": ["hallucination", "first draft", "context window"],
+          "answer": 0,
+          "explain": "A hallucination reads as smoothly as a true statement. It happens because the model predicts likely words rather than checking facts."
+        },
+        {
+          "type": "mcq",
+          "prompt": "An assistant writes that your client's founder \"won a national design award\". It reads well. How should you treat the line?",
+          "options": [
+            "As true, because it is so specific",
+            "As a claim to check before using it",
+            "As a fact to move up into the headline"
+          ],
+          "answer": 1,
+          "explain": "Specific, confident detail is exactly what a hallucination looks like. The model wrote a likely-sounding sentence, and only checking tells you whether the award exists."
+        },
+        {
+          "type": "card",
+          "title": "Where the slips hide",
+          "body": "A proofreader learns where typos tend to hide. AI slips have favourite spots too. The risk is highest for exact details: names, numbers, quotes, links, dates and niche facts. Each has only one right answer, and a near miss still looks convincing. Ideas and rewording are lower risk."
+        },
+        {
+          "type": "sort",
+          "prompt": "An AI draft for a client deck contains these. Which need checking first?",
+          "buckets": ["Check first", "Lower risk"],
+          "items": [
+            ["A quote from a named expert", 0],
+            ["A market-size number", 0],
+            ["Three ideas for a headline", 1],
+            ["A link to a study", 0],
+            ["A friendlier opening line", 1],
+            ["The date a product launched", 0]
+          ],
+          "explain": "Quotes, numbers, links and dates each have one right answer, so a slip is an error. Headline ideas and friendlier wording are matters of taste, where a miss costs little."
+        },
+        {
+          "type": "tf",
+          "prompt": "You copy a quote attributed to your client's CEO from an AI draft straight into a press release.",
+          "answer": false,
+          "labels": { "true": "Safe", "false": "Risky" },
+          "explain": "Quotes are among the riskiest details. The model can produce words the CEO never said, so the quote needs confirming with the client before it goes anywhere."
+        },
+        {
+          "type": "card",
+          "title": "Check what would embarrass you",
+          "body": "A good editor cannot check every comma, but never lets a wrong name go to print. Do the same: verify anything you would be embarrassed to get wrong. Ask the assistant for its sources, then open them. A source can be made up too, with a believable title and link."
+        },
+        {
+          "type": "tf",
+          "prompt": "An assistant can invent a source, with a believable title and link, that does not exist.",
+          "answer": true,
+          "labels": { "true": "Fact", "false": "Myth" },
+          "explain": "A source is predicted text like everything else, so it can be made up. It only counts once you have opened it and seen that it says what was claimed."
+        },
+        {
+          "type": "order",
+          "prompt": "A statistic in an AI draft is heading for a client deck. Put your checks in order.",
+          "items": [
+            "Ask the assistant where it came from",
+            "Open the source it names",
+            "Confirm the source really says it",
+            "Use the statistic and cite the source"
+          ],
+          "explain": "Asking for a source is only the start. You have to open it and find the figure there yourself before the statistic has earned its place in the deck."
+        },
+        {
+          "type": "mcq",
+          "prompt": "The link an assistant gave for a statistic leads to a page that does not exist. What should you do with the statistic?",
+          "options": [
+            "Keep it, since the link looked convincing",
+            "Round it off so it sounds less exact",
+            "Leave it out until you find a real source"
+          ],
+          "answer": 2,
+          "explain": "A dead link suggests the source was invented, and perhaps the figure with it. Until you find it in a real source, it is only a likely-sounding number."
+        }
+      ],
+      "takeaway": "A confident answer can still be false, so check names, numbers, quotes, links and dates before they leave your desk.",
+      "tryit": "Pick one name, number or quote from an AI draft you used recently and check it against a source you trust."
+    },
+    {
+      "id": "f7-2",
+      "title": "Think like a scientist",
+      "icon": "flask",
+      "goal": "Test an AI answer before you rely on it.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "An answer is a guess to test",
+          "body": "A weather forecast is useful, but you still glance at the sky before you leave. Treat an AI answer the same way: as a **hypothesis**, a guess you can test. A scientist does not ask \"does this sound right?\" but \"how could I find out if it is wrong?\""
+        },
+        {
+          "type": "cloze",
+          "prompt": "A scientist treats an AI answer as a ___ to test, not a fact to paste.",
+          "options": ["guarantee", "verdict", "hypothesis"],
+          "answer": 2,
+          "explain": "A hypothesis is a guess you can test. Seeing an answer that way reminds you to look for evidence before you rely on it."
+        },
+        {
+          "type": "mcq",
+          "prompt": "An assistant says your client's audience \"mostly uses one social app\". What would a scientist do next?",
+          "options": [
+            "Look for audience data that could prove it wrong",
+            "Ask it again and see whether it still sounds sure",
+            "Build the media plan around that one social app"
+          ],
+          "answer": 0,
+          "explain": "A guess earns trust by surviving a test. Real audience data could show the claim is wrong, while asking the same model again only gets you more confident wording."
+        },
+        {
+          "type": "card",
+          "title": "The answer you hoped for",
+          "body": "When a review agrees with what you already think of a film, you nod and move on. We all accept answers that match our hopes more easily than answers that do not. This is called **confirmation bias**. So be most careful with the AI answer you wanted to hear."
+        },
+        {
+          "type": "mcq",
+          "prompt": "What is confirmation bias?",
+          "options": [
+            "Trusting whichever answer arrives first",
+            "Doubting every answer you are given",
+            "Accepting answers that match your hopes"
+          ],
+          "answer": 2,
+          "explain": "We wave through the answers we hoped for and save our doubts for the rest. With AI that matters, because a pleasing answer can feel checked when it has not been."
+        },
+        {
+          "type": "tf",
+          "prompt": "An AI summary says your campaign worked, which is what you hoped, so you skip checking the numbers.",
+          "answer": false,
+          "labels": { "true": "Careful", "false": "Biased" },
+          "explain": "Skipping the check because the answer is welcome is confirmation bias at work. The answer you hoped for deserves the same test as one you would have disliked."
+        },
+        {
+          "type": "card",
+          "title": "The horse that could count",
+          "body": "Around 1900 a horse called Clever Hans seemed to do arithmetic, tapping out answers with his hoof. He was really reading tiny cues from people. When he could not see the questioner, he failed. A model can also look clever for the wrong reason, so test it on fresh cases."
+        },
+        {
+          "type": "tf",
+          "prompt": "Clever Hans got his answers right by reading small cues from people, not by doing sums.",
+          "answer": true,
+          "labels": { "true": "Fact", "false": "Myth" },
+          "explain": "Hans watched the people around him and stopped tapping when their faces told him to. He looked clever for a reason nobody had intended."
+        },
+        {
+          "type": "order",
+          "prompt": "Put the Clever Hans story in order.",
+          "items": [
+            "A horse seems to answer sums correctly",
+            "A tester blocks his view of the questioner",
+            "His answers fall apart",
+            "The real skill emerges: reading people"
+          ],
+          "explain": "The test that mattered was the one that took away the hidden cue. Once Hans could not see the questioner, the clever act stopped and the real explanation came out."
+        },
+        {
+          "type": "mcq",
+          "prompt": "Your prompt wrote great captions for the three products you tried. What does the Clever Hans story suggest before you roll it out?",
+          "options": [
+            "Run the same three products once more",
+            "Try it on products you have not tested",
+            "Trust it, as three out of three is clear"
+          ],
+          "answer": 1,
+          "explain": "It may have done well on those three for a reason that will not carry over. Fresh cases show whether the prompt really works or only looked clever."
+        }
+      ],
+      "takeaway": "Treat every AI answer as a guess to test, and test hardest when it says what you hoped to hear.",
+      "tryit": "Take one AI answer you agreed with this week and ask the assistant to argue the opposite. Notice whether your view shifts."
+    },
+    {
+      "id": "f7-3",
+      "title": "Bias in, bias out",
+      "icon": "scale",
+      "goal": "Check AI drafts for who is missing or misrepresented.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "It learned from us",
+          "body": "A new hire soon picks up the habits of the office, good and bad. A model picks up its habits from a vast amount of human writing and pictures. That material carries our stereotypes. It also has gaps, because some people and places appear far less often than others."
+        },
+        {
+          "type": "tf",
+          "prompt": "A model can pick up stereotypes from the human writing and pictures it learned from.",
+          "answer": true,
+          "labels": { "true": "Fact", "false": "Myth" },
+          "explain": "The model learns patterns from what people have written and drawn. Our stereotypes are among those patterns, so they come along with everything else."
+        },
+        {
+          "type": "mcq",
+          "prompt": "Why might an assistant know less about a small regional festival than about a famous global one?",
+          "options": [
+            "It is set to prefer events with big crowds",
+            "Far less was written about it to learn from",
+            "Small festivals are removed during training"
+          ],
+          "answer": 1,
+          "explain": "A model only knows what appeared in the material it learned from. People and places that were written about less leave gaps, and the model fills gaps with guesses."
+        },
+        {
+          "type": "card",
+          "title": "How the skew shows up",
+          "body": "Search a photo library for \"boss\" and see who fills the first page. AI output can skew the same way. Ask for a picture of \"a CEO\" or \"a nurse\" and you may get one kind of person every time. Text skews too: some communities' slang gets marked \"unprofessional\"."
+        },
+        {
+          "type": "cloze",
+          "prompt": "Ten AI images of \"a CEO\" all show the same kind of person. That pattern is a ___ the model picked up.",
+          "options": ["stereotype", "glitch", "house style"],
+          "answer": 0,
+          "explain": "In the pictures it learned from, one kind of person turned up as the CEO far more often than others, so it repeats that picture. It is a learned pattern, not a one-off glitch."
+        },
+        {
+          "type": "mcq",
+          "prompt": "A tool marks a customer's casual, slangy review as \"unprofessional\". What should you keep in mind?",
+          "options": [
+            "The tool knows the rules of good writing",
+            "Slang always signals an unhappy customer",
+            "The label may reflect a learned bias"
+          ],
+          "answer": 2,
+          "explain": "The tool learned what counts as \"professional\" from human writing, where some people's ways of speaking were judged more harshly. Its label can repeat that judgement."
+        },
+        {
+          "type": "card",
+          "title": "Look for who is missing",
+          "body": "A good casting director asks who is not in the room. Do the same with AI drafts: check who is missing and who appears only as a cliché. Then get varied eyes on the work. Colleagues with different backgrounds will notice things you cannot."
+        },
+        {
+          "type": "sort",
+          "prompt": "You are reviewing AI-made campaign images. Which questions help you catch bias?",
+          "buckets": ["Catches bias", "Other checks"],
+          "items": [
+            ["Who is missing from these pictures?", 0],
+            ["Is the logo the right size?", 1],
+            ["Is anyone shown only as a cliché?", 0],
+            ["Has someone unlike me looked at this?", 0],
+            ["Is the file in the right format?", 1]
+          ],
+          "explain": "Bias hides in who is shown and how, so the useful questions are about people: who is absent, who is a cliché, and who else has reviewed the work."
+        },
+        {
+          "type": "mcq",
+          "prompt": "Why ask colleagues with different backgrounds to review an AI-assisted campaign?",
+          "options": [
+            "They notice gaps and clichés you may miss",
+            "They can generate the images more quickly",
+            "It passes the responsibility on to them"
+          ],
+          "answer": 0,
+          "explain": "Everyone has blind spots, and the model shares many of ours. People with different experiences spot what is missing or off before the audience does."
+        }
+      ],
+      "takeaway": "Models echo the stereotypes and gaps in what they learned from, so check who is missing and get varied eyes on it.",
+      "tryit": "Open a recent deck or campaign from your company and study its images, AI-made or not. Note who appears and who is missing."
+    },
+    {
+      "id": "f7-4",
+      "title": "What not to paste",
+      "icon": "shield",
+      "goal": "Decide what is safe to put into an AI tool.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "Your words can stay behind",
+          "body": "Send an email and a copy now sits on a computer you do not control. Typing into an AI tool is similar. What you enter may be stored by the company that runs the tool. With some tools and settings, it may also be used to improve the product."
+        },
+        {
+          "type": "tf",
+          "prompt": "What you type into an AI tool may be stored by the company that runs it.",
+          "answer": true,
+          "labels": { "true": "Fact", "false": "Myth" },
+          "explain": "With most AI tools your words travel to the company's computers to be answered, and they may be kept there. For how long, and for what, depends on the tool and its settings."
+        },
+        {
+          "type": "mcq",
+          "prompt": "Two AI tools look alike on screen. What does that tell you about how each treats what you type?",
+          "options": [
+            "Both must follow the same shared rulebook",
+            "Nothing; it depends on each tool's settings",
+            "Both delete it once you close the chat window"
+          ],
+          "answer": 1,
+          "explain": "Whether your text is stored, and whether it helps improve the product, varies from tool to tool and even between settings in one tool. Looks tell you nothing."
+        },
+        {
+          "type": "card",
+          "title": "Three things to pause on",
+          "body": "You would not read a client's secret launch plan aloud in a busy café. Bring the same instinct to AI tools. Stop and think before pasting three kinds of material: confidential client information, unreleased work, and **personal data**, meaning details about real people, such as addresses or salaries."
+        },
+        {
+          "type": "match",
+          "prompt": "Match each item to the kind of material it is.",
+          "pairs": [
+            ["Client's sales figures", "Confidential client information"],
+            ["Unaired campaign film", "Unreleased work"],
+            ["Staff home addresses", "Personal data"]
+          ],
+          "explain": "All three deserve a pause. The sales figures belong to the client, the film is not yet public, and home addresses are details about real people."
+        },
+        {
+          "type": "sort",
+          "prompt": "Which of these should make you pause before pasting into an AI tool?",
+          "buckets": ["Pause first", "Lower risk"],
+          "items": [
+            ["A client's unannounced launch date", 0],
+            ["A press release that is already public", 1],
+            ["A list of customer names and emails", 0],
+            ["A colleague's salary details", 0],
+            ["A well-known proverb you want reworded", 1],
+            ["Next season's unreleased designs", 0]
+          ],
+          "explain": "Client secrets, unreleased work and details about real people call for a pause. Public or generic text carries far less risk, though your company's policy has the final word."
+        },
+        {
+          "type": "card",
+          "title": "Approved tools, and ask",
+          "body": "Many workplaces keep a list of approved software, because someone has checked how each program handles data. AI tools are no different. Use the ones your company has approved and check your company's policy on what may go into them. When you are unsure, ask before you paste."
+        },
+        {
+          "type": "tf",
+          "prompt": "You paste a client's unreleased plans into a new AI tool that nobody at your company has approved.",
+          "answer": false,
+          "labels": { "true": "Safe", "false": "Risky" },
+          "explain": "Unreleased client plans are exactly what to pause on, and nobody has checked how this tool stores or uses what it is given. Use an approved tool and check your company's policy."
+        },
+        {
+          "type": "tf",
+          "prompt": "You ask an AI tool your company has approved to tidy the wording of a press release that is already public.",
+          "answer": true,
+          "labels": { "true": "Safe", "false": "Risky" },
+          "explain": "The text is already public and the tool has been checked, so little is at stake. The pause is for confidential, unreleased or personal material."
+        },
+        {
+          "type": "mcq",
+          "prompt": "You are not sure whether meeting notes with client names can go into an AI tool. What is the best move?",
+          "options": [
+            "Ask first, and check your company's policy",
+            "Paste them, then delete the chat afterwards",
+            "Use a personal account instead of a work one"
+          ],
+          "answer": 0,
+          "explain": "Deleting a chat afterwards may not undo what was sent, and a personal account has not been checked by anyone at work. A quick question costs a minute and removes the doubt."
+        }
+      ],
+      "takeaway": "Pause before pasting client secrets, unreleased work or personal data; use approved tools, check your company's policy and ask when unsure.",
+      "tryit": "Find your company's list of approved AI tools and its policy on what you may put into them. Save the link."
+    },
+    {
+      "id": "f7-5",
+      "title": "How good is good?",
+      "icon": "gauge",
+      "goal": "Run a small, fair test of an AI tool or prompt.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "One demo proves little",
+          "body": "One great meal does not make a great restaurant. You would go back a few times before booking the client dinner there. AI is the same: one impressive demo is not evidence. Try the tool on many examples, including awkward ones, and see how often it holds up."
+        },
+        {
+          "type": "tf",
+          "prompt": "One impressive demo is solid evidence that an AI tool is reliable.",
+          "answer": false,
+          "labels": { "true": "Fact", "false": "Myth" },
+          "explain": "A single good result can be luck, or a hand-picked best case. Only many examples, including awkward ones, show how often the tool gets things right."
+        },
+        {
+          "type": "mcq",
+          "prompt": "A vendor shows a tool writing one brilliant product description. What should you ask for before trusting it?",
+          "options": [
+            "The same demo again, a little slower",
+            "A longer version of that description",
+            "A trial on many of your own products"
+          ],
+          "answer": 2,
+          "explain": "One example was chosen to impress. Many of your own products, ordinary and awkward, show how the tool behaves on the work you would really give it."
+        },
+        {
+          "type": "card",
+          "title": "Decide what good means first",
+          "body": "A judge needs the scoring rules before the contest starts. Decide what \"good\" means before you test. For sorting jobs, such as tagging comments as happy or angry, count the right answers. Writing has no single right answer, so people have to judge it."
+        },
+        {
+          "type": "sort",
+          "prompt": "How would you measure \"good\" for each job?",
+          "buckets": ["Count right ones", "People judge"],
+          "items": [
+            ["Tagging comments as happy or angry", 0],
+            ["Writing a campaign tagline", 1],
+            ["Marking emails as spam or not spam", 0],
+            ["Drafting a warm apology to a customer", 1],
+            ["Filing invoices under the right client", 0]
+          ],
+          "explain": "Tags, spam labels and filing each have one right answer, so you can count. A tagline or an apology can be good in many ways, so people have to judge."
+        },
+        {
+          "type": "tf",
+          "prompt": "You look at a tool's answers first, and only then decide what counts as \"good\".",
+          "answer": false,
+          "labels": { "true": "Fair test", "false": "Unfair test" },
+          "explain": "Set the rules after seeing the answers and it is easy to bend them toward the result you hoped for. Decide first, then test."
+        },
+        {
+          "type": "card",
+          "title": "Keep a small test set",
+          "body": "An optician shows you the same letter chart through each lens, so the comparison is fair. Keep a small set of test examples and reuse it to compare prompts and tools. One caution: do not judge on examples you used while adjusting your prompt. It was shaped to suit those."
+        },
+        {
+          "type": "order",
+          "prompt": "Put the steps of a fair test in order.",
+          "items": [
+            "Decide what good means",
+            "Run the tool on your test examples",
+            "Score each answer by that definition",
+            "Compare the scores between tools"
+          ],
+          "explain": "The definition comes first so you cannot bend it later. Then every tool faces the same examples and the same scoring, which is what makes the comparison fair."
+        },
+        {
+          "type": "mcq",
+          "prompt": "You adjusted a prompt until it nailed five sample briefs. Which examples give the fairest read on how good it is?",
+          "options": [
+            "The same five briefs, run once more",
+            "Fresh briefs you did not adjust it on",
+            "Easier briefs, to give it a fair chance"
+          ],
+          "answer": 1,
+          "explain": "The prompt has been shaped to suit those five, so they flatter it. Briefs it was not adjusted on show how it will do on real work."
+        },
+        {
+          "type": "match",
+          "prompt": "Match each testing habit to the reason behind it.",
+          "pairs": [
+            ["Many examples", "One good result can be luck"],
+            ["Rules set first", "Stops you bending the score afterwards"],
+            ["Same test set", "Makes the comparison fair"],
+            ["Fresh examples", "Shows it works beyond what you adjusted on"]
+          ],
+          "explain": "Each habit closes a gap that can fool you: luck, moving goalposts, unfair comparisons, and a prompt that only suits the examples it was shaped on."
+        }
+      ],
+      "takeaway": "Judge AI on many examples, decide what good means first, and keep a small test set you did not adjust on.",
+      "tryit": "Save five real examples from your own work in a note. Run every new prompt or tool on them before you trust it."
+    }
+  ]
+}

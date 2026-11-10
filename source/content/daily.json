@@ -1,0 +1,1156 @@
+{
+  "questions": [
+    {
+      "type": "mcq",
+      "topic": "f1",
+      "prompt": "You ask a chat assistant the same question twice and get two different answers. What is the most likely reason?",
+      "options": [
+        "It has a fault, so one of the two answers must be wrong",
+        "It picks each word with a bit of chance, by design",
+        "It was retrained in the time between your two questions",
+        "It ran out of stored answers and had to write a new one"
+      ],
+      "answer": 1,
+      "explain": "A chat assistant builds its reply one word at a time, and each word is drawn with a little chance, like spinning a weighted wheel. So the wording varies from run to run. That is by design."
+    },
+    {
+      "type": "tf",
+      "topic": "f2",
+      "prompt": "Before an AI model does anything with your message, every word in it is turned into numbers.",
+      "answer": true,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "A model can only work with numbers. Your text is cut into pieces, and each piece is swapped for an ID number before the model does anything else with it."
+    },
+    {
+      "type": "mcq",
+      "topic": "f3",
+      "prompt": "A student memorises last year's exam answers, then fails this year's paper. Which AI problem does this resemble?",
+      "options": [
+        "A model that was built with too few settings inside",
+        "A model that was stopped before it finished practising",
+        "A model that memorised its examples, not the pattern",
+        "A model that forgot its examples soon after training"
+      ],
+      "answer": 2,
+      "explain": "A model can learn its practice examples by heart instead of the pattern behind them. It then shines on what it has seen and stumbles on anything new. Builders call this overfitting."
+    },
+    {
+      "type": "tf",
+      "topic": "f4",
+      "prompt": "While writing a reply, a model can look back at every word so far but cannot peek ahead at words it has not written yet.",
+      "answer": true,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "It writes one word at a time. Each new word is chosen by looking back over everything already on the page. There is no finished draft tucked away for it to read ahead from."
+    },
+    {
+      "type": "mcq",
+      "topic": "f5",
+      "prompt": "Which prompt is most likely to get a usable first draft of a product caption?",
+      "options": [
+        "Caption for oat milk launch: busy parents, warm tone, 20 words",
+        "Write an amazing, viral, award-winning caption for our oat milk",
+        "Write a caption for our new oat milk, and make it good",
+        "Please write the best caption you can, this really matters"
+      ],
+      "answer": 0,
+      "explain": "The model only knows what is on the page. Naming the audience, tone and length gives it something to aim at. Praise words like 'amazing' or 'viral' add no information."
+    },
+    {
+      "type": "tf",
+      "topic": "f6",
+      "prompt": "Out of the box, a general chat assistant already writes in your brand's voice.",
+      "answer": false,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "A base model is a generalist, trained on a broad sweep of writing, so its default voice is generic. To get yours, show it examples, or for high-volume work consider extra training on your copy."
+    },
+    {
+      "type": "mcq",
+      "topic": "f7",
+      "prompt": "In AI, what is a 'hallucination'?",
+      "options": [
+        "A picture the AI produces without being asked for one",
+        "A crash that makes the tool stop responding mid-answer",
+        "A false statement written in fluent, confident prose",
+        "An answer that comes back in the wrong language"
+      ],
+      "answer": 2,
+      "explain": "A model predicts likely text rather than checked facts, so it can produce something untrue that reads perfectly well. That is called a hallucination. Fluency is no sign of accuracy."
+    },
+    {
+      "type": "tf",
+      "topic": "f8",
+      "prompt": "Sending an AI-made poster to print without zooming in on the hands and the lettering.",
+      "answer": false,
+      "labels": {
+        "true": "Safe",
+        "false": "Risky"
+      },
+      "explain": "An image generator builds brand-new pixels rather than copying a real photo, so small precise details such as fingers or text can come out wrong. Zoom in before anything ships."
+    },
+    {
+      "type": "tf",
+      "topic": "f1",
+      "prompt": "A chat assistant looks up its answers in a database of facts.",
+      "answer": false,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "There is no fact database inside. What training leaves behind is a pattern machine that predicts likely words, which is why it can write smoothly about a topic and still get details wrong."
+    },
+    {
+      "type": "mcq",
+      "topic": "f2",
+      "prompt": "In AI, what is a 'token'?",
+      "options": [
+        "A common word, or a piece of one, that the model reads",
+        "A single letter, which the model reads one at a time",
+        "A whole sentence, which the model takes in as one unit",
+        "A short summary the model writes of each message"
+      ],
+      "answer": 0,
+      "explain": "Models do not read letter by letter or sentence by sentence. They read tokens: common words whole, and longer or rarer words chopped into a few pieces."
+    },
+    {
+      "type": "tf",
+      "topic": "f3",
+      "prompt": "Two AI models built to the same design can behave differently, because training left their internal settings at different values.",
+      "answer": true,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "A model's behaviour lives in its settings, not in its blueprint. Train the same design on different examples and the settings land in different places, a bit like twins raised in different homes."
+    },
+    {
+      "type": "mcq",
+      "topic": "f4",
+      "prompt": "'The trophy didn't fit in the suitcase because it was too big.' How does a model work out what 'it' refers to?",
+      "options": [
+        "It assumes 'it' always means the nearest noun",
+        "It treats small words like 'it' as filler to skip",
+        "It checks a hand-written list of what 'it' can mean",
+        "It scores which earlier words matter most to 'it'"
+      ],
+      "answer": 3,
+      "explain": "Meaning often hangs on a word far back. For each word, a model scores how relevant every other word is, an idea called attention. Here 'trophy' wins, because a trophy can be too big to fit."
+    },
+    {
+      "type": "tf",
+      "topic": "f5",
+      "prompt": "Prompt: 'Write a short, punchy caption like these', followed by three long, formal examples.",
+      "answer": false,
+      "labels": {
+        "true": "Strong prompt",
+        "false": "Weak prompt"
+      },
+      "explain": "The model copies the pattern, length and tone of your examples, and they can outweigh your description. Long, formal samples get you long, formal captions, so pick examples that match what you want."
+    },
+    {
+      "type": "mcq",
+      "topic": "f6",
+      "prompt": "What does it mean to 'fine-tune' an AI model?",
+      "options": [
+        "Rewrite your prompt again and again until the answer fits",
+        "Turn its creativity setting up or down for each task",
+        "Connect it to the internet so it can read fresh facts",
+        "Train it a little more on a small set of chosen examples"
+      ],
+      "answer": 3,
+      "explain": "Fine-tuning takes a general model and trains it a little further on a small, focused set of examples, such as one brand's past copy. It changes the model itself, not just what is on the page."
+    },
+    {
+      "type": "tf",
+      "topic": "f7",
+      "prompt": "Pasting a client's unreleased product plans into an AI tool your company has not approved.",
+      "answer": false,
+      "labels": {
+        "true": "Safe",
+        "false": "Risky"
+      },
+      "explain": "What you type into a tool may be stored, and with some tools and settings it may be used to improve the product. Keep confidential material to approved tools and check your company's policy."
+    },
+    {
+      "type": "mcq",
+      "topic": "f8",
+      "prompt": "What makes an AI 'agent' different from a plain chat assistant?",
+      "options": [
+        "It has been trained on far more text than usual",
+        "It can use tools and take several steps towards a goal",
+        "It is a human expert typing the replies behind the scenes",
+        "It answers by voice instead of answering in text"
+      ],
+      "answer": 1,
+      "explain": "An agent is a model that can act, not just write: search, open files, update a calendar. It works in a loop of plan, act, look at the result, and repeat until the goal is met."
+    },
+    {
+      "type": "mcq",
+      "topic": "f1",
+      "prompt": "A chat assistant with no web search is asked who won a match played last night. What is it most likely to do?",
+      "options": [
+        "Give the right score, because it updates itself overnight",
+        "Check the news quietly in the background, then answer",
+        "Decline, because it is not built to discuss sport",
+        "Say it cannot know, or make a guess that may be wrong"
+      ],
+      "answer": 3,
+      "explain": "A model learns from text gathered up to a cut-off date. Unless the product connects it to search, it has never seen last night's news, so anything it says about it is a guess."
+    },
+    {
+      "type": "tf",
+      "topic": "f2",
+      "prompt": "A pasted jumble of notes, typos and half-finished thoughts gets you the same quality of answer as a tidy brief.",
+      "answer": false,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "The model works from exactly what is on the page. Clear, tidy input gives it better clues, so a minute spent cleaning up your notes usually pays for itself in the answer."
+    },
+    {
+      "type": "mcq",
+      "topic": "f3",
+      "prompt": "How do AI builders check that a model has learned a real pattern rather than memorised its practice examples?",
+      "options": [
+        "They test it on examples it was never shown",
+        "They ask the model whether it understood",
+        "They run the same practice examples again",
+        "They count the number of settings inside it"
+      ],
+      "answer": 0,
+      "explain": "Some examples are held back and never used in training. If the model does well on those unseen cases, it has learned something general. It is why a fair exam uses fresh questions."
+    },
+    {
+      "type": "tf",
+      "topic": "f4",
+      "prompt": "A language model pays equal attention to every word in your message.",
+      "answer": false,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "It weighs them. To make sense of 'tired' in 'the cat that chased the mice was tired', it leans mostly on 'cat', not on 'mice'. This weighing is called attention."
+    },
+    {
+      "type": "mcq",
+      "topic": "f5",
+      "prompt": "The assistant's draft email reads too formal for your client. What is the best next move?",
+      "options": [
+        "Open a new chat and send the very same prompt again",
+        "Scrap the draft and write the email yourself from scratch",
+        "Reply with notes: 'warmer, shorter, drop the jargon'",
+        "Tell it the draft is bad and ask it to try harder"
+      ],
+      "answer": 2,
+      "explain": "Treat the first answer as a first draft. Specific notes, the kind you would give a junior colleague, usually get you closer than starting over, because the chat keeps everything you have already agreed."
+    },
+    {
+      "type": "tf",
+      "topic": "f6",
+      "prompt": "The more you chat with an AI assistant, the more the model itself is retrained to suit you.",
+      "answer": false,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "Chatting only changes what is on the page. The model's inner settings stay fixed while you use it, even if the product saves notes about you. Changing the model takes extra training, known as fine-tuning."
+    },
+    {
+      "type": "mcq",
+      "topic": "f7",
+      "prompt": "A chat assistant drafts a blog post for a client. Which part most needs checking before it goes out?",
+      "options": [
+        "The statistic and the quote from a named expert",
+        "The opening sentence and the main headline above it",
+        "The paragraph breaks and the bullet points",
+        "The friendly sign-off in the final line"
+      ],
+      "answer": 0,
+      "explain": "Mistakes cluster in specifics: names, numbers, quotes, links and dates. They look just as convincing as everything around them, so check each one at its source before the post leaves the building."
+    },
+    {
+      "type": "tf",
+      "topic": "f8",
+      "prompt": "Some AI learns the way you learn a video game: by trying moves and seeing which ones score points.",
+      "answer": true,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "This is called reinforcement learning. The software tries actions, earns rewards for good outcomes and gradually favours what works. Nobody shows it the right move; it finds out by playing."
+    },
+    {
+      "type": "tf",
+      "topic": "f1",
+      "prompt": "A spam filter that gets better as people mark more emails as junk.",
+      "answer": true,
+      "labels": {
+        "true": "AI",
+        "false": "Not AI"
+      },
+      "explain": "Nobody typed in a rule for every junk email. The filter studies the messages people mark and works out the telltale patterns itself, so it keeps improving as it sees more."
+    },
+    {
+      "type": "mcq",
+      "topic": "f2",
+      "prompt": "What is an AI model's 'context window'?",
+      "options": [
+        "The hours of the day when the tool is free to use",
+        "The box on the screen where you type your message",
+        "Everything it can see at once, like the chat so far",
+        "The date after which it has no knowledge of any events"
+      ],
+      "answer": 2,
+      "explain": "The context window is the model's working memory: your message, the conversation so far and any files you added. If something is not in there, the model cannot see it."
+    },
+    {
+      "type": "tf",
+      "topic": "f3",
+      "prompt": "Each unit inside a neural network does something very simple. The ability comes from vast numbers of them working together.",
+      "answer": true,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "A neural network is built from tiny units that each do a small sum and pass a signal on. No single unit is clever. The skill comes from millions of them connected in layers."
+    },
+    {
+      "type": "mcq",
+      "topic": "f4",
+      "prompt": "The word 'bank' appears in 'river bank' and in 'bank loan'. How does a modern language model deal with that?",
+      "options": [
+        "It gives 'bank' one fixed meaning wherever it appears",
+        "It adjusts the meaning of 'bank' using the words nearby",
+        "It picks whichever meaning is more common in general",
+        "It marks the sentence as unclear and asks you to rephrase"
+      ],
+      "answer": 1,
+      "explain": "Each word's meaning is updated by blending in the words it pays attention to. Next to 'river', 'bank' shifts towards water. Next to 'loan', it shifts towards money."
+    },
+    {
+      "type": "tf",
+      "topic": "f5",
+      "prompt": "Prompt: 'Here is our headline and who it is for. Give me three different directions, and say which is strongest and why.'",
+      "answer": true,
+      "labels": {
+        "true": "Strong prompt",
+        "false": "Weak prompt"
+      },
+      "explain": "It supplies the context, asks for options rather than one take-it-or-leave-it answer, and asks for the reasoning, so you have something to compare and a way to check the thinking."
+    },
+    {
+      "type": "mcq",
+      "topic": "f6",
+      "prompt": "A help chatbot has to quote this week's prices, which change often. What is the most sensible way to build it?",
+      "options": [
+        "Retrain the whole model each time a price changes",
+        "Have it fetch the current price list whenever it answers",
+        "Tell it in the prompt to try hard to recall the prices",
+        "Switch to a bigger model, which will know more prices"
+      ],
+      "answer": 1,
+      "explain": "For facts that change, a product can fetch the right document and put it in front of the model at the moment you ask. This is often called retrieval, and it beats retraining every week."
+    },
+    {
+      "type": "tf",
+      "topic": "f7",
+      "prompt": "Asking a chat assistant for twenty different ways to say 'limited time offer'.",
+      "answer": true,
+      "labels": {
+        "true": "Safe",
+        "false": "Risky"
+      },
+      "explain": "Nothing confidential goes in, and nothing that comes out is a fact that needs checking. Low-stakes brainstorming like this is a good use of AI. You still pick the winner."
+    },
+    {
+      "type": "mcq",
+      "topic": "f8",
+      "prompt": "A social feed is built to reward one thing only: clicks. What will it most likely learn to show people?",
+      "options": [
+        "The most accurate and balanced posts it can find",
+        "A fair mix of posts hand-picked by its engineers",
+        "Fewer posts overall, to save people some time",
+        "Whatever gets clicked most, clickbait included"
+      ],
+      "answer": 3,
+      "explain": "Software that learns by reward chases exactly what you reward, not what you meant. Reward clicks alone and you get clickbait. Choosing the right goal is the hard part."
+    },
+    {
+      "type": "mcq",
+      "topic": "f1",
+      "prompt": "At its core, what is a chat assistant doing when it writes a reply?",
+      "options": [
+        "Predicting a likely next word, over and over",
+        "Looking up the answer in a huge store of facts",
+        "Copying the closest matching page from the web",
+        "Following a script its programmers wrote in advance"
+      ],
+      "answer": 0,
+      "explain": "A language model does one thing: given the text so far, it predicts a likely next word. It adds that word and predicts again, until a whole answer is on the page."
+    },
+    {
+      "type": "tf",
+      "topic": "f2",
+      "prompt": "In everyday writing, a small handful of words such as 'the' and 'of' make up a large share of all the words used.",
+      "answer": true,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "Language is lopsided: a few words do most of the work and most words are rare. That is one reason models read in pieces, so rare words can be built from common parts."
+    },
+    {
+      "type": "mcq",
+      "topic": "f3",
+      "prompt": "One of your posts goes viral on a Tuesday and a colleague declares 'Tuesday is our best day'. What is the AI lesson here?",
+      "options": [
+        "The first result you see is usually the true pattern",
+        "One example may be a fluke; real patterns need many",
+        "Viral posts should be removed from any analysis",
+        "Tuesday is the answer, so move every post to that day"
+      ],
+      "answer": 1,
+      "explain": "Data mixes real patterns with coincidences. A model, or a person, working from too little will treat a coincidence as a rule. More examples make the real pattern stand out: one viral post is not a trend."
+    },
+    {
+      "type": "tf",
+      "topic": "f4",
+      "prompt": "The 'large' in 'large language model' refers to the billions of settings inside it and the vast amount of text it learned from.",
+      "answer": true,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "Both are huge: billions of adjustable settings, set by training on more text than anyone could read in many lifetimes. That scale is what lets one model turn its hand to almost any subject."
+    },
+    {
+      "type": "mcq",
+      "topic": "f5",
+      "prompt": "You want ten taglines in your brand's voice. Which addition to your prompt helps most?",
+      "options": [
+        "The words 'in our brand voice' typed in capital letters",
+        "Three past taglines you like, pasted in as examples",
+        "A reminder that this task is extremely important",
+        "An instruction to think like a marketing genius"
+      ],
+      "answer": 1,
+      "explain": "Showing beats telling. 'Our brand voice' means little to a model that has never met your brand, but two or three real samples give it a pattern to follow."
+    },
+    {
+      "type": "tf",
+      "topic": "f6",
+      "prompt": "Every answer from a chat assistant takes billions of small calculations on specialised chips.",
+      "answer": true,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "Each word it writes means running your text through all of the model's settings, which uses real computing power and electricity. That is why AI tools cost money to run, and why bigger models cost more."
+    },
+    {
+      "type": "mcq",
+      "topic": "f7",
+      "prompt": "A chat assistant gives you a market-size figure with a link to its source. What should you do before using it?",
+      "options": [
+        "Trust it, because it took the trouble to cite a source",
+        "Ask the assistant whether it is sure about the figure",
+        "Use it, but round the number down to be on the safe side",
+        "Open the link and confirm the figure is really there"
+      ],
+      "answer": 3,
+      "explain": "A model can invent a source as easily as a fact, or cite a real page that says something else. Opening it is the only real check. Asking 'are you sure?' just gets you more fluent text."
+    },
+    {
+      "type": "tf",
+      "topic": "f8",
+      "prompt": "If an AI-written line in a campaign turns out to be wrong, the responsibility lies with the AI.",
+      "answer": false,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "A tool cannot be held to account. AI drafts; a person decides what goes out and answers for it. Treat every output as a draft waiting for your sign-off."
+    },
+    {
+      "type": "tf",
+      "topic": "f1",
+      "prompt": "A website pop-up that offers every visitor 10% off after thirty seconds on the page.",
+      "answer": false,
+      "labels": {
+        "true": "AI",
+        "false": "Not AI"
+      },
+      "explain": "This is a rule a person typed in: after thirty seconds, show the offer. It treats everyone the same and never learns from examples, so it is ordinary software, however well it sells."
+    },
+    {
+      "type": "mcq",
+      "topic": "f2",
+      "prompt": "Two hours into one long chat, the assistant starts ignoring the tone rules you set at the start. What most likely happened?",
+      "options": [
+        "It decided your rules were no longer worth following",
+        "The tool was updated to a new version mid-conversation",
+        "Someone else changed the settings on your account",
+        "Your early messages slipped out of what it can see"
+      ],
+      "answer": 3,
+      "explain": "A model can only take in a limited amount of text at once. In a very long chat the oldest messages can fall out of view, so restate key rules now and then, or start afresh."
+    },
+    {
+      "type": "tf",
+      "topic": "f3",
+      "prompt": "Give a pattern-finding model enough freedom and it will 'find' patterns in pure coincidence.",
+      "answer": true,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "Data holds real patterns and flukes. A model with too much freedom fits the flukes as well, like someone who sees a lucky shirt behind every win. One cure is a simpler model with less room to chase them."
+    },
+    {
+      "type": "mcq",
+      "topic": "f4",
+      "prompt": "Early text predictors often lost the thread halfway through a sentence. Why?",
+      "options": [
+        "They had too many words to choose between",
+        "They were trained only on formal writing",
+        "They only looked at the last few words",
+        "They read each sentence from the end backwards"
+      ],
+      "answer": 2,
+      "explain": "Older predictors guessed the next word from just the previous two or three. Anything said earlier was invisible to them. Modern models look at all the words at once and decide which ones matter."
+    },
+    {
+      "type": "tf",
+      "topic": "f5",
+      "prompt": "There are secret magic words that unlock much better answers from a chat assistant.",
+      "answer": false,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "What helps is specific context: who it is for, what it should achieve and what to avoid. Clever phrasing matters far less than useful detail, just as with a brief for a freelancer."
+    },
+    {
+      "type": "mcq",
+      "topic": "f6",
+      "prompt": "Your AI drafts keep coming out off-brand. What is the cheapest thing to try first?",
+      "options": [
+        "Improve the prompt with a clearer brief and examples",
+        "Pay to retrain a model on all your past campaigns",
+        "Move to the largest and most expensive model on offer",
+        "Hold off until next year's tools have improved"
+      ],
+      "answer": 0,
+      "explain": "A better prompt costs nothing and takes minutes. Fetching documents or extra training is worth considering only once a good brief with examples still falls short."
+    },
+    {
+      "type": "tf",
+      "topic": "f7",
+      "prompt": "People are more likely to accept an AI answer without checking when it says what they hoped to hear.",
+      "answer": true,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "That is confirmation bias: we wave through whatever agrees with us. Treat every answer as a hypothesis to test, and be most careful with the ones you like best."
+    },
+    {
+      "type": "mcq",
+      "topic": "f8",
+      "prompt": "How do many AI image generators create a picture from your description?",
+      "options": [
+        "They search the web and blend the closest matches",
+        "They trace over a stock photo and recolour the result",
+        "They start from random static and clear it step by step",
+        "They assemble it from a library of clip-art pieces"
+      ],
+      "answer": 2,
+      "explain": "The generator practised by watching pictures get buried in static and learning to undo the damage. To create, it starts from pure static and removes noise step by step, steered by your words."
+    },
+    {
+      "type": "mcq",
+      "topic": "f1",
+      "prompt": "What best describes the difference between AI and ordinary software?",
+      "options": [
+        "AI is any software that runs on very powerful computers",
+        "AI follows a much longer list of rules typed in by people",
+        "AI works out its own rules by studying many examples",
+        "AI is any software that can reply in full sentences"
+      ],
+      "answer": 2,
+      "explain": "Ordinary software follows rules a person typed in: if this, then that. AI finds its own rules by studying a huge number of examples, so it can handle cases nobody wrote a rule for."
+    },
+    {
+      "type": "tf",
+      "topic": "f2",
+      "prompt": "People who build AI models spend much of their time on an unglamorous job: cleaning up the text the model will learn from.",
+      "answer": true,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "A model learns from whatever it is fed, typos, junk and repeats included. Builders put a lot of effort into cleaning text before training, because messy in means messy out."
+    },
+    {
+      "type": "mcq",
+      "topic": "f3",
+      "prompt": "A large AI model has billions of internal settings. Who decides the value of each one?",
+      "options": [
+        "A team of engineers, who type them in one at a time",
+        "Each user, through the wording of their prompts",
+        "The chip maker, who builds them into the hardware",
+        "Nobody by hand: training adjusts them automatically"
+      ],
+      "answer": 3,
+      "explain": "A model's behaviour comes from billions of numbers, like dials on a vast mixing desk. No person could set them. Training adjusts them automatically, nudging each one a tiny bit after every guess."
+    },
+    {
+      "type": "tf",
+      "topic": "f4",
+      "prompt": "The breakthrough behind modern chat assistants was teaching computers the rules of grammar.",
+      "answer": false,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "Nobody typed in grammar. The breakthrough was letting a model look at all the words at once and learn which ones matter to each other. It picks up grammar from examples along the way."
+    },
+    {
+      "type": "mcq",
+      "topic": "f5",
+      "prompt": "Two AI products built on similar technology behave very differently: one chatty, one strictly business. What best explains it?",
+      "options": [
+        "One of them follows fixed rules and is not really AI at all",
+        "The chatty one is newer, so it has more personality",
+        "The serious one was given fewer words to choose from",
+        "Each starts with hidden instructions setting its role"
+      ],
+      "answer": 3,
+      "explain": "Most AI products begin every chat with a hidden first message from the company that built them, often called the system message. It sets the role, tone and rules before you type a word."
+    },
+    {
+      "type": "tf",
+      "topic": "f6",
+      "prompt": "Fine-tuning, which means giving a model extra training, pays off most when you need the same style thousands of times over.",
+      "answer": true,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "Fine-tuning takes effort and a good set of examples, so it suits repeated, high-volume work in one consistent style. For a one-off task, a clear prompt gets you there faster."
+    },
+    {
+      "type": "mcq",
+      "topic": "f7",
+      "prompt": "A horse called Clever Hans once seemed to do arithmetic, but was really reading cues from the people watching. What is the lesson for AI?",
+      "options": [
+        "Animals pick up new skills faster than machines can",
+        "Looking clever is not proof, so test it on fresh cases",
+        "AI gives its best answers when people are watching",
+        "Simple sums are harder for machines than they might appear"
+      ],
+      "answer": 1,
+      "explain": "Hans tapped his hoof until he sensed his questioner react. A model can also reach right answers by a shortcut that fails elsewhere. Testing it on new, different cases shows whether the skill is real."
+    },
+    {
+      "type": "tf",
+      "topic": "f8",
+      "prompt": "Asking a chat assistant to summarise a report guarantees that nothing important is left out.",
+      "answer": false,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "Summarising means choosing what to drop, and a model can drop the wrong thing or blur a key number. Skim the original for anything you would be embarrassed to have missed."
+    },
+    {
+      "type": "tf",
+      "topic": "f1",
+      "prompt": "Building an AI model is slow and expensive, but asking the finished model a question is quick.",
+      "answer": true,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "Training, the practice run where a model studies its examples, can take weeks on vast computers and happens once. Answering you only uses what it already learned, so it takes seconds."
+    },
+    {
+      "type": "mcq",
+      "topic": "f2",
+      "prompt": "A search tool finds 'trainers' when you type 'running shoes', though the two share no words. What makes that possible?",
+      "options": [
+        "It counts how many letters the two phrases have in common",
+        "It places similar meanings close together, like on a map",
+        "It keeps a record of everything you have bought before",
+        "It translates both phrases into another language first"
+      ],
+      "answer": 1,
+      "explain": "Models turn words into positions on a kind of map, where similar meanings sit close together. 'Trainers' lands near 'running shoes', so the search can match on meaning rather than on letters."
+    },
+    {
+      "type": "tf",
+      "topic": "f3",
+      "prompt": "An AI model in training improves in a few big leaps rather than through many tiny adjustments.",
+      "answer": false,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "After each guess, every setting is nudged a tiny amount towards being less wrong. Skill comes from millions of these small steps adding up, like walking downhill in fog one careful step at a time."
+    },
+    {
+      "type": "mcq",
+      "topic": "f4",
+      "prompt": "What does the 'T' in GPT stand for?",
+      "options": [
+        "Transformer, a model design introduced in 2017",
+        "Text, because it reads and writes in words",
+        "Trained, because it learned from examples",
+        "Thinking, because it reasons through hard problems"
+      ],
+      "answer": 0,
+      "explain": "GPT stands for generative pre-trained transformer. The transformer is a design researchers introduced in 2017. It is built around attention, a way of weighing which words matter to each other, and it powers today's chat assistants."
+    },
+    {
+      "type": "tf",
+      "topic": "f5",
+      "prompt": "Asking a chat assistant to critique its own draft can turn up real improvements.",
+      "answer": true,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "Asked to find weaknesses, the model rereads its draft with a new goal and often spots gaps or flat lines. You can also ask it to argue the other side."
+    },
+    {
+      "type": "mcq",
+      "topic": "f6",
+      "prompt": "Why can a small AI model run on your phone while the biggest ones need a data centre?",
+      "options": [
+        "Big models need a constant link to the live internet",
+        "Big models are written in a language phones cannot run",
+        "The whole model must fit in the memory of its chip",
+        "Big models only work when many people use them at once"
+      ],
+      "answer": 2,
+      "explain": "A model is a huge set of numbers, and all of them have to be loaded into a chip's memory before it can answer. A small model fits on a phone. The largest need racks of specialised chips."
+    },
+    {
+      "type": "tf",
+      "topic": "f7",
+      "prompt": "AI models are neutral, because they are built from maths rather than opinions.",
+      "answer": false,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "Models learn from human writing and pictures, stereotypes and gaps included. Ask for 'a CEO' or 'a nurse' and the results can skew. Check drafts for who is missing or misrepresented."
+    },
+    {
+      "type": "mcq",
+      "topic": "f8",
+      "prompt": "You want an AI agent to help manage your inbox. Which setup is wisest?",
+      "options": [
+        "It drafts and sorts, but asks before sending or deleting",
+        "It has full control, so that it can finish the job faster",
+        "It sends replies itself and you review them monthly",
+        "It deletes anything older than a week without asking"
+      ],
+      "answer": 0,
+      "explain": "The more an AI can do, the more guardrails it needs. Give it limited permissions and keep a human check before anything that cannot be undone, such as sending, paying or deleting."
+    },
+    {
+      "type": "mcq",
+      "topic": "f1",
+      "prompt": "A model is finishing the sentence 'I'm so hungry, pass me the...'. You change 'hungry' to 'thirsty'. What happens?",
+      "options": [
+        "Nothing changes, because one word is too small to matter",
+        "The likely next word shifts from food towards a drink",
+        "It gets confused, having already seen a similar sentence",
+        "It stops and asks you which of the two words you meant"
+      ],
+      "answer": 1,
+      "explain": "Every word you write shifts the odds of what comes next. Swap one word and a different ending becomes likely. That is why the wording of your request steers the answer you get."
+    },
+    {
+      "type": "tf",
+      "topic": "f2",
+      "prompt": "When AI usage is metered, only the words in the answer count. Whatever you paste in is free.",
+      "answer": false,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "Usage is usually counted in tokens, the pieces of words a model reads and writes. What you send in counts as well as what comes back, so a huge paste eats into your allowance too."
+    },
+    {
+      "type": "mcq",
+      "topic": "f3",
+      "prompt": "Which everyday activity is most like the way an AI model is trained?",
+      "options": [
+        "Filling a filing cabinet with facts to look up later",
+        "Reading a rulebook once and following it to the letter",
+        "Practising free throws: shoot, miss, adjust, repeat",
+        "Asking an expert and writing down everything they say"
+      ],
+      "answer": 2,
+      "explain": "Training is a loop of guess, check, nudge. The model makes a guess, the gap from the right answer is measured, and its settings shift slightly to shrink that gap. Then it goes again."
+    },
+    {
+      "type": "tf",
+      "topic": "f4",
+      "prompt": "When a model reads your sentence it can follow several threads at once, such as who did what and which word describes which.",
+      "answer": true,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "A model runs many attention spotlights side by side. One might link a verb to whoever did it while another links 'it' to the thing it stands for. Together they build up the full meaning."
+    },
+    {
+      "type": "mcq",
+      "topic": "f5",
+      "prompt": "You need a competitor comparison you can drop straight into a deck. What should you add to your prompt?",
+      "options": [
+        "The shape you want: a table with these four columns",
+        "A line saying the deck is for a very senior client",
+        "The word 'please' at the start and 'thanks' at the end",
+        "Nothing, since the model will pick the best format"
+      ],
+      "answer": 0,
+      "explain": "Say the format you want: a table, five bullets, under 50 words. The model cannot guess what shape fits your deck, and asking up front saves a round of reformatting."
+    },
+    {
+      "type": "tf",
+      "topic": "f6",
+      "prompt": "A general chat assistant already knows what is in your company's private files.",
+      "answer": false,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "A model learned from broad, mostly public text and has never seen your shared drive. To use private documents, a product has to fetch them and put them on the page when you ask."
+    },
+    {
+      "type": "mcq",
+      "topic": "f7",
+      "prompt": "A supplier shows you one dazzling demo of an AI tool. What is the sensible response?",
+      "options": [
+        "Sign up now, since the demo proves that it works",
+        "Walk away, since a demo like that must be staged",
+        "Try it on many of your own examples before judging",
+        "Ask them to run the very same demo a second time"
+      ],
+      "answer": 2,
+      "explain": "One impressive example is not evidence, and it may have been picked from many tries. Run the tool on a spread of your own real tasks and count how often the result is good enough."
+    },
+    {
+      "type": "tf",
+      "topic": "f8",
+      "prompt": "Asking an AI agent to collect competitors' public headlines into a document for you to review.",
+      "answer": true,
+      "labels": {
+        "true": "Safe",
+        "false": "Risky"
+      },
+      "explain": "The agent only reads and gathers, and you check the result before anyone uses it. Nothing is sent, spent or deleted, so a mistake is easy to catch and costs little."
+    },
+    {
+      "type": "tf",
+      "topic": "f1",
+      "prompt": "After 'Twinkle, twinkle, little', a language model sees only one possible next word: 'star'.",
+      "answer": false,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "It gives every possible next word a score. 'Star' gets by far the highest, but 'bat' and thousands of other words each get a sliver. The model then draws from those odds."
+    },
+    {
+      "type": "mcq",
+      "topic": "f2",
+      "prompt": "A brand-new slang word appears online this morning. How can a language model still read it?",
+      "options": [
+        "It breaks the word into smaller pieces it already knows",
+        "It skips over any word that is missing from its dictionary",
+        "It downloads a fresh dictionary at the start of each day",
+        "It waits for its makers to add the new word by hand"
+      ],
+      "answer": 0,
+      "explain": "A complete word list is impossible: names, typos and slang appear daily. So models read in pieces of words. A limited set of pieces can spell anything, like building with a small box of bricks."
+    },
+    {
+      "type": "tf",
+      "topic": "f3",
+      "prompt": "A neural network is a digital copy of a human brain.",
+      "answer": false,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "The name is a nod to brain cells, which loosely inspired the idea. In practice it is layers of simple sums run on computer chips, and it works very differently from a real brain."
+    },
+    {
+      "type": "mcq",
+      "topic": "f4",
+      "prompt": "You paste a long report into a chat and want a client summary. Where should your instruction go so it is hard to miss?",
+      "options": [
+        "Halfway through the report, next to the key section",
+        "Split into parts and scattered through the report",
+        "Anywhere at all, since placement makes no difference",
+        "At the very start or end, set apart from the report"
+      ],
+      "answer": 3,
+      "explain": "Order and placement matter to a model. An instruction buried in the middle of pasted text can get lost. Put the ask where it stands out, and keep related details together."
+    },
+    {
+      "type": "tf",
+      "topic": "f5",
+      "prompt": "Telling a chat assistant who it is writing as, and who it is writing for, changes the answer you get.",
+      "answer": true,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "'Write as a nutritionist for busy parents' shifts the vocabulary, the tone and what gets included. A role and an audience are among the quickest ways to steer a draft."
+    },
+    {
+      "type": "mcq",
+      "topic": "f6",
+      "prompt": "A simple, repetitive job: fixing the capital letters in 20,000 product names. Which AI model fits best?",
+      "options": [
+        "The largest one available, to be on the safe side",
+        "A large one, since big jobs call for big models",
+        "Two large ones, each checking the other's work",
+        "A small, fast one, since the job is easy but huge"
+      ],
+      "answer": 3,
+      "explain": "Bigger models do more work for every word, so they cost more and run slower. Simple, high-volume jobs like tagging, sorting or tidying are well within reach of a small model. Right-size the tool."
+    },
+    {
+      "type": "tf",
+      "topic": "f7",
+      "prompt": "Skipping the fact-check on an AI-written product description because the tool's last ten were all accurate.",
+      "answer": false,
+      "labels": {
+        "true": "Safe",
+        "false": "Risky"
+      },
+      "explain": "A model does not reliably flag its own mistakes, and a slip looks just like its correct answers. A good run tells you little about the next fact, so keep checking the ones that matter."
+    },
+    {
+      "type": "mcq",
+      "topic": "f8",
+      "prompt": "AI does three everyday jobs: sorting into labels, shortening, and creating. Which task below is a sorting job?",
+      "options": [
+        "Turning a 60-page report into a one-page brief",
+        "Tagging 5,000 comments as happy, neutral or angry",
+        "Drafting three subject lines for a newsletter",
+        "Rewriting a formal email in a much warmer tone"
+      ],
+      "answer": 1,
+      "explain": "Sorting means putting each item under a label, and you can check it by counting how many it got right. The report is a shortening job; the subject lines and the rewrite are creating jobs."
+    },
+    {
+      "type": "mcq",
+      "topic": "f1",
+      "prompt": "Some AI tools have a 'creativity' dial, often called temperature. What do you get when you turn it up?",
+      "options": [
+        "Longer answers with more detail packed into them",
+        "More accurate facts and fewer mistakes overall",
+        "The same answer, word for word, every time you ask",
+        "More surprising word choices, and more misfires too"
+      ],
+      "answer": 3,
+      "explain": "The dial sets how adventurous the model is when it picks each word. Low sticks to the safest choices and repeats itself. High takes more chances, which brings fresh ideas and more odd ones."
+    },
+    {
+      "type": "tf",
+      "topic": "f2",
+      "prompt": "AI tools measure text in units called tokens. A 100-word message is always exactly 100 tokens.",
+      "answer": false,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "A token is a common word or a piece of a word. Short everyday words are one token each, but long or unusual words are split into several, so the token count usually runs higher than the word count."
+    },
+    {
+      "type": "mcq",
+      "topic": "f3",
+      "prompt": "What does the 'deep' in 'deep learning' refer to?",
+      "options": [
+        "The many layers stacked up inside the model",
+        "The deep understanding the model has of its subject",
+        "How far back in history its training text reaches",
+        "The difficult subjects it is able to learn about"
+      ],
+      "answer": 0,
+      "explain": "'Deep' simply means many layers. Early layers pick up simple patterns and later layers combine them into richer ones, a bit like going from letters to words to ideas."
+    },
+    {
+      "type": "tf",
+      "topic": "f4",
+      "prompt": "Prompt: 'Make it shorter', sent just after you pasted three different pieces of copy.",
+      "answer": false,
+      "labels": {
+        "true": "Strong prompt",
+        "false": "Weak prompt"
+      },
+      "explain": "With three texts on the page, 'it' could point to any of them, and the model has to guess by weighing the earlier words. Name the thing you mean: 'make the second caption shorter'."
+    },
+    {
+      "type": "mcq",
+      "topic": "f5",
+      "prompt": "You are weighing up three media plans. Which request tends to get the more useful answer from a chat assistant?",
+      "options": [
+        "Tell me which plan is best, in one word if you can",
+        "Pick the best plan for me and skip the explanation",
+        "Compare pros and cons step by step, then recommend",
+        "Answer as quickly as you can, I am short of time"
+      ],
+      "answer": 2,
+      "explain": "For a hard problem, asking the model to work through the steps before it answers often gives a better result. It also lets you see the reasoning and check it."
+    },
+    {
+      "type": "tf",
+      "topic": "f6",
+      "prompt": "An AI tool that looks things up in documents before answering can still get the answer wrong.",
+      "answer": true,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "Fetching documents gives the model better material, which cuts errors, but it can still misread, mix up or overstate what it found. A look-up improves the odds. It does not replace checking."
+    },
+    {
+      "type": "mcq",
+      "topic": "f7",
+      "prompt": "You are choosing between two AI tools for writing product descriptions. What should you do first?",
+      "options": [
+        "Agree what 'good' means, then test both on the same set",
+        "Ask each tool which of the two it thinks is better",
+        "Test each on different products to cover more ground",
+        "Choose whichever one gives the longer descriptions"
+      ],
+      "answer": 0,
+      "explain": "Decide how you will judge before you start, then give both tools the same examples. Otherwise you end up comparing your mood on the day rather than the tools."
+    },
+    {
+      "type": "tf",
+      "topic": "f8",
+      "prompt": "Software that learns by reward does better if it sometimes tries something new instead of always repeating its best move so far.",
+      "answer": true,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "If it only repeats past winners, it never finds anything better. Good systems balance using what has worked with trying new moves, like ordering your usual most days and something new now and then."
+    },
+    {
+      "type": "tf",
+      "topic": "f1",
+      "prompt": "A phone that groups your photos by the people in them, without you ever tagging anyone.",
+      "answer": true,
+      "labels": {
+        "true": "AI",
+        "false": "Not AI"
+      },
+      "explain": "Nobody could write rules for what every face looks like. The software learned to tell faces apart by studying a huge number of example photos, and learning from examples is what makes it AI."
+    },
+    {
+      "type": "mcq",
+      "topic": "f2",
+      "prompt": "You open a new chat and type 'use the same tone as yesterday'. If the tool has no memory feature, what happens?",
+      "options": [
+        "It reopens yesterday's chat and reads it through first",
+        "It remembers, because it learns from every chat you have",
+        "It has no record of yesterday, so it guesses or asks",
+        "It matches the tone, because your style is saved in it"
+      ],
+      "answer": 2,
+      "explain": "Each new chat starts as a blank page unless the product adds a memory feature. If yesterday's tone matters, paste the brief or a sample in again."
+    },
+    {
+      "type": "tf",
+      "topic": "f3",
+      "prompt": "An AI model cannot practise for too long: more training on the same examples always makes it better.",
+      "answer": false,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "Past a point, extra practice on the same examples stops teaching the pattern and starts memorising the examples. Builders watch for that moment and stop training early."
+    },
+    {
+      "type": "mcq",
+      "topic": "f4",
+      "prompt": "'Dog bites man' and 'man bites dog' use the same three words. What must a model track to tell them apart?",
+      "options": [
+        "The number of letters in each of the words",
+        "The position of each word in the sentence",
+        "How often each word appears in everyday writing",
+        "Which of the three words is the most unusual"
+      ],
+      "answer": 1,
+      "explain": "Knowing which words are present is not enough, because the same three words can tell opposite stories. So a model tags every word with its position, and order becomes part of the meaning."
+    },
+    {
+      "type": "tf",
+      "topic": "f5",
+      "prompt": "When you send a message in a long chat, the assistant only reads that latest message.",
+      "answer": false,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "Each time you send something, the model is handed the whole conversation so far as one long script and predicts what comes next. That is how it can pick up on things said earlier."
+    },
+    {
+      "type": "mcq",
+      "topic": "f6",
+      "prompt": "One popular way to customise a big AI model freezes the original and trains a small add-on instead. What is the appeal?",
+      "options": [
+        "The add-on lets the model keep up with today's news",
+        "The add-on is cheap to make and easy to swap per job",
+        "The add-on means no examples are needed at all",
+        "The add-on makes the original model run twice as fast"
+      ],
+      "answer": 1,
+      "explain": "Retraining every setting in a big model is slow and costly. Freezing the original and training a small add-on, like a clip-on lens for a camera, is far cheaper. One well-known method is called LoRA."
+    },
+    {
+      "type": "tf",
+      "topic": "f7",
+      "prompt": "Judging an AI tool on the same examples you used to tweak your prompt gives a flattering picture.",
+      "answer": true,
+      "labels": {
+        "true": "Fact",
+        "false": "Myth"
+      },
+      "explain": "You adjusted the prompt until those examples looked good, so of course they do. Keep a few test examples aside that you never tune on, and judge the tool with those."
+    },
+    {
+      "type": "mcq",
+      "topic": "f8",
+      "prompt": "An AI system called AlphaFold predicts the 3D shapes of proteins, work that could take years in a lab. What is it doing at heart?",
+      "options": [
+        "Looking each shape up in a list drawn up by scientists",
+        "Running the same lab experiments at much higher speed",
+        "Trying shapes at random until one happens to look right",
+        "Learning patterns from known shapes to predict new ones"
+      ],
+      "answer": 3,
+      "explain": "It is the chat assistant recipe in a new field: study many solved examples, then predict what is missing. Predicted shapes for about 200 million proteins have been shared freely with scientists."
+    }
+  ]
+}

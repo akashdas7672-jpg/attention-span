@@ -1,0 +1,436 @@
+{
+  "id": "f2",
+  "title": "How it reads",
+  "blurb": "Pieces of words, memory and a map of meaning.",
+  "sessions": [
+    {
+      "id": "f2-1",
+      "title": "Words become pieces",
+      "icon": "puzzle",
+      "goal": "Describe what a token is and why text becomes numbers.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "Meet the token",
+          "body": "The model inside a chat assistant reads text in chunks, a bit like sounding out a long word. They are called **tokens**: common words and pieces of words. Tap to split a sentence.",
+          "play": {
+            "kind": "tokens",
+            "text": "The campaign was unmissable.",
+            "pieces": ["The", " campaign", " was", " un", "miss", "able", "."]
+          }
+        },
+        {
+          "type": "cloze",
+          "prompt": "The chunks of text a model reads are called ___.",
+          "options": ["letters", "tokens", "sentences"],
+          "answer": 1,
+          "explain": "A token is a common word or a piece of a word. Tokens are the chunks a model reads, bigger than a letter and often smaller than a word."
+        },
+        {
+          "type": "tf",
+          "prompt": "A token is always exactly one whole word.",
+          "labels": { "true": "Fact", "false": "Myth" },
+          "answer": false,
+          "explain": "A token can be a whole common word, such as 'the', or only a piece of a longer one, such as 'un' or 'able'."
+        },
+        {
+          "type": "card",
+          "title": "Common stays whole, rare gets split",
+          "body": "A sandwich shop keeps its best-sellers ready-made and builds unusual orders from separate fillings. Tokens work the same way. Common words such as 'the' are one token. Long or rare words are split into several, as 'unmissable' became 'un', 'miss' and 'able'."
+        },
+        {
+          "type": "sort",
+          "prompt": "Would a model most likely read each of these as one token or several?",
+          "buckets": ["One token", "Several tokens"],
+          "items": [
+            ["the", 0],
+            ["unmissable", 1],
+            ["and", 0],
+            ["#ThrowbackThursday", 1],
+            ["you", 0],
+            ["onomatopoeia", 1]
+          ],
+          "explain": "Short everyday words earn a token of their own. Long or unusual words, and mashed-together hashtags, are built from several pieces."
+        },
+        {
+          "type": "mcq",
+          "prompt": "A client names a new drink 'Glimmerquench'. How will a model read that invented name?",
+          "options": [
+            "As several smaller pieces",
+            "As one single token",
+            "It will skip the name entirely"
+          ],
+          "answer": 0,
+          "explain": "A made-up name is as rare as a word can be, so there is no ready-made token for it. The model spells it from smaller pieces."
+        },
+        {
+          "type": "card",
+          "title": "Pieces become numbers",
+          "body": "A cloakroom swaps your coat for a numbered ticket. A model does the same with text. Every token is swapped for an ID number from a fixed list, because the model can only work with numbers. To the model, your sentence is a row of numbers."
+        },
+        {
+          "type": "order",
+          "prompt": "Put the journey of your message in order.",
+          "items": [
+            "You type a sentence",
+            "It is split into tokens",
+            "Each token is swapped for an ID number",
+            "The model works on the numbers"
+          ],
+          "explain": "Text is first cut into tokens, then each token is swapped for its ID number. Only then can the model start, because numbers are all it can work with."
+        },
+        {
+          "type": "mcq",
+          "prompt": "You paste a 300-word brief into a chat assistant. What does the model actually work on?",
+          "options": [
+            "A picture of the text on your screen",
+            "The letters, fed in one at a time",
+            "A row of ID numbers, one per token"
+          ],
+          "answer": 2,
+          "explain": "Your brief is split into tokens and each token is swapped for its ID number, like coats for cloakroom tickets. The model only ever handles the numbers."
+        }
+      ],
+      "takeaway": "A model reads tokens, common words and pieces of words, and handles each one as a number.",
+      "tryit": "Pick the longest word in your last email and guess how a model might split it into pieces."
+    },
+    {
+      "id": "f2-2",
+      "title": "Why pieces, not words",
+      "icon": "token",
+      "goal": "Explain why models read pieces instead of whole words.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "No word list is ever finished",
+          "body": "A dictionary is out of date the day it is printed. New names, slang, typos and hashtags appear every day. If a model knew only the whole words on a fixed list, anything missing from that list would be a blank to it."
+        },
+        {
+          "type": "mcq",
+          "prompt": "Why can a fixed list of whole words never be complete?",
+          "options": [
+            "New names, slang and hashtags keep coming",
+            "Computers cannot store such a long word list",
+            "Most words are too long to fit on a list"
+          ],
+          "answer": 0,
+          "explain": "Language keeps growing. Every day brings new names, slang, typos and hashtags that no list written yesterday could include."
+        },
+        {
+          "type": "sort",
+          "prompt": "A list of whole words was printed ten years ago. Is each of these on it?",
+          "buckets": ["On the list", "Missing"],
+          "items": [
+            ["because", 0],
+            ["A hashtag coined this morning", 1],
+            ["table", 0],
+            ["A typo such as 'tommorow'", 1],
+            ["weather", 0],
+            ["A brand name invented last week", 1]
+          ],
+          "explain": "Everyday words were around ten years ago. New hashtags, fresh brand names and one-off typos were not, so a list of whole words misses them."
+        },
+        {
+          "type": "card",
+          "title": "A small box of bricks",
+          "body": "With one box of toy bricks you can build almost anything. Tokens, the pieces of words a model reads, are its bricks. With a fixed set, often tens of thousands, it can spell just about any word, even one invented this morning."
+        },
+        {
+          "type": "mcq",
+          "prompt": "How does a model read a word it has never seen before?",
+          "options": [
+            "It skips the word and carries on reading",
+            "It builds the word from pieces it knows",
+            "It looks the word up in a dictionary"
+          ],
+          "answer": 1,
+          "explain": "Like building a new shape from the same box of bricks, the model spells an unfamiliar word out of smaller pieces it already has."
+        },
+        {
+          "type": "tf",
+          "prompt": "A model with a fixed set of tokens can still read a hashtag that was invented today.",
+          "labels": { "true": "Fact", "false": "Myth" },
+          "answer": true,
+          "explain": "It spells the new hashtag from smaller pieces it already has. The set of pieces is fixed, but what can be built from them is not."
+        },
+        {
+          "type": "card",
+          "title": "Language is lopsided",
+          "body": "Think of your wardrobe: a few favourites are worn most days, and most items hardly ever. Words are like that. A handful such as 'the', 'and' and 'of' do a huge share of the work, and most words are rare. So the common ones earn a token of their own."
+        },
+        {
+          "type": "cloze",
+          "prompt": "A handful of words such as 'the' turn up constantly, while most words are ___.",
+          "options": ["short", "new", "rare"],
+          "answer": 2,
+          "explain": "Language is lopsided, like a wardrobe with a few favourites. A few small words appear in nearly every sentence, while most of the dictionary is hardly ever used."
+        },
+        {
+          "type": "mcq",
+          "prompt": "Which word would appear most often in a year of your company's emails?",
+          "options": ["campaign", "deadline", "budget", "the"],
+          "answer": 3,
+          "explain": "Small words such as 'the' appear in nearly every sentence, whatever the subject. Work words like 'budget' only turn up when that topic does."
+        }
+      ],
+      "takeaway": "A fixed set of pieces can spell almost any word, and the most common words get a piece to themselves.",
+      "tryit": "Count how often 'the' appears in the last email you wrote, then find a word you used only once."
+    },
+    {
+      "id": "f2-3",
+      "title": "The map of meaning",
+      "icon": "vector",
+      "goal": "Picture how a model places similar meanings side by side.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "Coordinates for meaning",
+          "body": "Two numbers, across and up, pin any spot on a map. A model does this for meaning. Each token, a word or piece of a word, gets its own long list of numbers that works like coordinates. That list is called an **embedding**."
+        },
+        {
+          "type": "cloze",
+          "prompt": "A token's long list of numbers, its coordinates for meaning, is called an ___.",
+          "options": ["embedding", "estimate", "outline"],
+          "answer": 0,
+          "explain": "An embedding is a token's set of coordinates: a long list of numbers that gives it a position on a map of meaning."
+        },
+        {
+          "type": "tf",
+          "prompt": "To a model, the meaning of 'coffee' is held as a long list of numbers.",
+          "answer": true,
+          "explain": "That list is the embedding for 'coffee'. Its numbers work like coordinates, giving the word a position on the map of meaning."
+        },
+        {
+          "type": "card",
+          "title": "Neighbours mean similar things",
+          "body": "On this map, things with similar meaning sit close together and unrelated things sit far apart. Nobody arranged it by hand: the model learned it. Tap a word to see its neighbours.",
+          "play": {
+            "kind": "map",
+            "points": [
+              ["trainers", 18, 22, "shoes"],
+              ["sneakers", 30, 16, "shoes"],
+              ["boots", 24, 36, "shoes"],
+              ["coffee", 72, 28, "drinks"],
+              ["espresso", 84, 20, "drinks"],
+              ["tea", 78, 42, "drinks"],
+              ["invoice", 40, 76, "money"],
+              ["budget", 54, 82, "money"],
+              ["payment", 46, 64, "money"]
+            ]
+          }
+        },
+        {
+          "type": "mcq",
+          "prompt": "On the map of meaning, which words sit close together?",
+          "options": [
+            "Words with similar spellings",
+            "Words of the same length",
+            "Words with similar meanings"
+          ],
+          "answer": 2,
+          "explain": "Position on the map reflects meaning. 'Trainers' and 'sneakers' sit side by side because they mean nearly the same thing, not because of their letters."
+        },
+        {
+          "type": "match",
+          "prompt": "Match each word to its closest neighbour on the map of meaning.",
+          "pairs": [
+            ["sneakers", "trainers"],
+            ["coffee", "espresso"],
+            ["invoice", "payment"],
+            ["doctor", "nurse"]
+          ],
+          "explain": "Each pair belongs to the same family of meaning, so its two words sit close together on the map, far from the other pairs."
+        },
+        {
+          "type": "card",
+          "title": "Search by meaning",
+          "body": "This is how a good search finds 'trainers' when you typed 'running shoes'. The two look nothing alike on the page, but they sit close together on the map of meaning. The search matches what you meant, not the letters you typed."
+        },
+        {
+          "type": "tf",
+          "prompt": "A search that uses the map of meaning can only find the exact words you typed.",
+          "answer": false,
+          "explain": "It compares positions on the map, not letters. That is how 'running shoes' can bring back 'trainers', which shares the meaning but not the spelling."
+        },
+        {
+          "type": "mcq",
+          "prompt": "You search an image library for 'happy kids outdoors'. Which tag could a meaning-based search also find?",
+          "options": [
+            "happy hour drinks offer",
+            "children laughing in a park",
+            "kids' menu at an indoor café"
+          ],
+          "answer": 1,
+          "explain": "'Children laughing in a park' means almost the same thing, so it sits close by on the map. The other two share a word with your search but not its meaning."
+        }
+      ],
+      "takeaway": "An embedding places each token on a map where similar meanings sit close together.",
+      "tryit": "Search a shopping site for 'something to keep coffee hot' and see whether it understands what you meant."
+    },
+    {
+      "id": "f2-4",
+      "title": "Its working memory",
+      "icon": "memory",
+      "goal": "Predict what a model can see, and what it has forgotten.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "The desk in front of it",
+          "body": "Picture a desk. Whatever is on it, the model can read: your message, the chat so far, any files you added. Anything not on the desk is out of sight. That desk is called the **context window**: everything the model can see at once."
+        },
+        {
+          "type": "sort",
+          "prompt": "Is each of these inside the model's context window?",
+          "buckets": ["In view", "Out of view"],
+          "items": [
+            ["The message you just typed", 0],
+            ["An email you never pasted in", 1],
+            ["Earlier messages in this chat", 0],
+            ["The brief that is still in your head", 1],
+            ["A file you attached to this chat", 0],
+            ["A meeting nobody told it about", 1]
+          ],
+          "explain": "The context window holds your message, the chat so far and any files you added. Anything you have not put in front of the model stays out of view."
+        },
+        {
+          "type": "mcq",
+          "prompt": "You type 'make it punchier' but forget to paste the copy. Why can the assistant not help?",
+          "options": [
+            "It does not know the word 'punchier'",
+            "The copy is not in its context window",
+            "It needs a few days to learn your style"
+          ],
+          "answer": 1,
+          "explain": "The model can only work with what is in front of it. The copy never reached its context window, so there is nothing to make punchier."
+        },
+        {
+          "type": "card",
+          "title": "The desk has an edge",
+          "body": "No desk is endless. A context window is measured in tokens, the pieces of words a model reads, and it has a limit. In a very long chat, the earliest parts can slide off the edge, and the model no longer sees them."
+        },
+        {
+          "type": "cloze",
+          "prompt": "In a very long chat, the ___ parts can fall out of the context window.",
+          "options": ["earliest", "latest", "shortest"],
+          "answer": 0,
+          "explain": "The window has a limit, counted in tokens. When a chat outgrows it, the oldest parts are the ones that drop out of view."
+        },
+        {
+          "type": "tf",
+          "prompt": "Two hours into a chat, the assistant ignores a rule you set at the start. The rule may have slipped out of its context window.",
+          "answer": true,
+          "explain": "A long chat can outgrow the window, and the earliest parts go first. Repeating a key instruction puts it back in view."
+        },
+        {
+          "type": "card",
+          "title": "A fresh start every chat",
+          "body": "Imagine a temp who arrives each morning with no handover notes. A model is like that. It has no memory between separate chats unless the product adds one. So when you open a new chat, give the brief again."
+        },
+        {
+          "type": "tf",
+          "prompt": "A model automatically remembers everything you told it in last week's chat.",
+          "labels": { "true": "Fact", "false": "Myth" },
+          "answer": false,
+          "explain": "Each new chat starts with an empty desk. Some products add a memory feature, but unless yours has one, last week's details are gone."
+        },
+        {
+          "type": "match",
+          "prompt": "Match each situation to the best move.",
+          "pairs": [
+            ["Starting a new chat", "Give the brief again"],
+            ["A very long chat", "Repeat the key instructions"],
+            ["It needs a document", "Paste it in or attach it"]
+          ],
+          "explain": "A new chat starts blank, a long chat can lose its earliest parts, and a document only counts once it is inside the context window."
+        }
+      ],
+      "takeaway": "A model sees only what is in its context window, which is limited and starts empty in every new chat.",
+      "tryit": "Start your next chat by stating the audience, the goal and the tone, even if you gave them yesterday."
+    },
+    {
+      "id": "f2-5",
+      "title": "Messy in, messy out",
+      "icon": "filter",
+      "goal": "Give a model tidy input and explain why tokens are the meter.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "It learns whatever it is fed",
+          "body": "A sponge soaks up whatever you dip it in, clean or dirty. A model is the same with text. It learns from whatever it is fed, including typos, junk and repeats. So the people who build models spend a lot of time cleaning text first."
+        },
+        {
+          "type": "mcq",
+          "prompt": "Why do the people who build models spend so much time cleaning text?",
+          "options": [
+            "A model learns from everything, junk too",
+            "Clean text makes a model use far less power",
+            "A model stops working if it meets a typo"
+          ],
+          "answer": 0,
+          "explain": "Like a sponge, a model soaks up patterns from everything it is shown. Feed it junk and repeats, and it learns those as well."
+        },
+        {
+          "type": "sort",
+          "prompt": "A team is preparing text for a model to learn from. Keep it or clean it up?",
+          "buckets": ["Keep", "Clean up"],
+          "items": [
+            ["Well-edited articles", 0],
+            ["The same page copied 500 times", 1],
+            ["Clear product descriptions", 0],
+            ["Leftover web page code", 1],
+            ["Carefully written guides", 0],
+            ["Garbled, half-loaded pages", 1]
+          ],
+          "explain": "Good writing is worth learning from. Repeats, leftover code and garbled pages would teach the model bad habits, so they are cleaned out first."
+        },
+        {
+          "type": "card",
+          "title": "The same goes for your prompt",
+          "body": "Hand a colleague a crumpled pile of notes and you get a confused reply. Hand them one tidy page and you get a useful one. Your prompt, the text you give a model, works the same way. Clear, tidy input gets better output than a pasted mess."
+        },
+        {
+          "type": "tf",
+          "prompt": "Pasting in everything you have, unsorted, gets the best answer because the model works out what matters.",
+          "labels": { "true": "Fact", "false": "Myth" },
+          "answer": false,
+          "explain": "A pasted mess buries the useful parts among the clutter. Clear, tidy input gives the model less to trip over, so the output improves."
+        },
+        {
+          "type": "mcq",
+          "prompt": "You want a summary of a long email thread. Which input will work best?",
+          "options": [
+            "The whole thread pasted in twice, to be safe",
+            "The key emails in order, signatures removed",
+            "A screenshot of the inbox subject lines"
+          ],
+          "answer": 1,
+          "explain": "Ordered text with the clutter removed gives the model the clearest picture. Repeats add noise, and subject lines alone leave out what was said."
+        },
+        {
+          "type": "card",
+          "title": "Tokens are the meter",
+          "body": "A taxi meter counts distance. AI tools count tokens, the pieces of words a model reads and writes. Usage limits and costs are usually counted in tokens going in, what you send, and tokens coming out, what it writes back."
+        },
+        {
+          "type": "cloze",
+          "prompt": "Usage limits and costs are usually counted in ___ going in and coming out.",
+          "options": ["minutes", "questions", "tokens"],
+          "answer": 2,
+          "explain": "Tokens are the meter. Everything you send and everything the model writes back is counted in these pieces of words."
+        },
+        {
+          "type": "order",
+          "prompt": "Order these jobs from fewest tokens used to most.",
+          "items": [
+            "A one-line question, a one-word answer",
+            "A page of notes in, a paragraph back",
+            "A 50-page report in, a long summary back"
+          ],
+          "explain": "The meter counts everything going in and coming out. More text either way means more tokens, so the long report with a long summary uses the most."
+        }
+      ],
+      "takeaway": "Clean, clear input gets better output, and everything in and out is counted in tokens.",
+      "tryit": "Tidy your next prompt before you send it: cut repeats, old signatures and anything off-topic."
+    }
+  ]
+}

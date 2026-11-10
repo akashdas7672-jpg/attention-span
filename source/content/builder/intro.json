@@ -1,0 +1,1211 @@
+{
+  "id": "intro",
+  "title": "AI Kickoff",
+  "subtitle": "DeepMind Educational · Introductory",
+  "repo": "educational",
+  "skills": [
+    {
+      "id": "intro-1",
+      "title": "Thinking like a scientist",
+      "icon": "flask",
+      "lab": "colabs/introductory/scientific_thinking.ipynb",
+      "cards": [
+        {
+          "title": "The scientific method",
+          "body": "Science is an organised way of learning about the world by observing it. Step 1: observe something, then propose a hypothesis that is testable (you can check it in practice) and falsifiable (some evidence could prove it wrong). Step 2: design an experiment and analyse the results. Step 3: judge the hypothesis: supported, refuted or inconclusive. Every one of those outcomes is new knowledge."
+        },
+        {
+          "title": "Don't fall for your own guess",
+          "body": "Once we like a hypothesis, we tend to look only for evidence that agrees with it. That's confirmation bias. In the notebook's number game, a hidden rule decides which triplets of numbers pass. Trying triplets that could break your guess teaches you far more than trying ones you already expect to pass.",
+          "code": "def check(x, y, z):\n  return z == x + y"
+        },
+        {
+          "title": "Occam's razor",
+          "body": "If two hypotheses explain the data equally well, prefer the one with fewer assumptions. Each uncertain assumption has a probability below 1, and for independent assumptions you multiply them, so every extra one shrinks the total. Coin on the pavement: 'it fell from a pocket' scores 0.8 × 0.9 = 0.72, while 'a pigeon snatched and dropped it' scores about 0.39."
+        },
+        {
+          "title": "Clever Hans and hidden rewards",
+          "body": "Hans the horse seemed to do arithmetic, until Oskar Pfungst blocked his view of the questioner: his accuracy fell from 89% to 6%. Hans had been reading tiny cues in people's faces. Reinforcement-learning agents face a similar puzzle. Like scientists, they must experiment, observe what earns reward, and avoid fooling themselves."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "What makes a hypothesis falsifiable?",
+          "options": [
+            "Experts in the field already agree that it is true",
+            "Some possible evidence could show that it is wrong",
+            "It can be written down in a single short sentence",
+            "It explains every observation anyone has made"
+          ],
+          "answer": 1,
+          "explain": "A falsifiable hypothesis can be disproved by evidence. For example, you could time two falling rocks to see whether they really land together."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "Refuted or inconclusive results are wasted effort in science.",
+          "answer": false,
+          "explain": "They are just as important as supported results: they add to what we know and shape the next hypotheses we test."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Which of these hypotheses is testable today?",
+          "options": [
+            "Two different-sized rocks dropped from one height land together",
+            "Different-sized rocks dropped onto the sun's surface land together",
+            "Rocks fell differently before anyone was around to watch"
+          ],
+          "answer": 0,
+          "explain": "You can drop two rocks and time them. Testing on the sun isn't practical (yet, because it burns!), and the distant past can't be observed directly."
+        },
+        {
+          "type": "order",
+          "level": 1,
+          "prompt": "Put the steps of the scientific method in order.",
+          "items": [
+            "Make an observation",
+            "Propose a testable, falsifiable hypothesis",
+            "Design and run an experiment",
+            "Analyse the results",
+            "Judge whether the hypothesis holds"
+          ],
+          "explain": "Observe, hypothesise, experiment, analyse, then validate. The outcome then feeds the next round of hypotheses."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "The hidden rule in the number game is `check` below. Which triplet passes?",
+          "code": "def check(x, y, z):\n  return z == x + y",
+          "options": [
+            "2, 4, 8",
+            "3, 4, 7",
+            "2, 2, 2",
+            "5, 5, 5"
+          ],
+          "answer": 1,
+          "explain": "The rule only asks whether the third number equals the sum of the first two: 3 + 4 = 7. The others fail, e.g. 2 + 4 is 6, not 8."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "If every triplet you test fits your guess, your guess must be the true rule.",
+          "answer": false,
+          "explain": "Many rules can fit the same examples. Only tests designed to break your guess can rule out the alternatives. Otherwise you are falling for confirmation bias."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "Preferring the explanation that needs the fewest assumptions is called ___.",
+          "options": [
+            "Occam's razor",
+            "confirmation bias",
+            "falsifiability",
+            "joint probability"
+          ],
+          "answer": 0,
+          "explain": "Occam's razor: when hypotheses explain the data equally well, the simpler one, with fewer assumptions, is more likely to be true."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Occam's razor guarantees that the simplest hypothesis is always the true one.",
+          "answer": false,
+          "explain": "It says the simpler hypothesis is more likely, not certain. New evidence can still overturn it."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Three independent assumptions have probabilities 0.5, 0.8 and 0.5. What is the probability that all three hold?",
+          "options": [
+            "0.6",
+            "1.8",
+            "0.4",
+            "0.2"
+          ],
+          "answer": 3,
+          "explain": "Multiply independent probabilities: 0.5 × 0.8 × 0.5 = 0.2. Adding them (1.8) can't be right, since a probability can never exceed 1."
+        },
+        {
+          "type": "cloze",
+          "level": 3,
+          "prompt": "Pigeon hypothesis: P(C, D) = 0.72. Adding 'the pigeon stole the coin' (0.6) gives P(C, D, E) = ___.",
+          "options": [
+            "0.72",
+            "1.32",
+            "0.432",
+            "0.12"
+          ],
+          "answer": 2,
+          "explain": "0.72 × 0.6 = 0.432. One more assumption (it dropped the coin, 0.9) brings it to 0.3888, well below the pocket hypothesis's 0.72."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "With the questioner out of sight, Clever Hans's accuracy fell from 89% to ___.",
+          "options": [
+            "6%",
+            "45%",
+            "70%",
+            "85%"
+          ],
+          "answer": 0,
+          "explain": "Without seeing the questioner, Hans had no cues to read, so his 'maths' collapsed to just 6%."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "What was Clever Hans really doing?",
+          "options": [
+            "Following a secret code from his owner",
+            "Reading subtle cues from whoever asked",
+            "Memorising answers to common questions",
+            "Counting with real arithmetic skill"
+          ],
+          "answer": 1,
+          "explain": "Pfungst ruled out a secret code by using other questioners. Hans slowed his hoof taps and stopped when people's expressions signalled the answer."
+        },
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each name to its role in the Clever Hans story.",
+          "pairs": [
+            ["Wilhelm von Osten", "Maths teacher who trained Hans and toured Germany"],
+            ["Carl Stumpf", "Led the 1904 commission that found no trickery"],
+            ["Oskar Pfungst", "Designed the experiments that exposed the cues"],
+            ["Clever Hans", "Horse believed to do arithmetic"]
+          ],
+          "explain": "Von Osten sincerely believed in Hans, Stumpf's commission saw no trick, and Pfungst's careful experiments revealed the real explanation."
+        },
+        {
+          "type": "match",
+          "level": 2,
+          "prompt": "Match each step of science to its meaning.",
+          "pairs": [
+            ["Observation", "Actively collecting information about something"],
+            ["Hypothesis", "A proposed explanation you can put to the test"],
+            ["Experiment", "A procedure designed to test a hypothesis"],
+            ["Analysis", "Examining results closely, e.g. fitting a formula"]
+          ],
+          "explain": "Observing gathers information, a hypothesis proposes an explanation, an experiment tests it, and analysis makes sense of the results."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "In reinforcement learning, how is an agent like a scientist?",
+          "options": [
+            "It is told the reward rule before it starts",
+            "It copies an expert's actions step by step",
+            "It tries things, observes rewards and adapts",
+            "It follows a fixed plan whatever happens"
+          ],
+          "answer": 2,
+          "explain": "The agent must discover what is rewarding by experimenting and learning from outcomes, the same test-and-learn loop a scientist uses."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Suppose every step costs −1 reward and nothing else gives any reward. What is the best total an episode can score?",
+          "options": [
+            "−1",
+            "+1",
+            "−10",
+            "0"
+          ],
+          "answer": 3,
+          "explain": "Every move loses a point, so the best strategy is to end the episode straight away and score 0, the maximum in the notebook's Game 2."
+        }
+      ]
+    },
+    {
+      "id": "intro-2",
+      "title": "Fun with language",
+      "icon": "chat",
+      "lab": "colabs/introductory/fun_with_language.ipynb",
+      "cards": [
+        {
+          "title": "Text becomes numbers",
+          "body": "To a computer, 'pancake' is just a list of character codes. Add 1 to each code and you get 'qbodblf': nonsense to us, but no different to the machine. So we collect the vocabulary (every unique character in the text), give each one an ID, and feed the model numbers instead of letters.",
+          "code": "chars = sorted(character_counter.keys())\ncharacter_to_id = {c: i for i, c\n                   in enumerate(chars)}"
+        },
+        {
+          "title": "Guess what comes next",
+          "body": "A language model learns which characters (or words) tend to follow a piece of text: after 'pancak', 'e' is far likelier than 's'. The simplest version, a bigram model, looks only at the last character, so for 'badminto' it might suggest 'u'. A recurrent neural network (RNN) can use everything that came before."
+        },
+        {
+          "title": "A small RNN",
+          "body": "An Embedding layer turns each character ID into a vector, an LSTM layer reads the sequence, and a Dense layer scores every character in the vocabulary. Untrained, its parameters are random, so its text is too. Training walks downhill on the loss, and one full pass over the data is called an epoch.",
+          "code": "model = keras.models.Sequential([\n  keras.layers.Embedding(vocab_size, 64),\n  keras.layers.LSTM(256,\n      return_sequences=True),\n  keras.layers.Dense(vocab_size)])"
+        },
+        {
+          "title": "Cracking codes, writing text",
+          "body": "A substitution cipher swaps each letter for another. Trying every key means about 4 × 10²⁶ options, so instead we tweak the key slightly and keep changes that make the text look more like English, as judged by the language model (Metropolis–Hastings decides when to switch). To write text, predict a character, append it, and repeat."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "What does a character-level language model learn?",
+          "options": [
+            "The dictionary definition of each word in a text",
+            "Which characters tend to follow some text",
+            "How to translate between two languages",
+            "Which book a sentence was copied from"
+          ],
+          "answer": 1,
+          "explain": "It learns simple statistics: given the previous characters, how likely each next character is. That 'shallow' knowledge turns out to be surprisingly useful."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "The set of unique characters a model can predict is called its ___.",
+          "options": [
+            "dataset",
+            "vocabulary",
+            "embedding",
+            "epoch"
+          ],
+          "answer": 1,
+          "explain": "The vocabulary is the list of unique symbols (characters here, or words in a word model) that the model chooses between."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "To a computer, 'pancake' and 'qbodblf' are both just sequences of numbers.",
+          "answer": true,
+          "explain": "Only humans see meaning in 'pancake'. The machine sees codes either way, which is why we need models that learn the statistics of language."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Shift every letter of 'cat' one step later in the alphabet (a→b, b→c, …). What do you get?",
+          "options": [
+            "dbu",
+            "bzs",
+            "dcu",
+            "cbu"
+          ],
+          "answer": 0,
+          "explain": "c→d, a→b and t→u give 'dbu', the same trick that turns 'pancake' into 'qbodblf'."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "A bigram model sees 'badminto' and predicts 'u'. Why?",
+          "options": [
+            "It has never once seen the word 'badminton'",
+            "It always picks the rarest next letter",
+            "It only looks at the final character, 'o'",
+            "It reads the text from right to left"
+          ],
+          "answer": 2,
+          "explain": "A bigram model only uses the previous character. After 'o', 'u' is common (as in 'out' or 'you'), so without the earlier context it guesses wrong."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Each chunk holds an input sequence plus one extra character for the shifted target. Fill the blank.",
+          "code": "SEQUENCE_LENGTH = 100\ndataset = dataset.batch(\n    SEQUENCE_LENGTH + ___,\n    drop_remainder=True)\ndataset = dataset.map(split_input_target)",
+          "options": [
+            "1",
+            "0",
+            "2",
+            "100"
+          ],
+          "answer": 0,
+          "explain": "101 characters split into an input (the first 100) and a target (the last 100, shifted by one), so every input character has a 'next character' to predict."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "The last layer must give one score per possible next character. Fill the blank.",
+          "code": "keras.layers.Embedding(vocab_size, 64),\nkeras.layers.LSTM(256,\n    return_sequences=True),\nkeras.layers.Dense(___)",
+          "options": [
+            "SEQUENCE_LENGTH",
+            "BATCH_SIZE",
+            "vocab_size",
+            "256"
+          ],
+          "answer": 2,
+          "explain": "The Dense layer outputs a score for each character in the vocabulary. The highest-scoring characters are the likeliest to come next."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "An untrained model writes random-looking text because its parameters start out random.",
+          "answer": true,
+          "explain": "Before training, nothing has tuned the parameters, so the predicted characters are essentially random. Training gradually lowers the loss."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order the steps for building the character language model.",
+          "items": [
+            "Count the unique characters",
+            "Map each character to a number",
+            "Cut the text into input/target pairs",
+            "Define the Embedding–LSTM–Dense model",
+            "Train for a few epochs",
+            "Generate text one character at a time"
+          ],
+          "explain": "First the vocabulary and the number mapping, then the prediction dataset, then the model, training and finally generation."
+        },
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each training term to its meaning.",
+          "pairs": [
+            ["Epoch", "One full pass through the training data"],
+            ["Loss", "How wrong the model is; lower is better"],
+            ["Accuracy", "Share of next characters predicted correctly"],
+            ["Parameters", "Adjustable knobs tuned during learning"],
+            ["Learning rate", "Size of each adjustment step"]
+          ],
+          "explain": "Training repeats epochs, nudging the parameters by steps set by the learning rate, to lower the loss and raise the accuracy."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "How does the decoder tell whether a tweaked key is an improvement?",
+          "options": [
+            "The language model scores how English-like it is",
+            "It counts how many vowels the result contains",
+            "It checks the result against a dictionary list",
+            "It tries every key and keeps the last one"
+          ],
+          "answer": 0,
+          "explain": "A model trained on English gives English text a higher probability than gibberish, so that probability guides the search toward the right key."
+        },
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "Why not simply try every possible letter mapping?",
+          "options": [
+            "Computers can't swap letters inside a string",
+            "There are about 4 × 10²⁶ of them, far too many",
+            "Each attempt would need a human to check it",
+            "Most mappings would crash the program"
+          ],
+          "answer": 1,
+          "explain": "The notebook counts 403,291,461,126,605,635,584,000,000 possible mappings. Testing them one by one is hopeless, so a smarter search is needed."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "Always choosing the single most probable next character is called ___ sampling.",
+          "options": [
+            "random",
+            "bigram",
+            "greedy",
+            "recurrent"
+          ],
+          "answer": 2,
+          "explain": "Greedy sampling takes the top character every time. Random sampling draws characters in proportion to their probabilities."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Greedy generation produces a different text every time you run it.",
+          "answer": false,
+          "explain": "Greedy always picks the top character, so the same start gives the same text. Random sampling is what makes each run different."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "The model says P('e' after 'pancak') = 0.9. With random sampling, how often will it pick 'e'?",
+          "options": [
+            "Every single time",
+            "About half the time",
+            "About 2 times in 100",
+            "About 9 times in 10"
+          ],
+          "answer": 3,
+          "explain": "Random sampling draws in proportion to probability, so a 0.9 chance means roughly 9 picks in 10. Greedy sampling would pick 'e' every time."
+        }
+      ]
+    },
+    {
+      "id": "intro-3",
+      "title": "Generative models",
+      "icon": "spark",
+      "lab": "colabs/introductory/generative_models.ipynb",
+      "cards": [
+        {
+          "title": "Machines that create",
+          "body": "A generative model produces new things: text, music or, in this notebook, images. A dog it draws is usually a dog that never existed. It can even mix categories that do exist into imagined new ones, and style transfer repaints the content of one image in the style of another. Could you tell the AI's images from real photos in the quiz?"
+        },
+        {
+          "title": "The Artist and the Detective",
+          "body": "A Generative Adversarial Network (GAN) pits two parts against each other. The Artist (generator) creates images. The Detective (discriminator) is shown real images and the Artist's fakes and must say which is which. Both start out poor. As the Detective sharpens, the Artist must produce ever more realistic images. That contest is the training."
+        },
+        {
+          "title": "Train a tiny GAN",
+          "body": "You draw a picture, and it's shrunk to 28 × 28 pixels so learning is faster. After only about 10 training steps the Artist still outputs noise; with more, its images start to look like your drawing. Trained on a single image, it can only make near-copies. Real generative models learn from millions of images, so they can create real variety.",
+          "code": "generator_net = GeneratorModel()\ndiscriminator_net = DiscriminatorModel()\ngan_net = GAN(generator_net,\n              discriminator_net)"
+        },
+        {
+          "title": "Why imagination matters",
+          "body": "Humanity's big leaps, like Dr. Jane C. Wright's pioneering chemotherapy research, came from creative problem solving: imagining many possible solutions and testing them. If AI is to help with future challenges, it also needs some ability to imagine new things. Generative models are one step in that direction."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "What makes a model 'generative'?",
+          "options": [
+            "It sorts photos into labelled folders",
+            "It creates new examples, such as images",
+            "It finds matching pictures on the web",
+            "It shrinks image files so they take less space"
+          ],
+          "answer": 1,
+          "explain": "Generative models generate: they produce new text, music or images, rather than just labelling or searching existing ones."
+        },
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each GAN term to its role.",
+          "pairs": [
+            ["Artist", "The generator: creates new images"],
+            ["Detective", "The discriminator: spots real vs fake"],
+            ["Real images", "Examples the fakes are compared against"],
+            ["Training", "The two sides competing and improving"]
+          ],
+          "explain": "The Artist (generator) and the Detective (discriminator) improve by competing, with real images as the reference for what 'real' looks like."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "In a GAN, the Artist and the Detective share the same goal.",
+          "answer": false,
+          "explain": "They compete: the Artist wants its fakes judged real, while the Detective wants to catch them. That rivalry drives both to improve."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "GAN stands for Generative ___ Network, because its two parts compete.",
+          "options": [
+            "Artistic",
+            "Automatic",
+            "Adversarial",
+            "Advanced"
+          ],
+          "answer": 2,
+          "explain": "'Adversarial' means opposing: the generator and the discriminator are adversaries in a game."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "As the Detective gets better at spotting fakes, what must the Artist do to win?",
+          "options": [
+            "Make more realistic images to keep fooling it",
+            "Stop training so it isn't caught as often",
+            "Send its images straight to the user instead",
+            "Copy one real image and repeat it forever"
+          ],
+          "answer": 0,
+          "explain": "The Artist only wins if its images pass as real, so a sharper Detective forces it to create more convincing ones."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Style transfer combines which two inputs?",
+          "options": [
+            "A real image and a fake image",
+            "Two random noise images",
+            "A photo and the written caption below it",
+            "A content image and a style image"
+          ],
+          "answer": 3,
+          "explain": "The model keeps the content of one image and applies the style (colours, textures, brushwork) of another."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "A dog image created by a generative model usually shows a dog that doesn't really exist.",
+          "answer": true,
+          "explain": "The model imagines new examples from patterns it learned, so its dog is typically one that no camera ever photographed."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order the steps for training your own Artist.",
+          "items": [
+            "Draw a picture and save it",
+            "Shrink it to 28 × 28 pixels",
+            "Create the Artist and the Detective",
+            "Train them against each other",
+            "Watch the Artist's output improve"
+          ],
+          "explain": "Your drawing is the real data. It's resized, then the generator and discriminator train together while you watch the Artist improve."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Your GAN was trained on only your single drawing. What can it generate?",
+          "options": [
+            "Any object you can describe in words",
+            "Realistic photos of people",
+            "Images very similar to your drawing",
+            "Drawings in many new styles"
+          ],
+          "answer": 2,
+          "explain": "It has only ever seen one image, so that's all it can imitate. Creating variety takes lots of training data."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "The Detective's technical name is the discriminator. Fill in the class it's built from.",
+          "code": "# The Artist\ngenerator_net = GeneratorModel()\n# The Detective\ndiscriminator_net = ___()",
+          "options": [
+            "GeneratorModel",
+            "DiscriminatorModel",
+            "ArtistModel",
+            "GAN"
+          ],
+          "answer": 1,
+          "explain": "Generator means Artist and discriminator means Detective. The GAN class then combines the two networks for training."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "You set number_of_training_steps to 10 instead of 200. What should you expect?",
+          "options": [
+            "A perfect copy appears much sooner than before",
+            "The output stays noisy, unlike your drawing",
+            "The Detective is no longer needed",
+            "The image turns into a new object"
+          ],
+          "answer": 1,
+          "explain": "Ten steps isn't enough practice, so the Artist still produces noise. More steps let it gradually match your drawing."
+        },
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "Why are real generative models trained on millions of images?",
+          "options": [
+            "To memorise every image and replay each one exactly",
+            "Because a single image can't be resized",
+            "To make the Detective's job impossible",
+            "To learn patterns that let them create variety"
+          ],
+          "answer": 3,
+          "explain": "Many examples reveal general patterns, letting the model create new images, even ones that weren't in its training data."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Your drawing is shrunk before training mainly so the model can learn faster.",
+          "answer": true,
+          "explain": "A 28 × 28 image has far fewer pixels to model, so training is much quicker."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Blending two real categories into a new, never-seen one shows a model's ___.",
+          "options": [
+            "imagination",
+            "accuracy",
+            "memory",
+            "speed"
+          ],
+          "answer": 0,
+          "explain": "Combining known categories into something new is a simple form of imagination, the kind of creativity the notebook argues AI will need."
+        }
+      ]
+    },
+    {
+      "id": "intro-4",
+      "title": "Reinforcement learning",
+      "icon": "robot",
+      "lab": "colabs/introductory/reinforcement_learning.ipynb",
+      "cards": [
+        {
+          "title": "Agent, environment, reward",
+          "body": "In reinforcement learning (RL), an agent acts in an environment and gets rewards. Its aim: collect as much total reward as possible within a fixed stretch of interaction. RL has mastered games like Go and StarCraft and could help with drug discovery or climate problems. The notebook starts with CartPole: push a cart left or right to keep a hinged pole upright."
+        },
+        {
+          "title": "Scoring an episode",
+          "body": "An episode is one run, start to finish, and its total reward is called the return. In CartPole the agent earns +1 every timestep, and the episode ends when the pole falls or the cart strays too far from the centre. So the way to score big is simply to survive longer. A well-trained agent hits the maximum of 200."
+        },
+        {
+          "title": "Random vs hand-coded",
+          "body": "A random agent ignores what it sees. A custom agent reads the state (cart position, cart velocity, pole angle and pole-tip velocity) and applies rules you write, such as an if statement. In CartPole, action 0 pushes the cart left and action 1 pushes it right.",
+          "code": "def custom_action(state):\n  pole_angle = state[2]\n  if pole_angle > 0:\n    return 1  # push right\n  return 0    # push left"
+        },
+        {
+          "title": "Learning with DQN",
+          "body": "Deep Q-Networks (DQN), developed at DeepMind, were the first RL method to solve Atari games straight from images. The setup joins a Q-network, an optimiser that trains it, and a replay buffer storing past experience. You judge the result two ways: a training curve of total reward per episode, and a video of the agent in action."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "In reinforcement learning, what is the agent trying to do?",
+          "options": [
+            "Finish each episode in as few actions as possible",
+            "Copy what a human player would do",
+            "Predict the next frame of the game",
+            "Maximise the total reward it collects"
+          ],
+          "answer": 3,
+          "explain": "RL agents learn to maximise the total reward they receive while interacting with their environment."
+        },
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each RL term to its meaning.",
+          "pairs": [
+            ["Agent", "The learner that chooses actions"],
+            ["Environment", "The task or world the agent acts in"],
+            ["Reward", "Feedback the agent gets after acting"],
+            ["Episode", "One run of the task, start to finish"],
+            ["Return", "Total reward collected in an episode"]
+          ],
+          "explain": "The agent acts in an environment, gets rewards, and tries to maximise the return of each episode."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "In CartPole, action 0 pushes the cart left and action ___ pushes it right.",
+          "options": [
+            "2",
+            "1",
+            "-1",
+            "10"
+          ],
+          "answer": 1,
+          "explain": "CartPole has just two actions: 0 for left and 1 for right."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "A random agent checks the pole's angle before choosing what to do.",
+          "answer": false,
+          "explain": "A random agent ignores observations entirely and samples actions at random. It's a useful baseline to beat."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "The pole stays up for 57 timesteps, earning +1 each. The episode's return is ___.",
+          "options": [
+            "57",
+            "1",
+            "200",
+            "58"
+          ],
+          "answer": 0,
+          "explain": "The return is the sum of the rewards: 57 timesteps × 1 = 57."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Three CartPole episodes last 20, 35 and 50 timesteps. What is the average return?",
+          "options": [
+            "105",
+            "50",
+            "35",
+            "20"
+          ],
+          "answer": 2,
+          "explain": "The returns are 20, 35 and 50. Their total is 105, and 105 ÷ 3 = 35."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "The pole angle is −0.1. Which action does this agent choose?",
+          "code": "def custom_action(state):\n  pole_angle = state[2]\n  if pole_angle > 0:\n    return 1\n  return 0",
+          "options": [
+            "1 (push right)",
+            "0 (push left)",
+            "No action",
+            "A random action"
+          ],
+          "answer": 1,
+          "explain": "−0.1 is not greater than 0, so the if branch is skipped and the function returns 0: push left."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "What does DQN's replay buffer do?",
+          "options": [
+            "Stores past experience for the agent to learn from",
+            "Replays videos of the trained agent for people to watch",
+            "Resets the environment after every episode",
+            "Picks random actions so the agent explores"
+          ],
+          "answer": 0,
+          "explain": "The replay buffer keeps the experience the agent has gathered, so the network can be trained on it."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Reward and loss are effectively opposites: we maximise one or minimise the other.",
+          "answer": true,
+          "explain": "Both measure how well the agent is doing. Maximising reward and minimising loss point in the same direction."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order the notebook's workflow.",
+          "items": [
+            "Load the CartPole environment",
+            "Try a random agent",
+            "Hand-code a custom agent",
+            "Set up and train a DQN agent",
+            "Plot the curve and watch a video"
+          ],
+          "explain": "Start simple with random and hand-written agents, then train DQN and evaluate it both with numbers and by watching it."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "A training curve plots total reward against ___.",
+          "options": [
+            "parameters",
+            "pixels",
+            "episodes",
+            "actions"
+          ],
+          "answer": 2,
+          "explain": "Each point shows the total reward of one episode, so you can see whether the agent improves as training goes on."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Your agent never reaches 200 in CartPole. Which change does the notebook suggest trying?",
+          "options": [
+            "Lower the episode's maximum reward to 100",
+            "Train for 400 episodes instead of 200",
+            "Switch back to the random agent",
+            "Remove the replay buffer"
+          ],
+          "answer": 1,
+          "explain": "Training longer gives the agent more experience. Separately, you could also try a higher learning rate (1e-3 instead of 3e-4)."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Raising learning_rate from 3e-4 to 1e-3 changes what?",
+          "options": [
+            "How many episodes the agent will train for in total",
+            "How much reward each timestep gives",
+            "How much the agent changes each training step",
+            "How long the pole is"
+          ],
+          "answer": 2,
+          "explain": "The learning rate sets the size of each update. Bigger steps can learn faster but risk overshooting."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "Some RL environments, such as Atari games, can take hours or even days for an agent to learn.",
+          "answer": true,
+          "explain": "CartPole can be learned in minutes, but richer environments like Atari need far more experience and time."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "DQN, the first RL method to solve Atari games from images, stands for Deep Q-___.",
+          "options": [
+            "Navigation",
+            "Neurons",
+            "Notation",
+            "Networks"
+          ],
+          "answer": 3,
+          "explain": "Deep Q-Networks use a neural network, the Q-network, to estimate how good each action is."
+        }
+      ]
+    },
+    {
+      "id": "intro-5",
+      "title": "Evolving game agents",
+      "icon": "bird",
+      "lab": "colabs/introductory/fluttering_avians.ipynb",
+      "cards": [
+        {
+          "title": "An agent that plays",
+          "body": "Game AI usually means computer opponents. Here it means an agent that plays the game itself, using the same controls you would. The agent observes the state, chooses an action and tries to maximise its score, which is its reward. In Fluttering Avians, a Flappy Bird–style game, there's one decision: flutter (1) or don't (0)."
+        },
+        {
+          "title": "Four numbers describe the state",
+          "body": "y_coord: height on screen (0 at the top, 512 at the bottom). angle: 0 is up, 90 right, 180 down, and a flutter sets it to 30. distance: how far it is to the next obstacle's centre. height: where the hole's centre is (holes are 102 pixels tall). A simple rule: if you're below the hole, flutter.",
+          "code": "def fluttering_agent(y_coord, angle,\n                     distance, height):\n  if y_coord > height:  # below the hole\n    return 1            # flutter!\n  return 0"
+        },
+        {
+          "title": "Knobs instead of rules",
+          "body": "Rather than writing rules by hand, we let the computer learn. The agent gets an artificial neural network: a function with many parameters, knobs that can shape it into almost any behaviour. At first it plays essentially at random. Learning means finding good knob settings, and there are many competing algorithms for that, with no known best one."
+        },
+        {
+          "title": "Evolution, step by step",
+          "body": "An evolutionary algorithm keeps a population of agents. Each one plays and is evaluated on how far it gets. The worst are removed and the best reproduce more often. Offspring are mutated (their parameters wiggled slightly) so they might stumble on something better. Repeat over many generations, loosely mimicking natural selection."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "What kind of game AI does this notebook build?",
+          "options": [
+            "A computer opponent that adapts to your skill level",
+            "An agent that plays the game like a person would",
+            "A tool that designs brand-new game levels",
+            "A program that draws the game's graphics"
+          ],
+          "answer": 1,
+          "explain": "The agent uses a virtual controller with the same functions as yours and aims for the highest possible score."
+        },
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each state value to what it describes.",
+          "pairs": [
+            ["y_coord", "Vertical position; 0 is the top of the screen"],
+            ["angle", "Direction the bird points; 0 is straight up"],
+            ["distance", "How far away the next obstacle's centre is"],
+            ["height", "Vertical position of the hole's centre"]
+          ],
+          "explain": "These four numbers are everything the agent sees. It has to turn them into a choice: flutter or don't."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "y grows downward. With y_coord=400 and height=300, what does this agent return?",
+          "code": "def fluttering_agent(y_coord, angle,\n                     distance, height):\n  if y_coord > height:\n    return 1\n  return 0",
+          "options": [
+            "0, because the bird is above the hole",
+            "1, because the bird is below the hole",
+            "1, because the bird is above the hole",
+            "0, because the bird is level with the hole"
+          ],
+          "answer": 1,
+          "explain": "400 > 300 is true, so it returns 1. A larger y means lower on screen, so the bird is below the hole and needs to flutter up."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "The agent returns 1 to flutter and ___ to do nothing.",
+          "options": [
+            "0",
+            "-1",
+            "2",
+            "None"
+          ],
+          "answer": 0,
+          "explain": "The output is binary: 1 means flutter and 0 means take no action."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "A y_coord of 0 means the bird is at the very top of the screen.",
+          "answer": true,
+          "explain": "Screen coordinates start at the top: 0 is the top edge and 512 is the bottom."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order one generation of the evolutionary algorithm.",
+          "items": [
+            "Start with a population of agents",
+            "Let each agent play and evaluate it",
+            "Remove the worst-performing agents",
+            "Let the best agents reproduce",
+            "Mutate the offspring's parameters"
+          ],
+          "explain": "Evaluate, select, reproduce, mutate, and then repeat the whole cycle for the next generation."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why are offspring mutated rather than copied exactly?",
+          "options": [
+            "To make the game harder for them to play",
+            "Because exact copies would use too much memory",
+            "To erase everything their parents learned",
+            "So they might discover new, better behaviour"
+          ],
+          "answer": 3,
+          "explain": "Identical copies can't improve. Small random changes let some offspring stumble on better strategies, which selection then keeps."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Before any training, the neural-network agent plays almost at random.",
+          "answer": true,
+          "explain": "Its parameters haven't been tuned yet. As the notebook puts it, it's even less capable than a newborn baby."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "In an evolutionary algorithm, the group of agents being improved is called the ___.",
+          "options": [
+            "population",
+            "generation",
+            "dataset",
+            "environment"
+          ],
+          "answer": 0,
+          "explain": "The population is the set of agents. Each round of evaluate, select and reproduce creates a new generation of it."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Using this hand-written agent, what does fluttering_agent(260, 90, 100, 250) return?",
+          "code": "def fluttering_agent(y_coord, angle,\n                     distance, height):\n  if distance >= 140:\n    if angle > 120:\n      return 1\n  if distance < 140:\n    if height + 25 < y_coord:\n      return 1\n  return 0",
+          "options": [
+            "1",
+            "0",
+            "It raises an error"
+          ],
+          "answer": 1,
+          "explain": "distance is 100 (under 140), so it checks 250 + 25 < 260, i.e. 275 < 260, which is false. No rule fires, so it returns 0."
+        },
+        {
+          "type": "cloze",
+          "level": 3,
+          "prompt": "With the same agent, fluttering_agent(300, 150, 200, 250) returns ___.",
+          "code": "def fluttering_agent(y_coord, angle,\n                     distance, height):\n  if distance >= 140:\n    if angle > 120:\n      return 1\n  if distance < 140:\n    if height + 25 < y_coord:\n      return 1\n  return 0",
+          "options": [
+            "0",
+            "None",
+            "1"
+          ],
+          "answer": 2,
+          "explain": "distance 200 is at least 140 and angle 150 is over 120 (the bird is nose-diving), so the first rule fires and it returns 1."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "In this notebook, what are a neural network's parameters?",
+          "options": [
+            "Knobs the computer tunes to change the function",
+            "The four numbers that describe the game's state",
+            "The score the agent gets at the end",
+            "Rules written by a human programmer"
+          ],
+          "answer": 0,
+          "explain": "Parameters are internal knobs and switches. Learning adjusts them so the network's output (flutter or not) gets better."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Researchers already know one learning algorithm that is always best for problems like this.",
+          "answer": false,
+          "explain": "The notebook stresses that this is an open research area: many algorithms exist and none is best in every case."
+        },
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "Which family of methods trains the agents in this notebook?",
+          "options": [
+            "Reinforcement learning with DQN",
+            "Supervised learning from human play",
+            "Evolutionary algorithms",
+            "Hand-written if statements"
+          ],
+          "answer": 2,
+          "explain": "The notebook mentions reinforcement learning, but it uses an evolutionary algorithm: a population that is evaluated, selected and mutated."
+        }
+      ]
+    },
+    {
+      "id": "intro-6",
+      "title": "Folding proteins",
+      "icon": "dna",
+      "lab": "colabs/introductory/protein_folding.ipynb",
+      "cards": [
+        {
+          "title": "Why shape matters",
+          "body": "Proteins are tiny machines that keep living things running. ATP synthase, for instance, makes the cell's energy currency. Each protein starts as a 1D chain of amino acids, whose order we know from the genetic code, then folds into a 3D shape. That shape decides what it does, yet predicting it from the sequence is one of biology's hardest problems."
+        },
+        {
+          "title": "Repair a misfold",
+          "body": "Each puzzle twists the protein at one bond. You choose a bond number (0–344) and a rotation angle, and an error score shows how far you are from the correct shape: lower is better, and near zero means solved. If bond 165 was twisted by 30°, rotate bond 165 by −30° to undo it. (This toy is unrelated to AlphaFold.)"
+        },
+        {
+          "title": "The heart of machine learning",
+          "body": "Computers are great at boring, repetitive work. If you can tell whether a change is an improvement, let the computer do it again and again: start somewhere, improve a little, repeat until it's good enough. That's learning by trial and error, and getting a bit worse along the way is normal.",
+          "code": "candidate = get_initial_candidate()\nfor i in range(1000):\n  candidate = candidate + get_improvement()\n  view_results()"
+        },
+        {
+          "title": "Python in two ideas",
+          "body": "A for loop repeats commands: in `for i in range(7)`, i takes the values 0, 1, …, 6. The equals sign stores a value in a variable; it isn't an equation to solve. So `square = square * square` is fine: it replaces square with a new value computed from the old one."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "Why does a protein's 3D shape matter?",
+          "options": [
+            "It decides the protein's DNA sequence",
+            "It determines what the protein does",
+            "Only folded proteins can be seen",
+            "It controls how fast cells divide"
+          ],
+          "answer": 1,
+          "explain": "A protein's function, meaning what it does in the body, is determined by its folded shape."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "Proteins begin as one-dimensional chains of amino acids before they fold.",
+          "answer": true,
+          "explain": "Cells build proteins bit by bit as a chain of amino acids, which then folds into a 3D structure."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Bond 165 was twisted by +30°. How do you repair the protein?",
+          "options": [
+            "Rotate bond 165 by +30°",
+            "Rotate bond 30 by −165°",
+            "Rotate every bond by −30°",
+            "Rotate bond 165 by −30°"
+          ],
+          "answer": 3,
+          "explain": "Undo the twist where it happened: rotate the same bond by the opposite angle, −30°."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Problem 2: a 42° twist happened somewhere in bonds 100–120. The fix is bond 115 with angle ___.",
+          "options": [
+            "42",
+            "−42",
+            "−115",
+            "0"
+          ],
+          "answer": 1,
+          "explain": "Just like Problem 1, you rotate back by the same amount: −42° at bond 115. Finding the bond meant trying values in the range."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "On the error curve, a higher number means you're closer to the correct shape.",
+          "answer": false,
+          "explain": "The error measures how far your protein is from the correct one, so lower is better and near zero means solved."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "What is the last number this code prints?",
+          "code": "for somename in range(7):\n  print(somename)",
+          "options": [
+            "6",
+            "7",
+            "0",
+            "8"
+          ],
+          "answer": 0,
+          "explain": "range(7) produces 0, 1, 2, 3, 4, 5, 6: seven values, starting at 0 and stopping before 7."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "What does this code print?",
+          "code": "square = 5*5\nsquare = square * square\nprint(square)",
+          "options": [
+            "25",
+            "50",
+            "10",
+            "625"
+          ],
+          "answer": 3,
+          "explain": "square starts as 25. The second line overwrites it with 25 × 25 = 625."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "The machine-learning recipe in one line: solution = solution + ___.",
+          "options": [
+            "improvement",
+            "error",
+            "range",
+            "candidate"
+          ],
+          "answer": 0,
+          "explain": "Start with a solution and keep adding small improvements, exactly what the protein code does with candidate."
+        },
+        {
+          "type": "order",
+          "level": 1,
+          "prompt": "Order the basic machine-learning loop.",
+          "items": [
+            "Start with an initial guess",
+            "Improve it by a little bit",
+            "Repeat until it's good enough"
+          ],
+          "explain": "Start somewhere, improve slightly, repeat. A computer can run this loop thousands of times without getting bored."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Complete the learning loop.",
+          "code": "candidate = get_initial_candidate()\nfor i in range(1000):\n  candidate = candidate + ___()\n  view_results()",
+          "options": [
+            "get_initial_candidate",
+            "view_results",
+            "get_improvement",
+            "range"
+          ],
+          "answer": 2,
+          "explain": "Each pass adds the nudge from get_improvement() to the current candidate. get_initial_candidate is only used once, at the start."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "It's normal for the protein to get slightly worse before it improves again.",
+          "answer": true,
+          "explain": "get_improvement sometimes makes things worse. Learning from mistakes is part of the process."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why use machine learning for real protein folding?",
+          "options": [
+            "Real proteins only ever break at a single bond each",
+            "Fixing hundreds of bonds by hand is impractical",
+            "Computers can see protein shapes directly",
+            "It removes the need to measure the error"
+          ],
+          "answer": 1,
+          "explain": "One bond is easy, but tens, hundreds or thousands of rotations are too many to tune by hand. That's a perfect job for a tireless computer."
+        },
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each term to its meaning.",
+          "pairs": [
+            ["Amino acids", "Building blocks chained together into proteins"],
+            ["Genetic code", "Tells us a protein's amino-acid sequence"],
+            ["ATP synthase", "Protein machine making the cell's energy currency"],
+            ["Error curve", "Tracks how far your fold is from correct"],
+            ["Bond number", "Which link in the chain you rotate"]
+          ],
+          "explain": "Amino acids form the chain, the genetic code gives their order, and the error curve tracks your progress as you rotate bonds."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "How many numbers does this code print?",
+          "code": "for number in range(11):\n  square = number * number\n  print(square)",
+          "options": [
+            "10",
+            "100",
+            "11",
+            "12"
+          ],
+          "answer": 2,
+          "explain": "range(11) gives 0 to 10, which is eleven values, so it prints 11 squares, from 0 up to 100."
+        }
+      ]
+    }
+  ]
+}

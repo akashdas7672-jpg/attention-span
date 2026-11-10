@@ -1,0 +1,1072 @@
+{
+  "id": "c4",
+  "title": "Discover the Transformer",
+  "subtitle": "AI Research Foundations · Course 4",
+  "repo": "ai-foundations",
+  "skills": [
+    {
+      "id": "c4-1",
+      "title": "Seeing attention",
+      "icon": "eye",
+      "lab": "course_4/gdm_lab_4_1_attention_visualization.ipynb",
+      "cards": [
+        {
+          "title": "What attention does",
+          "body": "A transformer builds a **contextual embedding** at each position by blending in information from every token in the prompt. The **attention mechanism** learns how much weight each token should get when building the embedding used to predict the next token."
+        },
+        {
+          "title": "Many layers, many views",
+          "body": "Attention runs in every layer, not just once. Gemma-1B has 26 layers, numbered 0–25. For \"Jide was hungry so she went looking for\" it predicts \"food\": layer 19 leans heavily on \"hungry\", while layer 2 focuses on the nearby \"looking for\". Swap in \"thirsty\" and layer 19 leans on that instead, predicting \"water\"."
+        },
+        {
+          "title": "Reading the picture",
+          "body": "In the visualization, a thicker line means that token's representation matters more for the next-token prediction at that layer. Models often put a lot of weight on the special beginning-of-sequence token, so lines to `<BOS>` are drawn in gray to keep the others readable."
+        },
+        {
+          "title": "Beyond one sentence",
+          "body": "Attention can reach any earlier token in the same prompt, even across sentence boundaries, so a prediction can depend on words from previous sentences. Different layers tend to capture different dependencies: some focus on meaning, others on what keeps the sentence grammatical."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "What does the attention mechanism decide?",
+          "options": [
+            "Which word in the vocabulary is the longest one",
+            "How much each token counts toward the prediction",
+            "How many layers the model should use for this prompt",
+            "Which tokens to delete from the prompt before predicting"
+          ],
+          "answer": 1,
+          "explain": "Attention assigns each token a weight that says how much of its information goes into the contextual embedding used to predict the next token."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "Attention lets a transformer combine information from ___ tokens in the prompt.",
+          "options": [
+            "all",
+            "only the last",
+            "only the first",
+            "only two"
+          ],
+          "answer": 0,
+          "explain": "Each contextual embedding can draw on every token in the prompt, with learned weights deciding how much each one contributes."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "A thicker line in the visualization means that token matters more for the prediction at that layer.",
+          "answer": true,
+          "explain": "Line thickness is drawn in proportion to the attention weight, so thick lines mark the most influential tokens for that layer."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "What is a contextual embedding?",
+          "options": [
+            "A fixed vector looked up for each word in a table",
+            "The probability that each token comes next",
+            "A token vector mixed with context from the prompt",
+            "The list of token IDs that make up the prompt"
+          ],
+          "answer": 2,
+          "explain": "Unlike a fixed token embedding, a contextual embedding changes with the surrounding prompt because attention mixes in other tokens' information."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Gemma-1B has 26 layers. Fill in the slider's maximum value.",
+          "code": "# @param slider\nlayer = 19  # min 0, max ___",
+          "options": [
+            "26",
+            "25",
+            "19",
+            "4"
+          ],
+          "answer": 1,
+          "explain": "Layers are numbered from 0, so 26 layers run from 0 to 25."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Every layer of the transformer attends to the same tokens with the same weights.",
+          "answer": false,
+          "explain": "The weights change from layer to layer: for the \"hungry\" prompt, layer 19 focuses on \"hungry\" while layer 2 focuses on \"looking for\"."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "At layer 2, the prediction after \"...went looking for\" depends most on which tokens?",
+          "options": [
+            "Only the adjective \"hungry\"",
+            "Only the name \"Jide\" at the start",
+            "Only the `<BOS>` token",
+            "Nearby tokens such as \"looking for\""
+          ],
+          "answer": 3,
+          "explain": "Layer 2 mostly attends to the very local context, while a later layer like 19 picks up the more distant but meaningful word \"hungry\"."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why are lines to `<BOS>` drawn in gray?",
+          "options": [
+            "It often gets heavy weight that would hide other lines",
+            "It never receives any attention weight from other tokens",
+            "It is the token the model is about to predict",
+            "It marks the end of each sentence in the prompt"
+          ],
+          "answer": 0,
+          "explain": "Transformer language models often place large attention on the first token. Graying those lines makes the other connections easier to see."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Different layers tend to focus on different kinds of ___ between tokens, such as meaning or grammar.",
+          "options": [
+            "spellings",
+            "lengths",
+            "dependencies",
+            "frequencies"
+          ],
+          "answer": 2,
+          "explain": "The lab suggests looking for layers that track semantic meaning and others that track grammaticality."
+        },
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each item to what it means in the lab.",
+          "pairs": [
+            [
+              "Line thickness",
+              "How much a token influences the prediction"
+            ],
+            [
+              "<BOS>",
+              "Special token that starts every sequence"
+            ],
+            [
+              "layer slider",
+              "Picks which of the 26 layers to display"
+            ],
+            [
+              "Contextual embedding",
+              "Token vector enriched with prompt context"
+            ],
+            [
+              "Gemma-1B",
+              "Pretrained model whose attention is shown"
+            ]
+          ],
+          "explain": "These are the pieces you work with when reading Gemma-1B's attention pictures."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Tokens from earlier sentences can influence the next-token prediction, as long as they are part of the same prompt.",
+          "answer": true,
+          "explain": "Attention covers the whole prompt, so the multi-sentence painter example can draw on words from previous sentences."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order how the lab produces one attention picture.",
+          "items": [
+            "Load Gemma-1B with attention access",
+            "Run the prompt to get attention weights",
+            "Select the weights for one layer",
+            "Draw lines with thickness by weight"
+          ],
+          "explain": "The model returns attention weights for every layer; you pick `attention_weights[f\"layer_{layer}\"]` and visualize it."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "You change \"hungry\" to \"thirsty\". What do you expect at layer 19?",
+          "options": [
+            "It leans on \"looking for\", and the model predicts \"food\"",
+            "It ignores the adjective, and the model predicts \"food\"",
+            "It leans on \"thirsty\", and the model predicts \"water\"",
+            "It leans on \"Jide\", and the model predicts \"water\""
+          ],
+          "answer": 2,
+          "explain": "Layer 19 attends to the word that signals the need. \"Thirsty\" takes over that role, and the prediction becomes \"water\"."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "In some layer, the last token's thickest non-BOS line goes to \"hungry\", not to \"looking for\". What is that layer most likely tracking?",
+          "options": [
+            "Grammar: which word may follow \"for\"",
+            "The spelling of the final token",
+            "How many tokens the prompt has",
+            "Meaning: what Jide actually needs"
+          ],
+          "answer": 3,
+          "explain": "\"Hungry\" carries the meaning that points to \"food\", while \"looking for\" mostly constrains the grammar. A layer favoring \"hungry\" is capturing meaning."
+        }
+      ]
+    },
+    {
+      "id": "c4-2",
+      "title": "The attention equation",
+      "icon": "vector",
+      "lab": "course_4/gdm_lab_4_2_implement_attention_equation.ipynb",
+      "cards": [
+        {
+          "title": "Queries, keys, values",
+          "body": "Gemma learned three projection matrices, W_Q, W_K, and W_V. Multiplying each token's embedding by them gives that token a query, a key, and a value vector. Stacked as rows, these form the matrices Q, K, and V. This lab uses those from the first attention head of a Gemma-1B layer."
+        },
+        {
+          "title": "The equation",
+          "body": "logits = Q·Kᵀ / √d_k, where d_k is the length of each key vector. Entry (i, j) scores how well token i's query matches token j's key. SoftMax turns each row into weights α that sum to 1. Then Y = αV: each output row is a weighted sum of value vectors, a new contextual embedding."
+        },
+        {
+          "title": "In code",
+          "body": "`@` multiplies matrices and `.T` transposes. With n tokens, `logits` and `alpha` are n × n, and Y has one row per token.",
+          "code": "_, dim_key = key_proj.shape\nlogits = (query_proj @ key_proj.T\n          ) / jnp.sqrt(dim_key)\nalpha = jax.nn.softmax(logits)\nY = alpha @ value_proj"
+        },
+        {
+          "title": "Checking your work",
+          "body": "You compare your attention picture with Gemma's own for the same prompt, layer, and head; they should be identical. A helper, `post_process_attention`, applies masking (the topic of the next lab) to your logits so the two match exactly."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order the steps of the attention computation.",
+          "items": [
+            "Project embeddings to Q, K, and V",
+            "Multiply Q by Kᵀ",
+            "Divide by √d_k",
+            "Apply SoftMax to get α",
+            "Multiply α by V to get Y"
+          ],
+          "explain": "Scores first (Q·Kᵀ), then scale, then normalize into weights, then use the weights to mix the value vectors."
+        },
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "Which part of the attention computation was learned during Gemma's training?",
+          "options": [
+            "The attention weights α for each prompt",
+            "The square-root scaling factor √d_k",
+            "The projection matrices W_Q, W_K, and W_V",
+            "The SoftMax function applied to logits"
+          ],
+          "answer": 2,
+          "explain": "Only the projection matrices are learned. α is recomputed from Q and K for every new prompt."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "Fill in the function that turns logits into attention weights.",
+          "code": "alpha = jax.nn.___(logits)\nY = alpha @ value_proj",
+          "options": [
+            "softmax",
+            "sigmoid",
+            "relu",
+            "sqrt"
+          ],
+          "answer": 0,
+          "explain": "SoftMax makes every row non-negative and sum to 1, giving a proper set of weights over the tokens."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Fill in the attribute that transposes the key matrix.",
+          "code": "logits = (query_proj @ key_proj.___\n          ) / jnp.sqrt(dim_key)",
+          "options": [
+            "shape",
+            "mean()",
+            "inv()",
+            "T"
+          ],
+          "answer": 3,
+          "explain": "`key_proj.T` flips K from (n_tokens, d_k) to (d_k, n_tokens), so Q @ Kᵀ yields an n_tokens × n_tokens score matrix."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "`key_proj` has shape (n_tokens, d_k). What does `_, dim_key = key_proj.shape` extract?",
+          "options": [
+            "The number of tokens in the prompt",
+            "The size of each key vector, d_k",
+            "The number of attention heads",
+            "The number of layers in Gemma"
+          ],
+          "answer": 1,
+          "explain": "The second entry of the shape is the length of each key vector, which is the d_k used in the √d_k scaling."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "After SoftMax, each row of `alpha` sums to 1.",
+          "answer": true,
+          "explain": "Each row holds one token's weights over all tokens, and SoftMax normalizes those weights into a distribution."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "A larger logit for a token pair means a smaller attention weight for that pair.",
+          "answer": false,
+          "explain": "SoftMax preserves order: the biggest logit in a row gets the biggest weight."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "A token's logits are [2, 2, 2]. What are its attention weights?",
+          "options": [
+            "[2, 2, 2]",
+            "[1, 0, 0]",
+            "[0.5, 0.5, 0.5]",
+            "[1/3, 1/3, 1/3]"
+          ],
+          "answer": 3,
+          "explain": "Equal logits give equal weights, and SoftMax weights must sum to 1, so each is 1/3."
+        },
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each piece of code to what it computes.",
+          "pairs": [
+            [
+              "W_Q, W_K, W_V",
+              "Learned projection matrices from Gemma"
+            ],
+            [
+              "query_proj @ key_proj.T",
+              "Raw match score for every token pair"
+            ],
+            [
+              "jnp.sqrt(dim_key)",
+              "The scaling factor √d_k"
+            ],
+            [
+              "jax.nn.softmax",
+              "Turns each row of logits into weights"
+            ],
+            [
+              "alpha @ value_proj",
+              "Weighted sum of the value vectors"
+            ]
+          ],
+          "explain": "Projections produce Q, K, V; the product and scaling give logits; SoftMax gives α; α times V gives the output Y."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "In this lab, attention is computed only for the ___ attention head of each layer.",
+          "options": [
+            "last",
+            "largest",
+            "first",
+            "average"
+          ],
+          "answer": 2,
+          "explain": "To keep things simple this lab extracts Q, K, and V for head 0 only. The next lab handles all heads at once."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "The output Y has one row per token, each row a new contextual embedding.",
+          "answer": true,
+          "explain": "Y = αV, and α has one row per token, so each row of Y is that token's weighted mix of value vectors."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "A query and a key have a dot product of 16, and d_k = 64. What is their logit?",
+          "options": [
+            "2",
+            "0.25",
+            "1,024",
+            "4"
+          ],
+          "answer": 0,
+          "explain": "logit = 16 / √64 = 16 / 8 = 2. Dividing by d_k instead of √d_k would give 0.25."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "A prompt has 9 tokens. What is the shape of `logits` (and of `alpha`)?",
+          "options": [
+            "(9, d_k)",
+            "(9, 9)",
+            "(d_k, d_k)",
+            "(9,)"
+          ],
+          "answer": 1,
+          "explain": "Q is (9, d_k) and Kᵀ is (d_k, 9), so Q·Kᵀ is (9, 9): one score for every pair of tokens."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "The last token's weights are α = [0.5, 0.5, 0]. Value rows are [2, 0], [0, 4], [6, 6]. What is its output row in Y?",
+          "options": [
+            "[8, 10]",
+            "[2, 4]",
+            "[1, 2]",
+            "[3, 3]"
+          ],
+          "answer": 2,
+          "explain": "0.5×[2, 0] + 0.5×[0, 4] + 0×[6, 6] = [1, 0] + [0, 2] = [1, 2]."
+        }
+      ]
+    },
+    {
+      "id": "c4-3",
+      "title": "Masked multi-head attention",
+      "icon": "puzzle",
+      "lab": "course_4/gdm_lab_4_3_implement_attention_equation_2.ipynb",
+      "cards": [
+        {
+          "title": "No peeking ahead",
+          "body": "A language model predicts each next token from the tokens before it, so token i may attend only to tokens 0…i. The **causal mask** is a square, lower-triangular matrix: 1 on and below the diagonal (allowed), 0 above it (future tokens, blocked)."
+        },
+        {
+          "title": "Masking in code",
+          "body": "Blocked logits are replaced with K_MASK ≈ −2.38 × 10³⁸. After SoftMax, such a huge negative logit becomes a weight of essentially 0.",
+          "code": "mask = jnp.tri(num_tokens)\nlogits_masked = jnp.where(\n    mask, logits_raw, K_MASK)\nalpha = jax.nn.softmax(logits_masked)"
+        },
+        {
+          "title": "Many heads at once",
+          "body": "Gemma-1B has 4 attention heads per layer, each producing its own attention pattern. Stacking the per-head matrices with `jnp.stack(..., axis=0)` gives 3D tensors shaped (num_heads, num_tokens, dim_k), so all heads and tokens are computed in one parallel step. That parallelism is why transformers train efficiently on lots of data."
+        },
+        {
+          "title": "Batched shapes",
+          "body": "Transposing only the last two axes lets `@` multiply each head's matrices separately. `jax.nn.softmax` normalizes over the last axis by default, so each row of weights sums to 1. This lab skips the final projection that merges the heads.",
+          "code": "# Q, K: (heads, tokens, dim_k)\nk_t = jnp.transpose(key_proj, (0, 2, 1))\nlogits = query_proj @ k_t / jnp.sqrt(dim_k)\n# logits: (heads, tokens, tokens)\nY = alpha @ value_proj\n# Y: (heads, tokens, dim_v)"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "Gemma-1B uses 4 attention heads in each layer.",
+          "answer": true,
+          "explain": "The head slider in the lab runs from 0 to 3, one position for each of the 4 heads per layer."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "What does `jnp.tri(3)` return?",
+          "options": [
+            "[[1,1,1],[0,1,1],[0,0,1]]",
+            "[[1,0,0],[1,1,0],[1,1,1]]",
+            "[[1,0,0],[0,1,0],[0,0,1]]",
+            "[[0,1,1],[0,0,1],[0,0,0]]"
+          ],
+          "answer": 1,
+          "explain": "`jnp.tri` puts 1s on and below the diagonal, so row i allows tokens 0 through i. The upper-triangular version would let tokens see the future."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "With the causal mask, the first token can attend only to itself.",
+          "answer": true,
+          "explain": "Row 0 of the lower-triangular mask has a single 1, on the diagonal; every later token is in its future."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Fill in the value used for blocked positions.",
+          "code": "logits_masked = jnp.where(\n    attention_mask, logits_raw, ___)",
+          "options": [
+            "K_MASK",
+            "0",
+            "1",
+            "logits_raw"
+          ],
+          "answer": 0,
+          "explain": "Where the mask is 0, the logit is replaced with the huge negative K_MASK so its weight vanishes after SoftMax. A logit of 0 would still get weight."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why fill masked logits with a huge negative number rather than 0?",
+          "options": [
+            "A logit of 0 already becomes a weight of exactly 0",
+            "Negative logits stop the weights from summing to 1",
+            "It makes the matrix multiplication run much faster",
+            "SoftMax turns it into a weight of almost exactly 0"
+          ],
+          "answer": 3,
+          "explain": "SoftMax exponentiates logits: e⁰ = 1 still gets a share, but e raised to −2.38 × 10³⁸ is effectively 0."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "Fill in the axis so the head becomes the first dimension.",
+          "code": "query_proj = jnp.stack(\n    query_proj_list, axis=___)\n# (num_heads, num_tokens, dim_k)",
+          "options": [
+            "1",
+            "2",
+            "0",
+            "-1"
+          ],
+          "answer": 2,
+          "explain": "Stacking along axis 0 places one matrix per head along the first dimension, giving (num_heads, num_tokens, dim_k)."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Fill in the axis order that swaps only the last two dimensions of K.",
+          "code": "key_t = jnp.transpose(key_proj, ___)\n# (heads, tokens, dim_k)\n#   → (heads, dim_k, tokens)",
+          "options": [
+            "(2, 1, 0)",
+            "(0, 2, 1)",
+            "(1, 0, 2)",
+            "(0, 1, 2)"
+          ],
+          "answer": 1,
+          "explain": "Keeping axis 0 (heads) in place and swapping axes 1 and 2 turns each head's K into Kᵀ."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order the steps of this lab's `compute_attention`.",
+          "items": [
+            "Stack Q, K, and V across heads",
+            "Compute raw logits Q·Kᵀ / √d_k",
+            "Apply the causal mask",
+            "SoftMax to get the weights α",
+            "Multiply α by V to get Y"
+          ],
+          "explain": "Each step is one of the functions you write: stack_matrices, compute_raw_logits, apply_attention_mask, compute_attention_weights, compute_attention_output."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "In this lab, `compute_attention` also merges all heads with a final output projection.",
+          "answer": false,
+          "explain": "The lab deliberately skips that step and returns the output of each head separately."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why are transformers well suited to training on huge datasets?",
+          "options": [
+            "All tokens and heads are computed in parallel as tensors",
+            "Each token is processed one at a time, strictly in order",
+            "Masking removes most of the multiplications needed",
+            "Each attention head only ever looks at one token"
+          ],
+          "answer": 0,
+          "explain": "Q, K, and V hold every token for every head, so one batched multiplication computes all attention weights at once."
+        },
+        {
+          "type": "match",
+          "level": 2,
+          "prompt": "Match each function to its role in masked multi-head attention.",
+          "pairs": [
+            [
+              "jnp.tri",
+              "Builds the lower-triangular causal mask"
+            ],
+            [
+              "jnp.stack",
+              "Joins per-head matrices into one tensor"
+            ],
+            [
+              "jnp.where",
+              "Keeps each logit or swaps in K_MASK"
+            ],
+            [
+              "jnp.transpose",
+              "Swaps the last two axes of the key tensor"
+            ],
+            [
+              "jax.nn.softmax",
+              "Normalizes over the last axis by default"
+            ]
+          ],
+          "explain": "Together these turn per-head Q, K, V into masked attention weights for every head at once."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "4 heads, 9 tokens, dim_k = 256. What is the shape of the raw logits?",
+          "options": [
+            "(4, 9, 256)",
+            "(9, 9)",
+            "(4, 256, 256)",
+            "(4, 9, 9)"
+          ],
+          "answer": 3,
+          "explain": "Per head, (9, 256) @ (256, 9) gives (9, 9). With 4 heads stacked in front, the logits are (4, 9, 9)."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "How many entries of the causal mask for a 5-token prompt are 1?",
+          "options": [
+            "15",
+            "25",
+            "10",
+            "5"
+          ],
+          "answer": 0,
+          "explain": "Row i has i + 1 ones: 1 + 2 + 3 + 4 + 5 = 15. The other 10 entries, above the diagonal, are 0."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "In a 6-token causal mask, row 3 (counting from 0) allows how many tokens to be attended to?",
+          "options": [
+            "3",
+            "4",
+            "6",
+            "2"
+          ],
+          "answer": 1,
+          "explain": "Row 3 has 1s in columns 0, 1, 2, and 3: the token itself plus the three before it."
+        }
+      ]
+    },
+    {
+      "id": "c4-4",
+      "title": "Word order and attention",
+      "icon": "compass",
+      "lab": "course_4/gdm_lab_4_4_positional_embeddings.ipynb",
+      "cards": [
+        {
+          "title": "A toy attention head",
+          "body": "The lab builds a tiny model: a 6-entry vocabulary (`<pad>`, the, zebra, chased, lion, .), random 3-dimensional embeddings, and random 3 × 3 matrices W_q, W_k, W_v. The numbers carry no meaning; they just stay fixed so two sentences can be compared fairly."
+        },
+        {
+          "title": "The same masked attention",
+          "body": "This is the masked attention from the last lab, written in NumPy for a single head.",
+          "code": "Q = embeddings @ W_q\nK = embeddings @ W_k\nV = embeddings @ W_v\nlogits = (Q @ K.T) / np.sqrt(d_k)\nmask = np.tri(len(tokens))\nlogits = np.where(mask, logits, K_MASK)\nweights = softmax(logits, axis=1)\noutput = weights @ V"
+        },
+        {
+          "title": "Swap two words, same output",
+          "body": "Compare \"the zebra chased the lion .\" with \"the lion chased the zebra .\". For the last token, the weights on zebra and lion trade places, and so do their rows in V. The weighted sum comes out identical, so attention on its own is **order-invariant**."
+        },
+        {
+          "title": "Why it matters",
+          "body": "Without extra information, the model cannot tell who chased whom. The last token's output changes only if the set of tokens changes or the last token itself (which supplies the query) changes. That is why transformers add **positional embeddings** that encode each token's position."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "Order-invariant means that reordering the earlier tokens leaves the last token's attention output unchanged.",
+          "answer": true,
+          "explain": "The last token's output is a weighted sum over all tokens, and a sum doesn't care in which order its terms appear."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "From \"the zebra chased the lion .\" to \"the lion chased the zebra .\", what happens to the last token's attention weights?",
+          "options": [
+            "All of the weights become exactly equal",
+            "Every weight stays at the very same position",
+            "The weights for zebra and lion swap places",
+            "The weights on both \"the\" tokens double"
+          ],
+          "answer": 2,
+          "explain": "Each weight depends on the token, not its position, so the zebra and lion weights simply move with their words (the 2nd and 5th entries)."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Attention by itself can tell \"the zebra chased the lion\" apart from \"the lion chased the zebra\".",
+          "answer": false,
+          "explain": "The last token's attention output is identical for both sentences, so without positional information the model cannot distinguish them."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "To make a transformer sensitive to word order, you add ___ embeddings.",
+          "options": [
+            "positional",
+            "random",
+            "larger",
+            "value"
+          ],
+          "answer": 0,
+          "explain": "Positional embeddings inject information about where each token sits, breaking the order-invariance of plain attention."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "`embedding_matrix = np.random.rand(vocabulary_size, embedding_dim)` with the lab's vocabulary. What is its shape?",
+          "options": [
+            "(5, 3)",
+            "(3, 6)",
+            "(6, 6)",
+            "(6, 3)"
+          ],
+          "answer": 3,
+          "explain": "The vocabulary has 6 entries including `<pad>`, and each gets a 3-dimensional vector: one row per entry."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Fill in what to index the embedding matrix with.",
+          "code": "tokens = [vocabulary[w]\n          for w in sentence.split()]\nembeddings = embedding_matrix[___]",
+          "options": [
+            "sentence",
+            "tokens",
+            "vocabulary",
+            "W_q"
+          ],
+          "answer": 1,
+          "explain": "`tokens` holds the integer IDs of the sentence's words, so indexing picks one embedding row per word, in sentence order."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Fill in the NumPy function that checks whether the two outputs match.",
+          "code": "same = np.___(out1[-1, :],\n               out2[-1, :])\nprint(same)  # True for the swap",
+          "options": [
+            "dot",
+            "tri",
+            "where",
+            "allclose"
+          ],
+          "answer": 3,
+          "explain": "`np.allclose` returns True when two arrays are equal up to tiny floating-point differences."
+        },
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each piece of the toy model to its role.",
+          "pairs": [
+            [
+              "embedding_matrix",
+              "Random vector for each vocabulary entry"
+            ],
+            [
+              "W_q, W_k, W_v",
+              "Random 3 × 3 projection matrices"
+            ],
+            [
+              "np.tri(l)",
+              "Causal mask for an l-token sentence"
+            ],
+            [
+              "softmax(..., axis=1)",
+              "Turns each row of logits into weights"
+            ],
+            [
+              "np.allclose",
+              "Checks two outputs match up to rounding"
+            ]
+          ],
+          "explain": "The toy model has everything a real attention head has, just with random, untrained numbers."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order the toy model's computation for one sentence.",
+          "items": [
+            "Look up token IDs in the vocabulary",
+            "Fetch embeddings for those IDs",
+            "Project embeddings to Q, K, and V",
+            "Compute masked, scaled logits",
+            "SoftMax, then weight the values"
+          ],
+          "explain": "Words become IDs, IDs become embeddings, embeddings become Q, K, V, and the masked SoftMax weights mix the values."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Between the two swapped sentences, the value matrices differ only in the rows for \"zebra\" and \"lion\".",
+          "answer": true,
+          "explain": "Each row of V comes from one token's embedding, so swapping two words swaps just those two rows (the 2nd and 5th)."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why can the lab use random embeddings and random projection matrices?",
+          "options": [
+            "Order-invariance holds for any fixed numbers shared by both",
+            "Random matrices happen to give the best next-token predictions",
+            "Training the matrices would make attention order-aware",
+            "The causal mask only works when values are random"
+          ],
+          "answer": 0,
+          "explain": "The argument holds for any fixed weights. Even trained matrices would not make plain attention sensitive to order."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "For \"the zebra chased the lion .\" (6 tokens, d_k = 3), what is the shape of `logits = (Q @ K.T) / np.sqrt(d_k)`?",
+          "options": [
+            "(6, 3)",
+            "(6, 6)",
+            "(3, 3)",
+            "(3, 6)"
+          ],
+          "answer": 1,
+          "explain": "Q and K are both (6, 3), so Q @ Kᵀ is (6, 3) @ (3, 6) = (6, 6): a score for every token pair."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Sentence A: α = [0.2, 0.8], V rows [1, 0] and [0, 1]. Sentence B swaps both: α = [0.8, 0.2], V rows [0, 1] and [1, 0]. Outputs?",
+          "options": [
+            "A is [0.2, 0.8], B is [0.8, 0.2]",
+            "Both are [1, 1]",
+            "Both are [0.2, 0.8]",
+            "A is [0.8, 0.2], B is [0.2, 0.8]"
+          ],
+          "answer": 2,
+          "explain": "A: 0.2×[1, 0] + 0.8×[0, 1] = [0.2, 0.8]. B: 0.8×[0, 1] + 0.2×[1, 0] = [0.2, 0.8]. Swapping weights and rows together cancels out."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "\"lion the chased .\" vs. \"chased the . lion\": same tokens, different last token. Do the last-token outputs match?",
+          "options": [
+            "Yes, because both use the same set of tokens",
+            "Yes, because attention ignores the word order",
+            "No, because the two masks end up with different sizes",
+            "No, because the query comes from a different token"
+          ],
+          "answer": 3,
+          "explain": "The last token supplies the query. A different query gives different logits and weights, so the outputs differ even though the tokens are the same."
+        }
+      ]
+    },
+    {
+      "id": "c4-5",
+      "title": "Counting parameters",
+      "icon": "chip",
+      "lab": "course_4/gdm_lab_4_5_reflection_on_trainable_parameters.ipynb",
+      "cards": [
+        {
+          "title": "Built from modules",
+          "body": "The lab's transformer stacks: token + position embeddings, several transformer blocks, and an output layer giving a logit per vocabulary token. Each block runs masked multi-head attention, then an MLP, each followed by a residual add and layer normalization. Every Keras layer has `__init__` (creates weights) and `call` (the forward pass)."
+        },
+        {
+          "title": "Counting rules",
+          "body": "A `Dense` layer from q inputs to r outputs has q × r weights plus r biases: (q + 1) × r. LayerNorm learns a scale γ and a shift β: 2 × d. The token embedding table is vocabulary_size × d. Sinusoidal position encodings come from a fixed formula, so they add 0 trainable parameters."
+        },
+        {
+          "title": "Attention and MLP",
+          "body": "Attention has four Dense layers (query, key, value, output), each d → d: 4 × (d + 1) × d. Splitting into heads (head_dim = d / num_heads) does not change that total. The MLP goes d → mlp_dim → d: (d + 1) × mlp_dim + (mlp_dim + 1) × d."
+        },
+        {
+          "title": "The lab's model",
+          "body": "With d = 256, mlp_dim = 384, 4 heads, 2 blocks, and a 262,144-token vocabulary: embeddings ≈ 67.1M, each block ≈ 0.46M, output layer ≈ 67.4M, total ≈ 135.4M. The vocabulary-sized layers dominate; the two blocks add under 1%."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "LayerNorm with embedding_dim = 256 has ___ trainable parameters.",
+          "options": [
+            "256",
+            "512",
+            "65,536",
+            "0"
+          ],
+          "answer": 1,
+          "explain": "LayerNorm learns a γ vector and a β vector, each of length 256: 256 + 256 = 512."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "The sinusoidal positional encodings add trainable parameters to the model.",
+          "answer": false,
+          "explain": "They are computed from sine and cosine formulas of the position, so nothing in them is learned."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Fill in the parameter count of the token embedding table.",
+          "code": "def parameter_count_embedding(hp):\n    V = hp[\"vocabulary_size\"]\n    d = hp[\"embedding_dim\"]\n    return ___",
+          "options": [
+            "V * d",
+            "(V + 1) * d",
+            "V + d",
+            "2 * d"
+          ],
+          "answer": 0,
+          "explain": "The table holds one d-dimensional vector per vocabulary entry and has no bias, so it has V × d parameters."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "With embedding_dim = 256 and 4 heads, each head works with 64-dimensional queries and keys.",
+          "answer": true,
+          "explain": "head_dim = embedding_dim / num_heads = 256 / 4 = 64."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "A Dense layer maps 3 inputs to 2 outputs. How many parameters does it have, counting biases?",
+          "options": [
+            "6",
+            "5",
+            "8",
+            "9"
+          ],
+          "answer": 2,
+          "explain": "(q + 1) × r = (3 + 1) × 2 = 8: six weights plus two biases."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why doesn't splitting attention into 4 heads change its parameter count?",
+          "options": [
+            "Every head reuses the weights of the output projection",
+            "Attention heads have no trainable weights of their own",
+            "Keras quietly ignores the num_heads setting entirely",
+            "The heads split d into 4 parts of d/4, which still add up to d"
+          ],
+          "answer": 3,
+          "explain": "The Q, K, V projections still map d → d overall; heads only reshape that output into 4 chunks of size d/4."
+        },
+        {
+          "type": "cloze",
+          "level": 3,
+          "prompt": "Fill in the parameter count of the MLP's second Dense layer.",
+          "code": "d = hp[\"embedding_dim\"]\nm = hp[\"mlp_dim\"]\nfirst = (d + 1) * m\nsecond = ___\nreturn first + second",
+          "options": [
+            "(d + 1) * m",
+            "m * d",
+            "(m + 1) * d",
+            "(m + d) * 2"
+          ],
+          "answer": 2,
+          "explain": "The second layer maps mlp_dim back to embedding_dim, with a bias per output: (m + 1) × d."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order the steps inside one transformer block.",
+          "items": [
+            "Masked multi-head self-attention",
+            "Add the block's input (residual)",
+            "Layer norm after attention",
+            "Two-layer MLP",
+            "Add residual, then layer norm"
+          ],
+          "explain": "Attention, residual, LayerNorm; then MLP, residual, LayerNorm. That is why a block contains two LayerNorms."
+        },
+        {
+          "type": "match",
+          "level": 2,
+          "prompt": "Match each component to its parameter count (d = embedding_dim).",
+          "pairs": [
+            [
+              "LayerNorm",
+              "2 × d (γ and β)"
+            ],
+            [
+              "Token embeddings",
+              "vocabulary_size × d"
+            ],
+            [
+              "Attention",
+              "4 × (d + 1) × d"
+            ],
+            [
+              "MLP",
+              "(d + 1) × mlp_dim + (mlp_dim + 1) × d"
+            ],
+            [
+              "Output layer",
+              "(d + 1) × vocabulary_size"
+            ]
+          ],
+          "explain": "Every Dense layer contributes (inputs + 1) × outputs; LayerNorm and the embedding table have no biases to add."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "In this lab's model of about 135M parameters, which parts hold most of them?",
+          "options": [
+            "The token embedding table and the output layer",
+            "The two transformer blocks together",
+            "The layer normalization layers",
+            "The sinusoidal positional encodings"
+          ],
+          "answer": 0,
+          "explain": "Both scale with the 262,144-token vocabulary, at about 67M parameters each. The two blocks add under 1M."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Inputs are `padded[:, :-1]` and targets are `padded[:, 1:]`, so the target at each position is the ___ token.",
+          "options": [
+            "previous",
+            "same",
+            "padding",
+            "next"
+          ],
+          "answer": 3,
+          "explain": "Shifting by one makes each target the token that follows its input position, which is exactly next-token prediction."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "What does a Keras layer's `call` method define?",
+          "options": [
+            "Which weights to create, and their shapes",
+            "How inputs become outputs using the layer's weights",
+            "How many epochs the model is trained for",
+            "Which loss function the model should use"
+          ],
+          "answer": 1,
+          "explain": "`call` is the forward pass. Creating the weights happens in `__init__`; epochs and loss belong to training."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "With embedding_dim d = 4, how many parameters does the attention component have?",
+          "options": [
+            "80",
+            "64",
+            "20",
+            "16"
+          ],
+          "answer": 0,
+          "explain": "Four Dense layers, each (d + 1) × d = 5 × 4 = 20 parameters: 4 × 20 = 80."
+        },
+        {
+          "type": "tf",
+          "level": 3,
+          "prompt": "Doubling num_blocks from 2 to 4 would roughly double this model's 135M parameters.",
+          "answer": false,
+          "explain": "Each block has only about 461K parameters, so two more blocks add under 1M. The vocabulary-sized layers hold almost everything."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "One block has 461,440 parameters. How many parameters does going from 2 to 4 blocks add?",
+          "options": [
+            "461,440",
+            "1,845,760",
+            "922,880",
+            "135,402,752"
+          ],
+          "answer": 2,
+          "explain": "Two extra blocks × 461,440 = 922,880. 1,845,760 would be all four blocks, not the increase."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "The output layer has exactly 262,144 more parameters than the token embedding table. Why?",
+          "options": [
+            "It also stores the sinusoidal position encodings",
+            "It has one bias for each vocabulary entry",
+            "It adds one extra row for each attention head",
+            "It includes the final LayerNorm's γ and β"
+          ],
+          "answer": 1,
+          "explain": "Embeddings: V × d. Output Dense: (d + 1) × V = V × d + V. The difference is V = 262,144 biases."
+        }
+      ]
+    }
+  ]
+}

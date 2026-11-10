@@ -1,0 +1,1684 @@
+{
+  "id": "c3",
+  "title": "Design and Train Neural Networks",
+  "subtitle": "AI Research Foundations · Course 3",
+  "repo": "ai-foundations",
+  "skills": [
+    {
+      "id": "c3-1",
+      "title": "Signal vs. noise",
+      "icon": "filter",
+      "lab": "course_3/gdm_lab_3_1_distinguish_between_signal_and_noise.ipynb",
+      "cards": [
+        {
+          "title": "Epochs and loss",
+          "body": "A language model trains by comparing its prediction for each context with the real next token, then adjusting its parameters to shrink the loss. One full pass over the training data is called an **epoch**. Training usually runs for many epochs, and the training loss normally drops as it goes."
+        },
+        {
+          "title": "A planted typo",
+          "body": "Three small transformers were trained on a noisy copy of the Africa Galore dataset. In one paragraph, \"a vibrant symbol of\" is misspelled \"a vibrant symbol fo\". That is the only place the phrase \"a vibrant symbol\" occurs; every other \"symbol\" in the data appears without \"vibrant\"."
+        },
+        {
+          "title": "Three models, three outcomes",
+          "body": "All prompted with greedy sampling (always the most likely token). 10 epochs, loss 7.55: just repeats \"the\" → **underfitting**. 1,000 epochs, loss 0.37: copies the typo \"fo\" → **overfitting**. 400 epochs, loss 2.77: writes \"of East African cultures\" for both prompts → a good fit."
+        },
+        {
+          "title": "Signal and noise",
+          "body": "**Signal** is a pattern that holds in general, like \"of\" following \"a symbol\". **Noise** is a quirk of this particular training set, like the typo. The lowest training loss belonged to the model that memorized noise, so a low training loss alone does not prove a model is good."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "What is one epoch of training?",
+          "options": [
+            "One full pass through the training data",
+            "One update to a single model parameter",
+            "One next-token prediction by the model",
+            "One prompt typed in after training ends"
+          ],
+          "answer": 0,
+          "explain": "An epoch is one complete pass over the training set. The 1,000-epoch model went through the noisy Africa Galore data 1,000 times."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "During each epoch, the model compares its predictions with the actual next tokens and updates its parameters to lower the loss.",
+          "answer": true,
+          "explain": "That is the training loop from Course 1: predict, compare with the target token, and nudge the parameters so the loss goes down."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "A model that learns the signal but not the quirks of its training data can ___ to new prompts.",
+          "options": [
+            "overfit",
+            "underfit",
+            "generalize",
+            "memorize"
+          ],
+          "answer": 2,
+          "explain": "Generalizing means doing well on inputs that differ from the training examples, which only works if the model learned general patterns rather than noise."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "The 10-epoch model answers both prompts by repeating \"the\". What is this problem called?",
+          "options": [
+            "Overfitting",
+            "Generalizing",
+            "Memorizing noise",
+            "Underfitting"
+          ],
+          "answer": 3,
+          "explain": "With only 10 epochs (loss 7.55) the parameters were barely adjusted, so the model learned no useful patterns at all: classic underfitting."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "The 1,000-epoch model gets the prompt \"They are serving as a vibrant symbol\". What does it most likely generate next?",
+          "options": [
+            "fo",
+            "of",
+            "the",
+            "vibrant"
+          ],
+          "answer": 0,
+          "explain": "It memorized the only training paragraph containing \"a vibrant symbol\", typo included. Reproducing that quirk is overfitting."
+        },
+        {
+          "type": "order",
+          "level": 1,
+          "prompt": "Order the three models from highest to lowest training loss.",
+          "items": [
+            "Model trained for 10 epochs",
+            "Model trained for 400 epochs",
+            "Model trained for 1,000 epochs"
+          ],
+          "explain": "More epochs meant more parameter updates and lower loss: 7.55, then 2.77, then 0.37. Lowest loss was not best, though."
+        },
+        {
+          "type": "match",
+          "level": 2,
+          "prompt": "Match each term to its meaning.",
+          "pairs": [
+            [
+              "Signal",
+              "Patterns that hold beyond the training set"
+            ],
+            [
+              "Noise",
+              "Quirks found only in this training data"
+            ],
+            [
+              "Underfitting",
+              "Learned too little, even missing the signal"
+            ],
+            [
+              "Overfitting",
+              "Learned the signal plus the noise"
+            ],
+            [
+              "Generalizing",
+              "Doing well on prompts not seen in training"
+            ]
+          ],
+          "explain": "The good model keeps the signal (\"of\" after \"a symbol\") and drops the noise (the one-off typo)."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why does the 400-epoch model write \"of\" after \"a vibrant symbol\" instead of the typo?",
+          "options": [
+            "It memorized the one paragraph that has the typo",
+            "It learned that \"of\" usually follows \"a symbol\"",
+            "It never saw the word \"symbol\" in training",
+            "Greedy sampling corrects spelling mistakes"
+          ],
+          "answer": 1,
+          "explain": "It picked up the general pattern (signal) without fitting the one-off misspelling (noise), so it handles the \"vibrant\" prompt correctly."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "The model with the lowest training loss produced the best continuations.",
+          "answer": false,
+          "explain": "The 1,000-epoch model had the lowest loss (0.37) but reproduced the typo. The 400-epoch model, with loss 2.77, behaved best."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "All three models are prompted so they always pick the single most likely next token. Fill in the sampling mode.",
+          "code": "generation.generate_text(\n    prompt, n_tokens=5,\n    model=model, tokenizer=tokenizer,\n    pad_token_id=tokenizer.pad_token_id,\n    sampling_mode=\"___\")",
+          "options": [
+            "random",
+            "uniform",
+            "noisy",
+            "greedy"
+          ],
+          "answer": 3,
+          "explain": "Greedy sampling always takes the highest-probability token, so each model gives the same output every run and the three are easy to compare."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why is a misspelling that appears only once a good test for overfitting?",
+          "options": [
+            "It appears in nearly every paragraph of the dataset",
+            "Misspelled words cannot be split into tokens",
+            "Only a model that memorized that paragraph would repeat it",
+            "It makes the training loss impossible to compute"
+          ],
+          "answer": 2,
+          "explain": "A single occurrence is pure noise. Repeating it means the model fitted the training data too closely rather than learning general patterns."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "The 10-epoch model's loss stayed at 7.55 because its parameters were updated too ___ times to learn any patterns.",
+          "options": [
+            "few",
+            "many",
+            "quickly",
+            "randomly"
+          ],
+          "answer": 0,
+          "explain": "Each epoch adds another round of updates. Ten passes were not enough for the parameters to fit even the useful patterns."
+        },
+        {
+          "type": "tf",
+          "level": 3,
+          "prompt": "Training the 1,000-epoch model for even more epochs would probably make it stop reproducing the typo.",
+          "answer": false,
+          "explain": "More epochs push the model to fit its training data even more closely, typo included. Overfitting gets worse, not better, with extra training."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Your model's training loss keeps falling toward 0. What should you check before trusting it?",
+          "options": [
+            "Whether the loss can be pushed below zero",
+            "Whether even more epochs make the loss smaller",
+            "Whether the tokenizer's vocabulary has grown",
+            "How it does on data it was not trained on"
+          ],
+          "answer": 3,
+          "explain": "A very low training loss can mean memorized noise, as with the 1,000-epoch model. Only behavior on new inputs shows whether it generalizes."
+        }
+      ]
+    },
+    {
+      "id": "c3-2",
+      "title": "A single neuron",
+      "icon": "brain",
+      "lab": "course_3/gdm_lab_3_2_make_predictions_with_a_single_layer_neural_network.ipynb",
+      "cards": [
+        {
+          "title": "One neuron, one decision",
+          "body": "A single neuron takes a weighted sum of its inputs, adds a bias, and passes the result through the sigmoid: y = σ(w · x + b). The output is a probability between 0 and 1. A single sigmoid neuron used this way is also known as a logistic regression classifier."
+        },
+        {
+          "title": "The food or water task",
+          "body": "The dataset holds 20 **prompt embeddings**: 2D points that summarize a whole prompt, not just one token. For half of them the next token should be \"food\" (label 1); for the other half, \"water\" (label 0). The neuron must predict which."
+        },
+        {
+          "title": "Reading the sign",
+          "body": "σ(0) = 0.5, so the sign of w · x + b decides the class: positive means \"food\", negative means \"water\". Points where w · x + b is about 0 lie on the **decision boundary** (the lab calls them orthogonal points) and are not clearly assigned to either class."
+        },
+        {
+          "title": "Aim the weights",
+          "body": "Dot products are positive when two vectors point in similar directions. The food points cluster near (1, 1), so pointing w at them gives food points positive scores. The weight vector sets the boundary's orientation; the bias shifts it.",
+          "code": "weight_vector = jnp.array([1.0, 1.0])\nbias_term = 0  # separates all 20 points"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "What does the single neuron in this lab compute?",
+          "options": [
+            "w · x, with no activation",
+            "σ(w · x + b)",
+            "σ(x) + w · b",
+            "max(0, w · x) + b"
+          ],
+          "answer": 1,
+          "explain": "It takes the dot product of weights and input, adds the bias, and applies the sigmoid to get a probability for the positive class."
+        },
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "What is in the lab's dataset?",
+          "options": [
+            "20 two-dimensional prompt embeddings, each labeled food or water",
+            "20 raw sentences, each paired with its next word",
+            "2 embeddings, each with 20 separate dimensions",
+            "20 small photos, each showing either food or water"
+          ],
+          "answer": 0,
+          "explain": "Each data point is a 2D embedding of a whole prompt. Half should be followed by \"food\", half by \"water\"."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "The sigmoid outputs a value above 0.5 whenever its input is positive.",
+          "answer": true,
+          "explain": "σ(0) = 0.5 and the sigmoid increases steadily, so any positive score maps above 0.5 (food) and any negative score below 0.5 (water)."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "Fill in the numeric label used for \"food\".",
+          "code": "numeric_labels = jnp.where(\n    labels == \"food\", ___, 0)",
+          "options": [
+            "0",
+            "-1",
+            "1",
+            "2"
+          ],
+          "answer": 2,
+          "explain": "The lab treats \"food\" as the positive class with label 1 and \"water\" as the negative class with label 0."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "Two vectors that point in similar directions have a ___ dot product.",
+          "options": [
+            "positive",
+            "zero",
+            "negative",
+            "undefined"
+          ],
+          "answer": 0,
+          "explain": "This is why aiming w toward the food cluster works: food embeddings then have positive dot products with w."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "w = [1, 1], b = 0, and x = (0.9, 1.2). What is w · x + b?",
+          "options": [
+            "1.08",
+            "0.3",
+            "1.1",
+            "2.1"
+          ],
+          "answer": 3,
+          "explain": "w · x = 1×0.9 + 1×1.2 = 2.1, and adding b = 0 leaves 2.1. That is positive, so the neuron predicts food."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Points where w · x + b is about ___ lie on the decision boundary.",
+          "options": [
+            "0.5",
+            "0",
+            "1",
+            "-1"
+          ],
+          "answer": 1,
+          "explain": "A score of 0 gives σ(0) = 0.5, the point where neither class is favored. Note that 0.5 is the sigmoid's output there, not the score."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Food embeddings cluster near (1, 1). With b = 0, which weight vector separates food from water correctly?",
+          "options": [
+            "[1, 1]",
+            "[-1, -1]",
+            "[1, -1]",
+            "[0, 0]"
+          ],
+          "answer": 0,
+          "explain": "[1, 1] points toward the food cluster, giving food points positive scores. [-1, -1] would flip the classes, and [0, 0] scores everything 0."
+        },
+        {
+          "type": "match",
+          "level": 2,
+          "prompt": "Match each part of the neuron to its role.",
+          "pairs": [
+            [
+              "Weight vector w",
+              "Sets which way the boundary is turned"
+            ],
+            [
+              "Bias term b",
+              "Shifts the boundary without turning it"
+            ],
+            [
+              "Sigmoid σ",
+              "Maps the score to a probability"
+            ],
+            [
+              "Decision boundary",
+              "Line where w · x + b equals 0"
+            ]
+          ],
+          "explain": "w controls the boundary's orientation, b moves it, σ turns the score into a probability, and the boundary is where the score is exactly 0."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order the steps the neuron takes to classify an embedding x.",
+          "items": [
+            "Take the dot product w · x",
+            "Add the bias b",
+            "Apply the sigmoid σ",
+            "Predict food if the result is above 0.5"
+          ],
+          "explain": "Weighted sum, plus bias, through the sigmoid, then threshold at 0.5: that is the whole single-neuron classifier."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "How do prompt embeddings differ from token embeddings?",
+          "options": [
+            "They encode only the final token of the prompt",
+            "They encode the whole prompt, not just one token",
+            "They encode only each token's position",
+            "They store the probability of every next token"
+          ],
+          "answer": 1,
+          "explain": "A prompt embedding summarizes the information in an entire prompt, which is what you need to predict the next token."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "What does increasing the bias b do to the decision boundary?",
+          "options": [
+            "Rotates it around the origin",
+            "Leaves it exactly where it was",
+            "Shifts it without changing its direction",
+            "Bends it into a curve"
+          ],
+          "answer": 2,
+          "explain": "The weight vector fixes the boundary's orientation; the bias only slides it, so more or fewer points fall on the positive side."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "With b = 0, if w pointed away from the food cluster, food points would get negative scores and be classified as water.",
+          "answer": true,
+          "explain": "Vectors pointing in opposite directions have negative dot products, so the food points would land on the wrong side of the boundary."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Using the lab's starting guess w = [-0.5, 0.45] and b = 0.2, what class does x = (1, 1) get?",
+          "options": [
+            "Food, since the score 0.15 is positive",
+            "Water, since the score -0.15 is negative",
+            "Neither, since the score is exactly 0",
+            "Water, since the first weight is negative"
+          ],
+          "answer": 0,
+          "explain": "-0.5×1 + 0.45×1 + 0.2 = 0.15. That is positive, so σ(0.15) ≈ 0.54 and the neuron predicts food, if only barely."
+        },
+        {
+          "type": "tf",
+          "level": 3,
+          "prompt": "With w = [1, 1] and b = 0, the point (-0.5, 0.2) is classified as food.",
+          "answer": false,
+          "explain": "The score is -0.5 + 0.2 + 0 = -0.3. That is negative, so σ(-0.3) < 0.5 and the neuron predicts water."
+        }
+      ]
+    },
+    {
+      "id": "c3-3",
+      "title": "Hidden layers and ReLU",
+      "icon": "layers",
+      "lab": "course_3/gdm_lab_3_3_separate_more_complex_data.ipynb",
+      "cards": [
+        {
+          "title": "When straight lines fail",
+          "body": "Now the model picks the next token from \"mat\", \"apple\", or \"bank\". \"Bank\" has two senses (a river bank and a money bank), so its prompt embeddings form two separate clusters. No set of straight lines can capture both bank clusters cleanly."
+        },
+        {
+          "title": "Three models compared",
+          "body": "A single layer with several neurons plus SoftMax draws only straight-line boundaries. Adding a hidden layer with no (linear) activation still gives straight lines. Adding a hidden layer with **ReLU** bends the boundaries and captures both bank clusters. Accuracy is the share of examples classified correctly.",
+          "code": "# no hidden layer\nbuild_mlp(hidden_dims=[], n_classes=3)\n# one hidden layer: 10 ReLU neurons\nbuild_mlp(hidden_dims=[10], n_classes=3,\n          activation=\"relu\")"
+        },
+        {
+          "title": "Why linear layers collapse",
+          "body": "With no activation, a hidden layer just computes another weighted sum, and a weighted sum of weighted sums is still one weighted sum: w⁽ᵒ⁾(w₁x₁ + w₂x₂) = w₁′x₁ + w₂′x₂, with w₁′ = w⁽ᵒ⁾w₁. So any purely linear multi-layer network equals a single-layer one. A non-linear activation breaks this collapse."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "Why can't straight lines separate this dataset well?",
+          "options": [
+            "There are more than two classes to separate",
+            "The embeddings have only two dimensions",
+            "The \"bank\" points sit in two separate clusters",
+            "The dataset contains too few data points"
+          ],
+          "answer": 2,
+          "explain": "\"Bank\" has two meanings, so its embeddings split into two clusters. Several straight lines can handle three classes, but not one class in two places."
+        },
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "What do the decision boundaries of the single-layer SoftMax model look like?",
+          "options": [
+            "Straight lines",
+            "Curves that wrap around clusters",
+            "Circles around each point",
+            "Jagged paths around each point"
+          ],
+          "answer": 0,
+          "explain": "A single layer can only learn linear boundaries. With three classes you get straight lines dividing the plane into three regions."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Fill in the argument for a model with no hidden layers.",
+          "code": "model = machine_learning.build_mlp(\n    hidden_dims=___, n_classes=3)\n# a single-layer model",
+          "options": [
+            "[0]",
+            "[1]",
+            "[3]",
+            "[]"
+          ],
+          "answer": 3,
+          "explain": "`hidden_dims` lists one size per hidden layer, so an empty list means no hidden layers: the input feeds straight into the 3-class output layer."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "The multi-layer model that finally separates both \"bank\" clusters uses a ___ activation in its hidden layer.",
+          "options": [
+            "linear",
+            "ReLU",
+            "SoftMax",
+            "constant"
+          ],
+          "answer": 1,
+          "explain": "Only the hidden layer with the non-linear ReLU activation learned bent decision boundaries that separate both bank clusters."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Adding a hidden layer with no activation function lets the model learn curved decision boundaries.",
+          "answer": false,
+          "explain": "Without a non-linear activation, the extra layer collapses into a single weighted sum, so the boundaries stay straight lines."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "What does this line create?",
+          "code": "build_mlp(hidden_dims=[10],\n          n_classes=3,\n          activation=\"relu\")",
+          "options": [
+            "Ten hidden layers with 3 neurons in each layer",
+            "One hidden layer of 10 ReLU neurons, then 3 outputs",
+            "One layer of 3 neurons that produces 10 outputs",
+            "Ten separate single-neuron classifiers"
+          ],
+          "answer": 1,
+          "explain": "`hidden_dims=[10]` means one hidden layer with 10 neurons; `n_classes=3` sets the output layer to one neuron per token."
+        },
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each term to its meaning.",
+          "pairs": [
+            [
+              "Accuracy",
+              "Share of examples classified correctly"
+            ],
+            [
+              "Hidden layer",
+              "Layer between the input and the output layer"
+            ],
+            [
+              "ReLU",
+              "Non-linear activation in the hidden layer"
+            ],
+            [
+              "SoftMax",
+              "Turns output scores into class probabilities"
+            ],
+            [
+              "Decision boundary",
+              "Where the predicted class switches"
+            ]
+          ],
+          "explain": "These are the pieces of the three models compared in the lab and the metric used to judge them."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order the steps showing why a linear two-layer network is really one layer.",
+          "items": [
+            "Compute the hidden weighted sum of x₁ and x₂",
+            "Pass it on unchanged (no activation)",
+            "Multiply it by the output weight w⁽ᵒ⁾",
+            "Merge the weights: w′ = w⁽ᵒ⁾ × w⁽ʰ⁾",
+            "Read off a single-layer network in x₁ and x₂"
+          ],
+          "explain": "Because nothing non-linear happens in between, the two multiplications fold into one set of weights."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "In the collapse proof, why can w⁽ᵒ⁾(w₁x₁ + w₂x₂) be rewritten as one layer?",
+          "options": [
+            "A weighted sum of weighted sums is still a weighted sum",
+            "The bias terms of the two layers cancel each other",
+            "ReLU removes all of the negative weights",
+            "SoftMax forces every weight to be equal"
+          ],
+          "answer": 0,
+          "explain": "Multiplying out gives (w⁽ᵒ⁾w₁)x₁ + (w⁽ᵒ⁾w₂)x₂, a single weighted sum with new weights."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "The single-layer model can reach 100% training accuracy on this dataset if you rerun its training enough times.",
+          "answer": false,
+          "explain": "However often you retrain it, a single-layer model only draws straight boundaries, so it never perfectly separates the split \"bank\" class."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "By convention the input matrix is called `X` and the vector of target labels is called ___.",
+          "options": [
+            "`labels`",
+            "`w`",
+            "`y`",
+            "`Z`"
+          ],
+          "answer": 2,
+          "explain": "The lab adopts the common convention: `X` holds the embeddings and `y` holds the labels 0 (mat), 1 (apple), 2 (bank)."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Once the hidden layer has a non-linear activation, the network can no longer be reduced to a single-layer network.",
+          "answer": true,
+          "explain": "The non-linearity sits between the two weighted sums, so they can no longer be multiplied into one. That is what enables curved boundaries."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "No activation, no biases: hidden weights are [3, -1] and the output weight is 2. Which single-layer weights give the same output?",
+          "options": [
+            "[5, 1]",
+            "[3, -1]",
+            "[1.5, -0.5]",
+            "[6, -2]"
+          ],
+          "answer": 3,
+          "explain": "z = 2 × (3x₁ − 1x₂) = 6x₁ − 2x₂, so the equivalent single layer has weights [6, -2]."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Your ReLU model still misclassifies one \"bank\" cluster. What does the lab suggest trying?",
+          "options": [
+            "Remove the hidden layer entirely",
+            "Switch the hidden activation to linear",
+            "Train for far fewer epochs",
+            "Change the hidden layer size and retrain"
+          ],
+          "answer": 3,
+          "explain": "Training has some randomness, and the hidden layer size controls capacity. The other options remove the non-linearity or the learning time it needs."
+        }
+      ]
+    },
+    {
+      "id": "c3-4",
+      "title": "Build an MLP in Keras",
+      "icon": "wrench",
+      "lab": "course_3/gdm_lab_3_4_design_your_own_mlp.ipynb",
+      "cards": [
+        {
+          "title": "A network is a list of steps",
+          "body": "In Keras you can describe an MLP as an ordered list of operations and wrap it in `keras.Sequential`, which passes data through them one by one. `Dense(d)` adds d neurons computing d weighted sums. `ReLU()` and `Softmax()` apply an activation to the output of the step before."
+        },
+        {
+          "title": "construct_operations",
+          "body": "Each hidden size adds two operations (Dense, then ReLU); the output adds two more (Dense with n_classes neurons, then Softmax). So hidden_dims=[5, 10] with 3 classes gives six operations, and the network outputs 3 probabilities.",
+          "code": "ops = []\nfor dim in hidden_dims:\n    ops.append(keras.layers.Dense(dim))\n    ops.append(keras.layers.ReLU())\nops.append(keras.layers.Dense(n_classes))\nops.append(keras.layers.Softmax())\nmodel = keras.Sequential(ops)"
+        },
+        {
+          "title": "Train/test split",
+          "body": "`train_test_split(X, y, test_size=0.2, random_state=42)` randomly puts 80% of examples in a training set and 20% in a test set. The model never trains on the test set, so it shows whether the model generalizes. Fixing `random_state` makes the same split every run."
+        },
+        {
+          "title": "Reading loss curves",
+          "body": "The logger prints training and test loss and accuracy every 20 epochs, and you can plot both loss curves. Both falling and leveling off together suggests a good fit. Training loss falling while test loss rises suggests overfitting. Both staying high suggests underfitting."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "What does `keras.layers.Dense(5)` add to a network?",
+          "options": [
+            "5 hidden layers with one neuron each",
+            "A ReLU activation applied 5 times",
+            "5 neurons that compute 5 weighted sums",
+            "A SoftMax over 5 possible classes"
+          ],
+          "answer": 2,
+          "explain": "A Dense layer with output dimension 5 is a layer of 5 neurons, each computing its own weighted sum (plus bias) of the inputs."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "`train_test_split(..., test_size=0.2)` puts 20% of the examples in the test set.",
+          "answer": true,
+          "explain": "`test_size=0.2` holds out a random 20% for testing and keeps the other 80% for training."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Fill in the activation added after each hidden layer.",
+          "code": "for dim in hidden_dims:\n    ops.append(keras.layers.Dense(dim))\n    ops.append(keras.layers.___())",
+          "options": [
+            "ReLU",
+            "Softmax",
+            "Dense",
+            "Sigmoid"
+          ],
+          "answer": 0,
+          "explain": "Each hidden layer is a Dense layer followed by a ReLU. Softmax is used only once, after the output layer."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Fill in the size of the output layer.",
+          "code": "# output layer\nops.append(keras.layers.Dense(___))\nops.append(keras.layers.Softmax())",
+          "options": [
+            "dim",
+            "hidden_dims",
+            "1",
+            "n_classes"
+          ],
+          "answer": 3,
+          "explain": "The output layer needs one neuron per class, so its Dense size is `n_classes`; Softmax then turns those scores into probabilities."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "In `construct_operations`, every hidden layer contributes exactly two operations.",
+          "answer": true,
+          "explain": "Each entry in `hidden_dims` adds a Dense layer and a ReLU. The output layer then adds a Dense and a Softmax."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order the operations built for hidden_dims=[5, 10] and n_classes=3.",
+          "items": [
+            "Dense(5): five weighted sums",
+            "ReLU after the 5 neurons",
+            "Dense(10): ten weighted sums",
+            "ReLU after the 10 neurons",
+            "Dense(3): one score per class",
+            "Softmax over the 3 classes"
+          ],
+          "explain": "The loop walks through hidden_dims in order, adding Dense then ReLU, and the output Dense and Softmax come last: six operations."
+        },
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each Keras or sklearn tool to its job.",
+          "pairs": [
+            [
+              "keras.layers.Dense",
+              "Computes weighted sums for d neurons"
+            ],
+            [
+              "keras.layers.ReLU",
+              "Applies max(0, x) to the previous output"
+            ],
+            [
+              "keras.layers.Softmax",
+              "Turns scores into a probability distribution"
+            ],
+            [
+              "keras.Sequential",
+              "Chains operations so data flows in order"
+            ],
+            [
+              "train_test_split",
+              "Randomly divides data into train and test"
+            ]
+          ],
+          "explain": "These five pieces are everything this lab needs to build and evaluate its MLP."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why hold out a test set at all?",
+          "options": [
+            "To give the model extra examples to learn from in each epoch",
+            "To check whether the model generalizes beyond its training data",
+            "To make every training epoch finish a little faster",
+            "To decide how many classes the output layer should have"
+          ],
+          "answer": 1,
+          "explain": "The test examples are never trained on, so performance on them shows whether the model learned general patterns or fitted noise."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "`random_state=42` makes the random train/test split come out ___ every time you run the cell.",
+          "options": [
+            "the same",
+            "different",
+            "larger",
+            "smaller"
+          ],
+          "answer": 0,
+          "explain": "Fixing the random seed makes the shuffle reproducible, so results can be compared fairly between runs."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Training loss keeps falling, but test loss starts to rise. What does this suggest?",
+          "options": [
+            "The model is underfitting",
+            "The test split has a bug",
+            "The model is overfitting",
+            "The model is well tuned"
+          ],
+          "answer": 2,
+          "explain": "The model keeps improving on examples it has seen while getting worse on unseen ones: it is fitting noise in the training data."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "What does the final Softmax output for one example in this 3-class task?",
+          "options": [
+            "One probability, for \"bank\" only",
+            "Ten scores, one per hidden neuron",
+            "A class index between 0 and 2",
+            "Three probabilities that sum to 1"
+          ],
+          "answer": 3,
+          "explain": "Softmax turns the three output scores into a probability distribution over \"mat\", \"apple\", and \"bank\"."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "The number of values the network outputs equals the size of its last hidden layer.",
+          "answer": false,
+          "explain": "The output size is set by the final Dense layer, which has `n_classes` neurons, not by any hidden layer."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "How many operations does `construct_operations([8, 8, 4], 2)` return?",
+          "options": [
+            "8",
+            "6",
+            "5",
+            "10"
+          ],
+          "answer": 0,
+          "explain": "Three hidden layers × 2 operations (Dense + ReLU) = 6, plus 2 for the output (Dense + Softmax) = 8."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "A dataset has 150 examples. With `test_size=0.2`, how many go into the training set?",
+          "options": [
+            "30",
+            "120",
+            "148",
+            "100"
+          ],
+          "answer": 1,
+          "explain": "20% of 150 is 30 test examples, which leaves 150 − 30 = 120 for training."
+        }
+      ]
+    },
+    {
+      "id": "c3-5",
+      "title": "Tuning hyperparameters",
+      "icon": "tune",
+      "lab": "course_3/gdm_lab_3_5_tune_hyperparameters.ipynb",
+      "cards": [
+        {
+          "title": "Parameters vs. hyperparameters",
+          "body": "**Parameters** (weights and biases) are learned during training. **Hyperparameters** are settings you choose before training starts: how many layers, how many neurons per layer, how many epochs, the learning rate. Picking them well is part of the model developer's job."
+        },
+        {
+          "title": "Diagnose with two accuracies",
+          "body": "Training accuracy tells you whether the model learned anything: if it is low, the model is **underfitting**. Test accuracy tells you whether it generalizes: high training accuracy with clearly lower test accuracy points to **overfitting**. Both high means a good fit."
+        },
+        {
+          "title": "Capacity cuts both ways",
+          "body": "One tiny hidden layer (say 2 neurons) lacks capacity and underfits. Three or more layers with a first layer above 1,000 neurons draws a wildly complex boundary and overfits. Something in between, such as [10, 5], tends to work on both training and test data."
+        },
+        {
+          "title": "Change one thing at a time",
+          "body": "Only `hidden_dims` changes between runs; epochs (500) and the learning rate (0.005) stay fixed, so any difference can be blamed on the architecture. The test set was split by hand to hold the hardest outliers.",
+          "code": "hidden_dims = [20, 10]  # 2 hidden layers\nmlp_model = machine_learning.build_mlp(\n    hidden_dims=hidden_dims, n_classes=3)\nX_train, X_test = X[0:61, :], X[61:, :]"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "Which of these is a hyperparameter?",
+          "options": [
+            "The number of hidden layers",
+            "A weight learned in training",
+            "A bias learned in training",
+            "One prediction of the model"
+          ],
+          "answer": 0,
+          "explain": "Hyperparameters are chosen before training begins. Weights and biases are parameters that training itself adjusts."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "Low training accuracy is a sign of underfitting.",
+          "answer": true,
+          "explain": "If the model cannot even fit the examples it trains on, it has not learned the patterns in the data."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "Fill in `hidden_dims` for two hidden layers with 20 and 10 neurons.",
+          "code": "# two hidden layers: 20 then 10\nhidden_dims = ___",
+          "options": [
+            "(20, 10, 3)",
+            "[2, 30]",
+            "[20, 10]",
+            "20 + 10"
+          ],
+          "answer": 2,
+          "explain": "Each number in the list is the neuron count of one hidden layer, in order. The 3-class output layer is added separately."
+        },
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each term to its meaning.",
+          "pairs": [
+            [
+              "Hyperparameter",
+              "Setting chosen before training begins"
+            ],
+            [
+              "Parameter",
+              "Weight or bias learned during training"
+            ],
+            [
+              "Training accuracy",
+              "Shows whether the model learned anything"
+            ],
+            [
+              "Test accuracy",
+              "Shows whether the model generalizes"
+            ],
+            [
+              "Capacity",
+              "How complex a function a model can represent"
+            ]
+          ],
+          "explain": "Hyperparameters like layer sizes set the model's capacity; the two accuracies tell you whether that capacity fits the data."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "A run with 60% training accuracy and 58% test accuracy shows overfitting.",
+          "answer": false,
+          "explain": "Both accuracies are low and close together, which means the model never learned the training data well: that is underfitting."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why keep the epochs and learning rate fixed while you change `hidden_dims`?",
+          "options": [
+            "Because Keras does not let you change them later on",
+            "Because they have no real effect on how training goes",
+            "So that each training run finishes more quickly",
+            "So differences can be credited to the architecture alone"
+          ],
+          "answer": 3,
+          "explain": "Changing one setting at a time makes the comparison fair: any change in results comes from the layer sizes you changed."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "When a very large network draws a wiggly boundary around the training points, its test accuracy tends to be ___ its training accuracy.",
+          "options": [
+            "lower than",
+            "higher than",
+            "equal to",
+            "unrelated to"
+          ],
+          "answer": 0,
+          "explain": "The complex boundary fits noise in the training data, so the model does worse on held-out examples than on the ones it trained on."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order the lab's workflow for testing one configuration.",
+          "items": [
+            "Choose hidden_dims",
+            "Visualize the network structure",
+            "Train with fixed epochs and learning rate",
+            "Plot the loss curve",
+            "Compare train and test accuracy"
+          ],
+          "explain": "Pick the architecture, look at it, train it under fixed settings, then inspect the loss curve, accuracies, and decision boundary."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why was the test set split by hand to contain the hardest outliers?",
+          "options": [
+            "To give the model easier questions at test time",
+            "To make differences between configurations easier to see",
+            "To guarantee every model reaches 100% test accuracy",
+            "To make the training set as large as possible"
+          ],
+          "answer": 1,
+          "explain": "Outliers are where overfitted and well-fitted models disagree most, so putting them in the test set makes the contrast clearer."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Bigger networks with more layers and neurons are always better, because they reach higher training accuracy.",
+          "answer": false,
+          "explain": "Very large networks can fit the training data almost perfectly yet generalize worse. The lab's sweet spot was a medium-sized model."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "A network with one hidden layer of just 2 neurons tends to ___ because it lacks capacity.",
+          "options": [
+            "overfit",
+            "generalize",
+            "memorize",
+            "underfit"
+          ],
+          "answer": 3,
+          "explain": "Two neurons cannot bend the boundary enough to separate the classes, so both training and test accuracy stay low."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "`X_train = X[0:61, :]`. How many examples end up in the training set?",
+          "options": [
+            "60",
+            "62",
+            "61",
+            "It depends on the test size"
+          ],
+          "answer": 2,
+          "explain": "Python slices include the start and exclude the stop, so rows 0 through 60 are kept: 61 examples. The rest, `X[61:, :]`, form the test set."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Which configuration is most likely to overfit this small 2D dataset?",
+          "options": [
+            "[1500, 200, 100]",
+            "[2]",
+            "[10, 5]",
+            "[4, 4]"
+          ],
+          "answer": 0,
+          "explain": "Three layers with a first layer of 1,500 neurons give far more capacity than 2D points need, so the model starts fitting noise."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "How many hidden layers and hidden neurons does `hidden_dims=[64, 32, 16]` define?",
+          "options": [
+            "3 layers, 64 neurons in total",
+            "3 layers, 112 neurons in total",
+            "1 layer, 112 neurons in total",
+            "112 layers of 3 neurons each"
+          ],
+          "answer": 1,
+          "explain": "There is one hidden layer per list entry (3), and the neurons add up: 64 + 32 + 16 = 112."
+        }
+      ]
+    },
+    {
+      "id": "c3-6",
+      "title": "Fighting overfitting",
+      "icon": "shield",
+      "lab": "course_3/gdm_lab_3_6_mitigate_overfitting.ipynb",
+      "cards": [
+        {
+          "title": "Three tools",
+          "body": "**Early stopping** halts training once the test loss stops improving. **Dropout** randomly sets neuron outputs to 0 during training. **Weight decay** penalizes large weights, nudging the model toward simpler solutions. All three try to stop a high-capacity model from memorizing noise."
+        },
+        {
+          "title": "Dropout in code",
+          "body": "`dropout_rate` is the probability that each hidden neuron's output is zeroed. Dropout acts only during training; when the model makes predictions, all neurons are used.",
+          "code": "for dim in hidden_dims:\n    ops.append(keras.layers.Dense(dim))\n    ops.append(\n        keras.layers.Activation(\"relu\"))\n    ops.append(\n        keras.layers.Dropout(dropout_rate))"
+        },
+        {
+          "title": "The experiment",
+          "body": "The baseline, hidden_dims (10, 1000) with every mitigation switched off, overfits: its test loss climbs steadily. Each experiment changes exactly one setting from the baseline and records the final test loss in `experiment_log`, the way a researcher keeps a lab notebook."
+        },
+        {
+          "title": "Results: moderation wins",
+          "body": "Early stopping (patience 20) halted after 49 epochs and classified every test point correctly. Dropout 0.3 and weight decay 0.5 kept the test loss low. Dropout 0.7 and weight decay 50 were so strong that the model underfit. Too much of a good thing hurts."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each idea to what it does.",
+          "pairs": [
+            [
+              "Early stopping",
+              "Ends training when test loss stops improving"
+            ],
+            [
+              "Dropout",
+              "Randomly zeroes neuron outputs in training"
+            ],
+            [
+              "Weight decay",
+              "Penalizes weights with large magnitudes"
+            ],
+            [
+              "Experiment log",
+              "Record of each run's final test loss"
+            ],
+            [
+              "Baseline",
+              "Reference run with every mitigation off"
+            ]
+          ],
+          "explain": "The three mitigation methods each attack overfitting differently; the log and baseline let you compare them fairly."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "Dropout is applied both during training and when the model makes predictions.",
+          "answer": false,
+          "explain": "Dropout is a training-time trick only. At prediction time every neuron is active."
+        },
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "In the baseline run, test loss rises steadily after a few epochs. What is happening?",
+          "options": [
+            "The model is underfitting",
+            "Dropout is set too high",
+            "The model is overfitting",
+            "The learning rate is 0"
+          ],
+          "answer": 2,
+          "explain": "The baseline has too much capacity and no mitigation, so it keeps fitting noise in the training data and gets worse on test data."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Change only one setting from the baseline: switch on early stopping.",
+          "code": "HyperParameterConfig(\n    hidden_dims=(10, 1000),\n    dropout_rate=0.0,\n    weight_decay_strength=0.0,\n    use_early_stopping=___)",
+          "options": [
+            "False",
+            "True",
+            "0.3",
+            "20"
+          ],
+          "answer": 1,
+          "explain": "Early stopping is a yes/no flag here. Every other setting stays at its baseline value so the effect can be attributed to early stopping."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "With dropout at 0.7, both training and test loss stay poor. Why?",
+          "options": [
+            "It adds so much noise that the signal is lost",
+            "The model memorizes the training data far too closely",
+            "Early stopping ends the run before learning begins",
+            "The test set happens to be too easy for the model"
+          ],
+          "answer": 0,
+          "explain": "Zeroing 70% of outputs injects so much noise that the model fails to learn even useful patterns, so it underfits."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Fill in the Adam argument that sets the weight decay strength.",
+          "code": "optimizer = keras.optimizers.Adam(\n    learning_rate=0.01,\n    ___=weight_decay_strength)",
+          "options": [
+            "dropout",
+            "patience",
+            "decay_rate",
+            "weight_decay"
+          ],
+          "answer": 3,
+          "explain": "In this lab, weight decay is passed straight to the Adam optimizer, which then penalizes large weights at every update."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why change only one hyperparameter per experiment?",
+          "options": [
+            "Because Keras allows only one change per training run",
+            "Because combining mitigation methods never helps",
+            "To keep the experiment log as short as possible",
+            "So any change in test loss traces back to it"
+          ],
+          "answer": 3,
+          "explain": "Isolating one change makes cause and effect clear. The lab notes that in practice you often combine methods afterwards."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "The big epoch-to-epoch swings in loss under dropout happen because different neurons are zeroed at random each time.",
+          "answer": true,
+          "explain": "Each epoch a fresh random subset of outputs is dropped, so the network behaves a little differently every time and the loss fluctuates."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Setting weight decay strength to 50 made the model ___.",
+          "options": [
+            "underfit",
+            "overfit",
+            "generalize perfectly"
+          ],
+          "answer": 0,
+          "explain": "Such a strong penalty keeps the weights so small that the model cannot learn the patterns: poor results on training and test data alike."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order the steps of one experiment in this lab.",
+          "items": [
+            "Change one setting from the baseline",
+            "Train and plot the loss curves",
+            "Read off the final test loss",
+            "Store it in experiment_log",
+            "Compare all runs in one plot"
+          ],
+          "explain": "Each run follows the same recipe, and the log at the end lets you see which settings lowered the test loss."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "In this lab, both dropout and weight decay helped at moderate strength but hurt when set too high.",
+          "answer": true,
+          "explain": "Dropout 0.3 and weight decay 0.5 reduced test loss; dropout 0.7 and weight decay 50 caused underfitting."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Dropout rate 0.3 on a hidden layer of 1,000 neurons: about how many outputs are zeroed on a training step?",
+          "options": [
+            "About 700",
+            "About 300",
+            "Exactly 3",
+            "About 30"
+          ],
+          "answer": 1,
+          "explain": "Each neuron is dropped with probability 0.3, so on average 0.3 × 1,000 = 300 outputs are set to 0. The exact number varies by chance."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Early stopping watches `val_loss` with `patience=20`. What does that mean?",
+          "options": [
+            "Stop after exactly 20 epochs of training, no matter what",
+            "Check the test loss only once every 20 epochs",
+            "Stop once 20 epochs pass with no test-loss gain",
+            "Let at most 20 weights change on each update"
+          ],
+          "answer": 2,
+          "explain": "Patience gives the loss some slack: training ends only if it fails to improve for 20 consecutive epochs."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Early stopping halted the overfit-prone baseline model after 49 epochs. How did it compare with the baseline?",
+          "options": [
+            "Better: it classified every test point correctly",
+            "Worse: it stopped before learning anything",
+            "Identical, since the architecture is the same",
+            "Worse: its test loss kept rising after stopping"
+          ],
+          "answer": 0,
+          "explain": "Stopping as soon as the test loss turned upward kept the model from moving into the overfitting phase the baseline went through."
+        }
+      ]
+    },
+    {
+      "id": "c3-7",
+      "title": "Gradients with JAX",
+      "icon": "graph",
+      "lab": "course_3/gdm_lab_3_7_gradients.ipynb",
+      "cards": [
+        {
+          "title": "The loss to minimize",
+          "body": "For the food (1) / water (0) neuron, the binary cross-entropy loss is −[y·log(p) + (1 − y)·log(1 − p)], where p is the predicted probability of food. Confident wrong answers cost a lot; confident right answers cost almost nothing. `jnp.mean` averages it over all examples, and a tiny epsilon avoids log(0)."
+        },
+        {
+          "title": "Autodiff in one line",
+          "body": "`jax.grad` turns your loss function into a new function that returns its gradient. `argnums=[0, 1]` asks for the gradient with respect to the first two arguments: the weights and the bias.",
+          "code": "grad = jax.grad(loss_fn, argnums=[0, 1])\ngradient_w, gradient_b = grad(w, b, X, y)"
+        },
+        {
+          "title": "Walk downhill",
+          "body": "The gradient points toward the steepest *increase* in loss, so you step the opposite way: w = w − learning_rate × gradient_w, and the same for b. A learning rate well below 1 keeps steps small. Repeating this loop, one pass over the data per step here, is **gradient descent**."
+        },
+        {
+          "title": "Predict all rows at once",
+          "body": "X has shape (number_of_examples, embedding_dim) and w has shape (embedding_dim,), so `jnp.dot(X, w)` must take X first. It returns one score per example, and the sigmoid turns each into a probability.",
+          "code": "def predict(w, b, X):\n    z = jnp.dot(X, w) + b\n    return jax.nn.sigmoid(z)"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "JAX can compute the gradient of your loss function automatically, without you deriving it by hand.",
+          "answer": true,
+          "explain": "That is automatic differentiation: `jax.grad` takes a Python loss function and returns a function that computes its gradient."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "Fill in the operator for the bias update.",
+          "code": "w = w - learning_rate * gradient_w\nb = b ___ learning_rate * gradient_b",
+          "options": [
+            "+",
+            "*",
+            "-",
+            "/"
+          ],
+          "answer": 2,
+          "explain": "Like the weights, the bias moves against its gradient, scaled by the learning rate, so the loss goes down."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "`argnums=[0, 1]` makes `jax.grad` differentiate with respect to the weights and the ___.",
+          "options": [
+            "bias",
+            "labels",
+            "inputs X",
+            "learning rate"
+          ],
+          "answer": 0,
+          "explain": "The loss function's first two arguments are w and b, the two things training should adjust. X and y stay fixed."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why do you subtract the gradient instead of adding it?",
+          "options": [
+            "It points straight at the lowest possible loss",
+            "It points uphill, toward the steepest increase in loss",
+            "Adding it would only make training much slower",
+            "Subtraction keeps every weight from turning negative"
+          ],
+          "answer": 1,
+          "explain": "The gradient gives the direction of steepest ascent. Stepping the opposite way, steepest descent, lowers the loss."
+        },
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "Which learning rate fits the advice to make small, incremental updates?",
+          "options": [
+            "5.0",
+            "20",
+            "100",
+            "0.1"
+          ],
+          "answer": 3,
+          "explain": "The learning rate is usually set well below 1. The lab uses 0.1 for a single step and 0.5 in its 10-step loop."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Fill in the arguments so predictions are computed for every row of X at once.",
+          "code": "def predict(w, b, X):\n    z = jnp.dot(___) + b\n    return jax.nn.sigmoid(z)",
+          "options": [
+            "w, X",
+            "X, w",
+            "w, b",
+            "X, b"
+          ],
+          "answer": 1,
+          "explain": "X is (examples, 2) and w is (2,). Matrix-times-vector needs the shared dimension in the middle, so X goes first."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order one iteration of the lab's training loop.",
+          "items": [
+            "Compute gradients with grad(w, b, X, y)",
+            "Unpack gradient_w and gradient_b",
+            "Update w and b using the learning rate",
+            "Recompute and print the new loss"
+          ],
+          "explain": "Compute the gradient, split it, take a step against it, then check that the loss went down. The lab repeats this 10 times."
+        },
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each function to its job in the lab.",
+          "pairs": [
+            [
+              "jax.grad",
+              "Builds a function that returns gradients"
+            ],
+            [
+              "jax.nn.sigmoid",
+              "Squashes scores into probabilities"
+            ],
+            [
+              "jnp.dot",
+              "Computes weighted sums for all rows"
+            ],
+            [
+              "jnp.mean",
+              "Averages the loss over all examples"
+            ],
+            [
+              "learning_rate",
+              "Scales the size of each update step"
+            ]
+          ],
+          "explain": "Together these give you a model, a loss, its gradient, and a way to step downhill."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "In this lab's gradient descent loop, each update uses just one training example.",
+          "answer": false,
+          "explain": "Each step computes the gradient on the whole `X_train`, so one loop iteration is one pass over the data: one epoch."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "If the true label is 0, predicting p = 0.9 gives a larger loss than predicting p = 0.1.",
+          "answer": true,
+          "explain": "With y = 0 the loss is −log(1 − p): about 2.30 for p = 0.9 but only about 0.11 for p = 0.1. Confident mistakes cost more."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "X_train has shape (20, 2) and w has shape (2,). What shape does `predict(w, b, X_train)` return?",
+          "options": [
+            "(20,)",
+            "(2,)",
+            "(20, 2)",
+            "(1,)"
+          ],
+          "answer": 0,
+          "explain": "`jnp.dot(X, w)` gives one weighted sum per row, a vector of 20 values. Adding b and applying the sigmoid keep that shape."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "w = [1.0, 2.0], gradient_w = [0.4, -0.2], learning rate 0.5. What is the updated w?",
+          "options": [
+            "[1.2, 1.9]",
+            "[0.6, 2.2]",
+            "[0.8, 2.1]",
+            "[0.8, 1.9]"
+          ],
+          "answer": 2,
+          "explain": "w − 0.5 × gradient = [1.0 − 0.2, 2.0 + 0.1] = [0.8, 2.1]. The negative gradient entry makes that weight grow."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "The true label is y = 1 and the model predicts p = 0.5. What is the binary cross-entropy loss? (ln 0.5 ≈ −0.693)",
+          "options": [
+            "≈ 0.693",
+            "≈ −0.693",
+            "0.5",
+            "0"
+          ],
+          "answer": 0,
+          "explain": "With y = 1 the loss is −log(p) = −ln(0.5) ≈ 0.693. The minus sign makes the loss positive."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "The spiral dataset has four classes winding around each other. What kind of model could separate it?",
+          "options": [
+            "A single sigmoid neuron that is trained for longer",
+            "Several layers with non-linear activations and a SoftMax output",
+            "A single neuron trained with a larger learning rate",
+            "Two sigmoid neurons side by side with no hidden layer"
+          ],
+          "answer": 1,
+          "explain": "Four classes need a multi-class output (SoftMax), and curved, interleaved regions need non-linear hidden layers. One neuron only draws one straight line."
+        }
+      ]
+    },
+    {
+      "id": "c3-8",
+      "title": "Training with Keras",
+      "icon": "rocket",
+      "lab": "course_3/gdm_lab_3_8_train_your_model_with_keras.ipynb",
+      "cards": [
+        {
+          "title": "Three ingredients",
+          "body": "Training any Keras model needs a **model** (its computations; layers like `Dense` create the weights and biases), a **loss function** (what to minimize), and an **optimizer** (uses gradients to update the weights, with a learning rate setting the step size)."
+        },
+        {
+          "title": "The model",
+          "body": "Passing `activation=` folds the activation into the Dense layer, so no separate ReLU step is needed. A single sigmoid output neuron gives the probability of \"food\", which suits a two-class problem.",
+          "code": "ops = [\n  keras.layers.Dense(10,\n                     activation=\"relu\"),\n  keras.layers.Dense(1,\n                     activation=\"sigmoid\"),\n]\nmodel = keras.Sequential(ops)"
+        },
+        {
+          "title": "Compile, then fit",
+          "body": "`compile` attaches the loss, the optimizer, and optional metrics. `fit` runs the training loop and returns a history of loss and accuracy per epoch. `batch_size` sets how many examples go into each mini-batch update.",
+          "code": "loss_fn = keras.losses.BinaryCrossentropy()\noptimizer = keras.optimizers.Adam(\n    learning_rate=0.01)\nmodel.compile(loss=loss_fn,\n              optimizer=optimizer,\n              metrics=[\"accuracy\"])\nhistory = model.fit(x=X_train, y=y_train,\n    epochs=100, batch_size=8)"
+        },
+        {
+          "title": "Choosing the pieces",
+          "body": "Two classes: sigmoid output with `BinaryCrossentropy`. More classes: SoftMax output with `CategoricalCrossentropy` or `SparseCategoricalCrossentropy`. **Adam**, an SGD-based optimizer that adapts its step size, is the usual choice. Add `weight_decay=` to Adam, or an `EarlyStopping` callback to `fit`, to curb overfitting."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each training ingredient to its role.",
+          "pairs": [
+            [
+              "Model",
+              "Defines the computations and their weights"
+            ],
+            [
+              "Loss function",
+              "Measures how far predictions are from targets"
+            ],
+            [
+              "Optimizer",
+              "Updates the weights to reduce the loss"
+            ],
+            [
+              "Learning rate",
+              "Sets how big each update step is"
+            ],
+            [
+              "Metric",
+              "Extra score reported each epoch, like accuracy"
+            ]
+          ],
+          "explain": "Keras combines these pieces through `compile` and `fit`, whatever the model's architecture."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "Fill in the loss for this food-vs-water classifier.",
+          "code": "loss_fn = keras.losses.___()",
+          "options": [
+            "BinaryCrossentropy",
+            "CategoricalCrossentropy",
+            "SparseCategoricalCrossentropy",
+            "MeanSquaredError"
+          ],
+          "answer": 0,
+          "explain": "With two classes and one sigmoid output, binary cross-entropy is the matching loss. The categorical losses are for more than two classes."
+        },
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "What sets Adam apart from plain stochastic gradient descent?",
+          "options": [
+            "It never needs a learning rate to be chosen",
+            "It adapts its step size to the loss's shape",
+            "It updates the weights without any gradients",
+            "It only works for binary classification"
+          ],
+          "answer": 1,
+          "explain": "Adam still follows gradients and takes a learning rate, but it adjusts the effective step size as it goes, which works well in practice."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Fill in the argument for a learning rate of 0.01.",
+          "code": "optimizer = keras.optimizers.Adam(\n    ___=0.01)",
+          "options": [
+            "weight_decay",
+            "batch_size",
+            "learning_rate",
+            "epochs"
+          ],
+          "answer": 2,
+          "explain": "Every optimizer is initialized with a learning rate. `weight_decay` is an optional extra; batch size and epochs belong to `fit`."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why does this model's output layer use a sigmoid?",
+          "options": [
+            "It lets the model handle any number of classes at once",
+            "It makes the hidden layer non-linear",
+            "It picks the learning rate automatically",
+            "It gives one probability for the positive class"
+          ],
+          "answer": 3,
+          "explain": "One sigmoid neuron outputs p(\"food\"), and p(\"water\") is 1 − p. For more classes you would use a SoftMax layer instead."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "What does `model.compile(...)` do?",
+          "options": [
+            "Runs the full training loop for every epoch",
+            "Splits the data into training and test sets",
+            "Attaches loss, optimizer, and metrics to the model",
+            "Translates the model into faster machine code first"
+          ],
+          "answer": 2,
+          "explain": "`compile` only wires the training components together. The actual training happens when you call `fit`."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Fill in the argument that sets the mini-batch size.",
+          "code": "history = model.fit(\n    x=X_train, y=y_train,\n    epochs=100, ___=8)",
+          "options": [
+            "learning_rate",
+            "batch_size",
+            "patience",
+            "units"
+          ],
+          "answer": 1,
+          "explain": "`batch_size=8` makes the optimizer update the weights after every 8 examples rather than once per full pass."
+        },
+        {
+          "type": "order",
+          "level": 1,
+          "prompt": "Order the steps to train a model in Keras.",
+          "items": [
+            "Create the model, loss, and optimizer",
+            "Call model.compile(...)",
+            "Call model.fit(...)",
+            "Inspect the returned history"
+          ],
+          "explain": "You define the pieces, attach them with `compile`, train with `fit`, then look at the per-epoch loss and accuracy it returns."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "For a 4-class classifier you would switch to a SoftMax output and a categorical cross-entropy loss.",
+          "answer": true,
+          "explain": "SoftMax gives a distribution over all classes, and `CategoricalCrossentropy` or `SparseCategoricalCrossentropy` is the matching multi-class loss."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "After passing `activation=\"relu\"` to a Dense layer, you still have to append a separate ReLU layer.",
+          "answer": false,
+          "explain": "The `activation` argument applies ReLU inside the Dense layer itself, combining the weighted sum and the activation in one step."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "`model.fit` can take `validation_data=(X_val, y_val)` to report validation loss and accuracy after each epoch.",
+          "answer": true,
+          "explain": "Validation data is optional; when given, Keras evaluates it at the end of every epoch, which is also what early stopping monitors."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Where do you add early stopping when training a Keras model?",
+          "options": [
+            "In the `callbacks` list passed to `model.fit`",
+            "As an extra layer inside the `keras.Sequential` list",
+            "As the `loss` argument of `model.compile`",
+            "As the learning rate of the Adam optimizer"
+          ],
+          "answer": 0,
+          "explain": "Callbacks run at the end of each epoch. `keras.callbacks.EarlyStopping()` in that list can halt training when validation loss stops improving."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "What does `keras.utils.set_random_seed(126)` do?",
+          "options": [
+            "Sets the number of training epochs to 126",
+            "Picks 126 random examples to train the model on",
+            "Sets the hidden layer to 126 neurons",
+            "Makes training reproducible from run to run"
+          ],
+          "answer": 3,
+          "explain": "Weight initialization and batch shuffling are random. Fixing the seed makes them come out the same each time."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "The training set has 20 examples and `batch_size=8`. How many mini-batches, and so weight updates, happen per epoch?",
+          "options": [
+            "3",
+            "2",
+            "8",
+            "20"
+          ],
+          "answer": 0,
+          "explain": "20 ÷ 8 = 2.5, so Keras makes two batches of 8 and a final batch of 4. The optimizer updates once per batch: 3 updates."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Same setup, trained for 100 epochs. How many weight updates does the optimizer make in total?",
+          "options": [
+            "100",
+            "300",
+            "250",
+            "800"
+          ],
+          "answer": 1,
+          "explain": "3 mini-batches per epoch × 100 epochs = 300 updates."
+        }
+      ]
+    }
+  ]
+}

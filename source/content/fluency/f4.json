@@ -1,0 +1,416 @@
+{
+  "id": "f4",
+  "title": "Paying attention",
+  "blurb": "The idea that made chat assistants possible.",
+  "sessions": [
+    {
+      "id": "f4-1",
+      "title": "The short-memory problem",
+      "icon": "chain",
+      "goal": "Explain why early text predictors kept losing the thread.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "A few words of memory",
+          "body": "Tap the middle word suggestion on your phone keyboard again and again. Each word fits the one before, yet the sentence soon wanders off. Early text predictors worked like that. They looked only at the last few words, so they kept losing the thread."
+        },
+        {
+          "type": "tf",
+          "prompt": "Early text predictors looked back at everything you had written so far.",
+          "answer": false,
+          "labels": {"true": "Fact", "false": "Myth"},
+          "explain": "They looked only at the last few words. Anything earlier was out of view, which is why their sentences drifted off topic."
+        },
+        {
+          "type": "mcq",
+          "prompt": "A predictor that sees only the last 2 words reads: \"She was thirsty, so she went looking for\". What can it actually use?",
+          "options": ["Only \"She was thirsty\"", "Only \"looking for\"", "The whole sentence"],
+          "answer": 1,
+          "explain": "It sees \"looking for\" and nothing else. The clue that she was thirsty is out of view, so it cannot favour \"water\" over any other word."
+        },
+        {
+          "type": "card",
+          "title": "The clue is often far back",
+          "body": "Read this: \"The trophy didn't fit in the suitcase because it was too big.\" What was too big? The trophy. You linked \"it\" to a word much earlier in the sentence. Meaning often hangs on a word far back, out of a short memory's reach."
+        },
+        {
+          "type": "cloze",
+          "prompt": "In the trophy sentence, the word that \"it\" stands for appears ___.",
+          "options": ["much earlier", "one word before", "nowhere at all"],
+          "answer": 0,
+          "explain": "\"It\" stands for the trophy, which is named near the start of the sentence. To read \"it\" correctly you have to reach back past several words."
+        },
+        {
+          "type": "mcq",
+          "prompt": "A brief starts \"Write for teenagers\" and ends, 300 words on, \"keep the tone right for them\". What must a model see to understand \"them\"?",
+          "options": [
+            "Just the last three or four words",
+            "Nothing more; \"them\" explains itself",
+            "The word \"teenagers\" from the start"
+          ],
+          "answer": 2,
+          "explain": "\"Them\" only makes sense once it is linked to \"teenagers\", 300 words back. A predictor that saw just the last few words could not know the audience."
+        },
+        {
+          "type": "card",
+          "title": "The fix: see it all at once",
+          "body": "The fix sounds simple. Stop reading through a keyhole. Let the model look at every word on the page at once, then let it decide which words matter for the word it is working on. It is like scanning a whole brief before you write a line."
+        },
+        {
+          "type": "tf",
+          "prompt": "The fix was to widen the view: look at every word at once, then decide which ones matter.",
+          "answer": true,
+          "explain": "Seeing every word removes the keyhole, and choosing which ones matter keeps the model from drowning in detail. The next session shows how it chooses."
+        },
+        {
+          "type": "sort",
+          "prompt": "Short memory or whole view? Sort each description.",
+          "buckets": ["Short memory", "Whole view"],
+          "items": [
+            ["Sees only the last few words", 0],
+            ["Looks at every word on the page", 1],
+            ["Loses the thread in a long sentence", 0],
+            ["Can link \"it\" to a word far back", 1],
+            ["Decides which words matter most", 1]
+          ],
+          "explain": "A short memory forgets the start of the sentence. A whole view keeps every word available, so far-apart words can still be linked."
+        }
+      ],
+      "takeaway": "Meaning can hinge on a word far back, so a model has to see every word and pick out the ones that matter.",
+      "tryit": "Open your phone keyboard and tap the middle suggestion twenty times. Read the result aloud and see how long it stays on topic."
+    },
+    {
+      "id": "f4-2",
+      "title": "Attention, explained",
+      "icon": "eye",
+      "goal": "Explain how attention helps each word find the words that matter.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "A score for every other word",
+          "body": "At a noisy party you tune in to the one voice that matters and let the rest fade. A model does something similar for each word it reads. It gives every other word a score for how relevant it is. That scoring is called **attention**."
+        },
+        {
+          "type": "cloze",
+          "prompt": "Attention means scoring how ___ every other word is to the word being read.",
+          "options": ["unusual", "relevant", "repeated"],
+          "answer": 1,
+          "explain": "For each word, the model scores the others by how much they matter to it. High scores get its attention, and low scores fade into the background."
+        },
+        {
+          "type": "mcq",
+          "prompt": "The model reads \"it\" in \"The poster looked dull, so the designer brightened it\". Which word should score highest?",
+          "options": ["designer", "dull", "poster"],
+          "answer": 2,
+          "explain": "\"It\" is the thing that got brightened: the poster. A high score on \"poster\" tells the model what \"it\" stands for."
+        },
+        {
+          "type": "card",
+          "title": "Watch the spotlight move",
+          "body": "Flip between the two sentences. Only the last word changes, yet \"it\" turns its spotlight to a different word each time. Brighter means a higher attention score.",
+          "play": {
+            "kind": "attention",
+            "sets": [
+              {
+                "words": ["The", "trophy", "didn't", "fit", "in", "the", "suitcase", "because", "it", "was", "too", "big"],
+                "focus": 8,
+                "weights": [0, 0.7, 0, 0.05, 0, 0, 0.1, 0, 0, 0, 0, 0.15],
+                "note": "\"it\" leans on \"trophy\": a trophy that is too big will not fit."
+              },
+              {
+                "words": ["The", "trophy", "didn't", "fit", "in", "the", "suitcase", "because", "it", "was", "too", "small"],
+                "focus": 8,
+                "weights": [0, 0.1, 0, 0.05, 0, 0, 0.7, 0, 0, 0, 0, 0.15],
+                "note": "\"it\" leans on \"suitcase\": a suitcase that is too small cannot fit a trophy."
+              }
+            ]
+          }
+        },
+        {
+          "type": "tf",
+          "prompt": "When the ending changed from \"too big\" to \"too small\", the spotlight on \"it\" moved from \"trophy\" to \"suitcase\".",
+          "answer": true,
+          "explain": "A trophy can be too big to fit; a suitcase can be too small to hold it. One changed word was enough to swing the attention scores."
+        },
+        {
+          "type": "mcq",
+          "prompt": "\"The dog chased the ball because it was hungry.\" Which word should \"it\" pay most attention to?",
+          "options": ["dog", "ball", "chased"],
+          "answer": 0,
+          "explain": "Balls do not get hungry; dogs do. The word \"hungry\" is the clue that swings the spotlight onto \"dog\"."
+        },
+        {
+          "type": "card",
+          "title": "Blending in the context",
+          "body": "Scoring is only half the job. Next, each word's meaning is updated by blending in the words that scored highest, like paint picking up a tint from the colour beside it. So \"bank\" next to \"river\" ends up meaning something different from \"bank\" next to \"loan\"."
+        },
+        {
+          "type": "order",
+          "prompt": "Put the steps of attention in order for one word.",
+          "items": [
+            "Pick a word to work on",
+            "Score every other word for relevance",
+            "Blend in the high-scoring words",
+            "The word now has a meaning in context"
+          ],
+          "explain": "First the scores, then the blend. Scoring finds the words that matter, and blending folds them into the word's meaning."
+        },
+        {
+          "type": "match",
+          "prompt": "Neighbours change meaning. Match each phrase to what \"pitch\" means in it.",
+          "pairs": [
+            ["Client pitch", "A presentation to win business"],
+            ["Football pitch", "A field where a match is played"],
+            ["Perfect pitch", "How high or low a note sounds"]
+          ],
+          "explain": "The spelling never changes, but the neighbours do. By blending in \"client\", \"football\" or \"perfect\", the model gives \"pitch\" three different meanings."
+        }
+      ],
+      "takeaway": "Attention scores which words matter to each word, then blends them in, so every word is read in context.",
+      "tryit": "Find a sentence in your inbox containing \"it\" or \"they\". Point to the word it stands for. You just did attention by hand."
+    },
+    {
+      "id": "f4-3",
+      "title": "Many spotlights",
+      "icon": "layers",
+      "goal": "Describe how many rounds of attention build up meaning.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "Not one spotlight, but many",
+          "body": "Picture a team reviewing one sentence together. One person tracks who did what. Another tracks which word describes which. A model does this with attention. It runs many spotlights at once, and each one can follow a different kind of link between words."
+        },
+        {
+          "type": "tf",
+          "prompt": "A model can run many attention spotlights at the same time, each following a different link.",
+          "answer": true,
+          "labels": {"true": "Fact", "false": "Myth"},
+          "explain": "Many spotlights run side by side, like reviewers each checking one thing. Between them they catch links that a single spotlight would miss."
+        },
+        {
+          "type": "mcq",
+          "prompt": "In \"The tired designer finished her slides\", one spotlight links \"her\" to \"designer\". What might another do at the same moment?",
+          "options": [
+            "Wait until the first has finished",
+            "Repeat exactly the same link",
+            "Link \"tired\" to \"designer\""
+          ],
+          "answer": 2,
+          "explain": "Spotlights work side by side, and each can follow a different relationship. Here one tracks who \"her\" is while another tracks who is tired."
+        },
+        {
+          "type": "card",
+          "title": "Round after round",
+          "body": "One pass is not enough. The model repeats the whole attention step many times, in layers stacked one on another. Each round starts from the meanings the last round produced and sharpens them, like the rounds of edits that turn a rough draft into a final one."
+        },
+        {
+          "type": "cloze",
+          "prompt": "Each round of attention ___ the meanings produced by the round before.",
+          "options": ["sharpens", "scrambles", "erases"],
+          "answer": 0,
+          "explain": "Every round builds on the last, like another pass of edits on a draft. Nothing is thrown away; the meaning just gets clearer."
+        },
+        {
+          "type": "order",
+          "prompt": "Follow one word through the model. Put its journey in order.",
+          "items": [
+            "It arrives with a rough meaning",
+            "A first round blends in some context",
+            "Later rounds sharpen the meaning further",
+            "The model predicts the next word"
+          ],
+          "explain": "Meaning is built up round by round. Only after the last round does the model use those sharpened meanings to predict the next word."
+        },
+        {
+          "type": "card",
+          "title": "No peeking ahead",
+          "body": "When a model writes, it adds one word at a time. The words to come do not exist yet. So its spotlights can only look back at what is already on the page: your prompt and the words it has written so far. It never peeks ahead."
+        },
+        {
+          "type": "tf",
+          "prompt": "While writing, a model can look ahead at the words it is about to write.",
+          "answer": false,
+          "labels": {"true": "Fact", "false": "Myth"},
+          "explain": "Those words do not exist yet. Each new word is chosen by looking back at your prompt and at what the model has already written."
+        },
+        {
+          "type": "sort",
+          "prompt": "A model is halfway through writing a reply. What can its attention see?",
+          "buckets": ["Can see", "Cannot see"],
+          "items": [
+            ["Your prompt", 0],
+            ["The next word it will choose", 1],
+            ["The words it has written so far", 0],
+            ["How its reply is going to end", 1]
+          ],
+          "explain": "Attention only looks back. Your prompt and the reply so far are on the page; the rest of the reply has not been written yet."
+        }
+      ],
+      "takeaway": "A model runs many attention spotlights over many rounds, and while writing it only ever looks back.",
+      "tryit": "Ask a chat assistant for a four-line poem and watch the words arrive one by one, each chosen by looking back."
+    },
+    {
+      "id": "f4-4",
+      "title": "Order matters",
+      "icon": "scale",
+      "goal": "Explain how a model keeps track of word order.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "A bag of words",
+          "body": "Tip a sentence into a bag and shake. The words are all there, but their order is gone. Attention alone works like that bag. It scores which words matter to each other, not where they sit. So \"dog bites man\" and \"man bites dog\" would look the same."
+        },
+        {
+          "type": "tf",
+          "prompt": "On its own, attention would see \"dog bites man\" and \"man bites dog\" as the same.",
+          "answer": true,
+          "explain": "Both sentences hold the same three words. Attention alone scores how words relate, not where they sit, so the two would look alike."
+        },
+        {
+          "type": "mcq",
+          "prompt": "Which pair would attention alone be unable to tell apart?",
+          "options": [
+            "\"client pays agency\" and \"agency pays client\"",
+            "\"client pays agency\" and \"client thanks agency\"",
+            "\"client pays agency\" and \"client pays\""
+          ],
+          "answer": 0,
+          "explain": "The first pair uses exactly the same words in a different order, and order is what a bag of words loses. The other pairs contain different words."
+        },
+        {
+          "type": "card",
+          "title": "A seat number for every word",
+          "body": "The fix is a tag. Every word, or piece of a word, carries one saying where it sits: first, second, third and so on, like the seat number on a ticket. With tags attached, the model knows \"dog\" came before \"bites\", and the two sentences no longer look alike."
+        },
+        {
+          "type": "cloze",
+          "prompt": "To keep track of word order, each word carries a tag for its ___.",
+          "options": ["meaning", "spelling", "position"],
+          "answer": 2,
+          "explain": "The tag works like a seat number. It says where in the sentence the word sits, so the model can tell first from last."
+        },
+        {
+          "type": "mcq",
+          "prompt": "What lets a model tell \"the agency briefed the client\" from \"the client briefed the agency\"?",
+          "options": [
+            "The exact spelling of each word",
+            "The position tag on each word",
+            "The total length of the sentence"
+          ],
+          "answer": 1,
+          "explain": "Both sentences contain the same words and are the same length. Only the position tags show who briefed whom."
+        },
+        {
+          "type": "card",
+          "title": "Order in your prompts",
+          "body": "Order matters in what you write, too. A model reads your whole prompt, but a request buried mid-paragraph is easier to miss, just as it is for a busy colleague. Put the instruction where it cannot be missed, at the start or the end, and keep related details together."
+        },
+        {
+          "type": "tf",
+          "prompt": "A prompt made of a long pasted email thread, with \"shorten this to 50 words\" tucked into the third paragraph.",
+          "answer": false,
+          "labels": {"true": "Strong prompt", "false": "Weak prompt"},
+          "explain": "The instruction is buried where it is easy to miss. Moved to the very top or the very end, it would be much harder to overlook."
+        },
+        {
+          "type": "sort",
+          "prompt": "You are tidying a prompt before you send it. Sort each habit.",
+          "buckets": ["Clear", "Easy to miss"],
+          "items": [
+            ["Instruction stated first, in one line", 0],
+            ["Request hidden inside a long email chain", 1],
+            ["Audience details kept in one place", 0],
+            ["Brand facts scattered through the prompt", 1]
+          ],
+          "explain": "A clear instruction at the start and related details kept together are easy to follow. Buried requests and scattered facts are easy to miss."
+        }
+      ],
+      "takeaway": "Attention ignores order, so each word carries a position tag; in a prompt, put the instruction where it cannot be missed.",
+      "tryit": "Take a prompt you used this week, move the instruction to the very top and compare the two answers."
+    },
+    {
+      "id": "f4-5",
+      "title": "Why \"transformer\"?",
+      "icon": "rocket",
+      "goal": "Say what a transformer is and what a large language model is.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "The design has a name",
+          "body": "Put the pieces together: attention, many spotlights, many rounds, position tags. That design is called a **transformer**. Researchers at Google introduced it in 2017, in a paper titled \"Attention Is All You Need\". It is the T in GPT, and the chat assistants you know are built on it."
+        },
+        {
+          "type": "cloze",
+          "prompt": "The T in GPT stands for ___.",
+          "options": ["transmitter", "transformer", "translator"],
+          "answer": 1,
+          "explain": "The transformer is the design, built around attention, that sits underneath the chat assistant. GPT is short for generative pre-trained transformer."
+        },
+        {
+          "type": "mcq",
+          "prompt": "A colleague asks what \"Attention Is All You Need\" is. What do you tell them?",
+          "options": [
+            "The paper that introduced the transformer",
+            "A slogan from a chat assistant advertisement",
+            "A rule of thumb for writing shorter prompts"
+          ],
+          "answer": 0,
+          "explain": "It is the title of the 2017 paper in which researchers at Google introduced the transformer, the design behind the chat assistants you know."
+        },
+        {
+          "type": "card",
+          "title": "All the words at once",
+          "body": "Older designs read one word after another, like a shop with one checkout. In training, a transformer handles all the words in a passage at once, like opening every checkout. Modern chips are built for exactly that, so it can learn from enormous amounts of text."
+        },
+        {
+          "type": "tf",
+          "prompt": "In training, a transformer handles text one word at a time, just like the older designs.",
+          "answer": false,
+          "labels": {"true": "Fact", "false": "Myth"},
+          "explain": "A transformer works on all the words in a passage at once. That suits modern chips, which are built to do many calculations side by side."
+        },
+        {
+          "type": "sort",
+          "prompt": "Older design or transformer? Sort each description.",
+          "buckets": ["Older design", "Transformer"],
+          "items": [
+            ["Reads one word after another", 0],
+            ["Handles all the words at once", 1],
+            ["Like a shop with one checkout", 0],
+            ["Like every checkout open", 1],
+            ["Makes full use of modern chips", 1]
+          ],
+          "explain": "Older designs queued the words up one by one. The transformer works on them all together, which is the kind of job modern chips do best."
+        },
+        {
+          "type": "card",
+          "title": "What an LLM is",
+          "body": "You will often hear **large language model**, or LLM. Unpack it word by word. Model: a transformer. Language: trained on a vast amount of text to predict the next word. Large: billions of dials, the adjustable numbers inside."
+        },
+        {
+          "type": "match",
+          "prompt": "Unpack the phrase \"large language model\". Match each part to what it tells you.",
+          "pairs": [
+            ["Large", "Billions of dials inside"],
+            ["Language", "Trained on a vast amount of text"],
+            ["Model", "A transformer, built around attention"]
+          ],
+          "explain": "Put together, a large language model is a transformer with billions of dials, trained on a vast amount of text to predict the next word."
+        },
+        {
+          "type": "mcq",
+          "prompt": "A vendor says their product \"runs on an LLM\". In plain words, what is under the hood?",
+          "options": [
+            "A searchable database full of ready-made answers",
+            "A long list of rules typed in by experts",
+            "A transformer trained on vast amounts of text"
+          ],
+          "answer": 2,
+          "explain": "LLM is short for large language model. It predicts words using billions of trained dials; it does not look answers up or follow a typed rulebook."
+        }
+      ],
+      "takeaway": "A large language model is a transformer: an attention-based design with billions of dials, trained on vast amounts of text.",
+      "tryit": "Listen for the phrase \"large language model\" this week. When you hear it, translate it in your head: a transformer with billions of dials."
+    }
+  ]
+}

@@ -1,0 +1,1097 @@
+{
+  "id": "c1",
+  "title": "Build Your Own Small Language Model",
+  "subtitle": "AI Research Foundations · Course 1",
+  "repo": "ai-foundations",
+  "skills": [
+    {
+      "id": "c1-1",
+      "title": "Next-word probabilities",
+      "icon": "dice",
+      "lab": "course_1/gdm_lab_1_1_create_your_own_probability_distribution.ipynb",
+      "cards": [
+        {
+          "title": "Next-word prediction",
+          "body": "A language model reads a prompt (its context) and gives every candidate next word a probability. For \"Twinkle twinkle little\", the lab gives \"star\" 0.99, \"bottle\" 0.009 and \"beef\" 0.001. Generating text means drawing one word from that distribution, adding it, and repeating."
+        },
+        {
+          "title": "A valid distribution",
+          "body": "Three rules: every candidate word gets a probability, none is below 0, and together they add up to exactly 1. The lab's `test_probabilities` helper checks all three before you sample. The numbers are your mental model of how well each word fits the prompt."
+        },
+        {
+          "title": "Sampling with random.choices",
+          "body": "`random.choices` draws from the list using your probabilities as weights. It returns a list, so `[0]` pulls out the word. Likely words come up most often, but any word above 0 can appear, so reruns can differ. This built-in randomness is called stochastic.",
+          "code": "import random\nwords = [\"star\", \"beef\", \"bottle\"]\nprobs = [0.99, 0.001, 0.009]\npick = random.choices(words, weights=probs)\nprint(pick[0])"
+        },
+        {
+          "title": "Context changes the odds",
+          "body": "Change \"Jide was hungry so she went looking for\" to \"thirsty\" and a sensible distribution shifts: \"water\" should rise while \"food\" and \"snacks\" fall. In the lab's sample answer, \"water\" jumps from 0.16 to 0.76. A good model is context-aware: its probabilities follow the meaning of the prompt."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "In this lab, what does a language model attach to each candidate next word?",
+          "options": [
+            "A fixed position in the dictionary",
+            "A count of the letters it contains",
+            "A probability based on the context",
+            "A grammar label such as noun or verb"
+          ],
+          "answer": 2,
+          "explain": "A language model scores each candidate continuation with a probability, and those probabilities depend on the prompt that came before."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "A list of probabilities can include a negative value, as long as all the values still add up to 1.",
+          "answer": false,
+          "explain": "Every probability must be 0 or more, and the whole list must sum to 1. A negative entry breaks the first rule."
+        },
+        {
+          "type": "cloze",
+          "level": 3,
+          "prompt": "The lab's 'hungry' answer lost one value. What must the blank be for a valid distribution?",
+          "code": "words = [\"food\", \"snacks\", \"leftovers\",\n         \"her\", \"for\", \"water\",\n         \"photosynthesis\", \"pyramid\"]\nprobs = [0.2, ___, 0.2, 0.09,\n         0.001, 0.16, 0.002, 0.001]",
+          "options": [
+            "0.346",
+            "0.654",
+            "0.300",
+            "0.446"
+          ],
+          "answer": 0,
+          "explain": "The seven known values sum to 0.654, so the missing one is 1 − 0.654 = 0.346."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "What kind of value ends up in `chosen`?",
+          "code": "chosen = random.choices(\n    [\"star\", \"beef\", \"bottle\"],\n    weights=[0.99, 0.001, 0.009])",
+          "options": [
+            "The string \"star\", every time",
+            "All three words in a new order",
+            "The number 0.99",
+            "A list holding one sampled word"
+          ],
+          "answer": 3,
+          "explain": "`random.choices` returns a list (one item by default). That is why the lab prints `chosen[0]`. \"star\" is likely, not guaranteed."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "With weights 0.99 / 0.001 / 0.009 for star / beef / bottle, about how many of 1,000 samples will be \"bottle\"?",
+          "options": [
+            "About 1",
+            "About 9",
+            "About 99",
+            "About 990"
+          ],
+          "answer": 1,
+          "explain": "Expected count = probability × number of draws = 0.009 × 1,000 = 9."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Running the same `random.choices` cell twice can print different words, even with identical probabilities.",
+          "answer": true,
+          "explain": "Sampling is random: the probabilities set how often each word wins, not which word wins on a given run."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Jide is now thirsty instead of hungry. Which candidate should gain the most probability?",
+          "options": [
+            "water",
+            "leftovers",
+            "snacks",
+            "pyramid"
+          ],
+          "answer": 0,
+          "explain": "Thirst points to a drink, so \"water\" should rise sharply. In the lab's sample answer it goes from 0.16 to 0.76."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Fill in the keyword argument that passes the probabilities.",
+          "code": "chosen_word = random.choices(\n    candidate_words,\n    ___=your_mental_model)",
+          "options": [
+            "probs",
+            "k",
+            "weights",
+            "context"
+          ],
+          "answer": 2,
+          "explain": "`random.choices(population, weights=...)` uses the weights to decide how likely each item is to be drawn. `k` sets how many items to draw."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why does the lab give \"photosynthesis\" a tiny probability after \"Jide was hungry so she went looking for\"?",
+          "options": [
+            "Long words are never sampled",
+            "It rarely fits that sentence",
+            "Long words need small values",
+            "It is not a candidate word"
+          ],
+          "answer": 1,
+          "explain": "Probabilities should reflect how well a word fits the context. \"photosynthesis\" makes little sense here, but it is still a candidate with a small non-zero chance."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "The weights [0.5, 0.3, 0.1] form a valid probability distribution over three words.",
+          "answer": false,
+          "explain": "0.5 + 0.3 + 0.1 = 0.9, not 1. A valid distribution must sum to exactly 1."
+        },
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each term to its meaning.",
+          "pairs": [
+            [
+              "Prompt",
+              "The input text given to the model"
+            ],
+            [
+              "Context",
+              "Earlier words that shape the prediction"
+            ],
+            [
+              "Sampling",
+              "Randomly drawing a word by its probability"
+            ],
+            [
+              "Candidate words",
+              "Possible continuations being scored"
+            ],
+            [
+              "Stochastic",
+              "Random, so outputs can vary run to run"
+            ]
+          ],
+          "explain": "These are the core ideas of the lab: a prompt gives context, candidates get probabilities, and sampling picks one at random."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Put the steps for generating one next word in order.",
+          "items": [
+            "Write the prompt",
+            "List candidate next words",
+            "Give each word a probability",
+            "Check values are ≥ 0 and sum to 1",
+            "Sample one with random.choices"
+          ],
+          "explain": "You need candidates before you can score them, and a valid distribution before `random.choices` can sample from it."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "A model that picks words at random according to probabilities is called ___.",
+          "options": [
+            "deterministic",
+            "greedy",
+            "sparse",
+            "stochastic"
+          ],
+          "answer": 3,
+          "explain": "Stochastic means involving randomness. A deterministic process would give the same output every time."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "In the lab's 'thirsty' answer, \"water\" gets 0.76. What total probability is left for the other seven words?",
+          "options": [
+            "0.14",
+            "0.24",
+            "0.34",
+            "0.76"
+          ],
+          "answer": 1,
+          "explain": "All probabilities sum to 1, so the rest share 1 − 0.76 = 0.24."
+        }
+      ]
+    },
+    {
+      "id": "c1-2",
+      "title": "N-gram language models",
+      "icon": "chain",
+      "lab": "course_1/gdm_lab_1_2_experiment_with_n_gram_models.ipynb",
+      "cards": [
+        {
+          "title": "Counting gives probabilities",
+          "body": "An n-gram is a run of n tokens in a row. An n-gram model predicts the next token B from the previous n − 1 tokens A: P(B | A) = Count(A B) / Count(A). Both counts come from a corpus, here Africa Galore, a synthetic dataset of paragraphs about African culture, history and geography."
+        },
+        {
+          "title": "A naive space tokenizer",
+          "body": "First, each paragraph is split into tokens wherever there is a space. \"Bimpe didn't buy the rice\" becomes five tokens. Punctuation stays attached, so \"tall.\" and \"tall\" are different tokens. That is why these units are called tokens rather than words.",
+          "code": "def space_tokenize(text):\n    return text.split(\" \")"
+        },
+        {
+          "title": "From tokens to n-grams",
+          "body": "Slide a window of size n along the tokens: T tokens give T − n + 1 n-grams. `get_ngram_counts` counts which token follows each context; `build_ngram_model` divides each count by the context's total to get probabilities.",
+          "code": "tokens = space_tokenize(text)\nngrams = []\nfor i in range(len(tokens) - n + 1):\n    ngrams.append(tuple(tokens[i:i+n]))"
+        },
+        {
+          "title": "Sparsity and dead ends",
+          "body": "Most possible n-grams never occur: about 99.95% of the Africa Galore bigram table is zeros, and 99.98% of the trigram table. A bigger n sees more context but makes counts sparser. If a context such as \"Their name\" never appears, the model has no entry for it (a `KeyError`) and generation stops."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "An n-gram model predicts the next token from how many preceding tokens?",
+          "options": [
+            "n − 1",
+            "n",
+            "n + 1",
+            "All earlier tokens"
+          ],
+          "answer": 0,
+          "explain": "An n-gram has n tokens: the last one is predicted and the other n − 1 form the context. A trigram model uses 2 tokens of context."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "\"a staple\" appears 13 times and \"a staple in\" appears 6 times. What is P(in | a staple)?",
+          "options": [
+            "13/6 ≈ 2.17",
+            "6/19 ≈ 0.32",
+            "6/13 ≈ 0.46",
+            "1/13 ≈ 0.08"
+          ],
+          "answer": 2,
+          "explain": "P(B | A) = Count(A B) / Count(A) = 6 / 13 ≈ 0.46. A probability can never exceed 1, so 13/6 is impossible."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "What does a space tokenizer return for \"Table mountain is tall.\"?",
+          "options": [
+            "[\"Table\", \"mountain\", \"is\", \"tall\", \".\"]",
+            "[\"Table\", \"mountain\", \"is\", \"tall.\"]",
+            "[\"Table mountain\", \"is\", \"tall.\"]",
+            "[\"table\", \"mountain\", \"is\", \"tall\"]"
+          ],
+          "answer": 1,
+          "explain": "Splitting on spaces keeps punctuation glued to the word and leaves capital letters alone, so the last token is \"tall.\"."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "How many bigrams does this call return?",
+          "code": "text = \"Table Mountain is tall.\"\ngenerate_ngrams(text, n=2)",
+          "options": [
+            "4",
+            "2",
+            "5",
+            "3"
+          ],
+          "answer": 3,
+          "explain": "4 tokens give 4 − 2 + 1 = 3 bigrams: (Table, Mountain), (Mountain, is), (is, tall.)."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Complete `generate_ngrams` so each n-gram is stored the way the lab asks.",
+          "code": "for i in range(len(tokens) - n + 1):\n    ngrams.append(___(tokens[i:i+n]))",
+          "options": [
+            "tuple",
+            "list",
+            "set",
+            "sum"
+          ],
+          "answer": 0,
+          "explain": "Each n-gram is a tuple of tokens. Tuples keep the order and can be counted by `Counter`; a set would lose the order and drop repeated tokens."
+        },
+        {
+          "type": "cloze",
+          "level": 3,
+          "prompt": "Fill the blank so `total` equals Count(A), the number of times the context appeared.",
+          "code": "for context, nxt in counts.items():\n    total = ___(nxt.values())\n    model[context] = {}\n    for tok, c in nxt.items():\n        model[context][tok] = c / total",
+          "options": [
+            "len",
+            "sum",
+            "max",
+            "min"
+          ],
+          "answer": 1,
+          "explain": "Count(A) is the total of all counts of tokens that followed A. `len` would only count how many different tokens followed it."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "For a context that never appears in the dataset, the lab's trigram model returns a small probability for every token.",
+          "answer": false,
+          "explain": "Unseen contexts have no entry in the model's dictionary, so looking one up raises a `KeyError` and generation stops."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Dataset: \"Table Mountain is tall\" and \"Table Mountain is beautiful\". What does a trigram model store for context \"Mountain is\"?",
+          "options": [
+            "{'tall': 1.0, 'beautiful': 1.0}",
+            "{'is': 1.0}",
+            "{'tall': 0.5, 'beautiful': 0.5}",
+            "{'tall': 1, 'beautiful': 1}"
+          ],
+          "answer": 2,
+          "explain": "\"Mountain is\" occurs twice, once followed by each word, so each gets 1/2. The model stores probabilities, not raw counts."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "Moving from a bigram to a trigram model makes the table of counts sparser.",
+          "answer": true,
+          "explain": "Longer contexts have far more possible combinations, and most never occur: 99.95% zeros for bigrams versus 99.98% for trigrams in Africa Galore."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "With a 5-token vocabulary (I, love, to, eat, jollof), how many trigram combinations are possible?",
+          "options": [
+            "25",
+            "125",
+            "15",
+            "243"
+          ],
+          "answer": 1,
+          "explain": "Each of the 3 positions can hold any of 5 tokens: 5 × 5 × 5 = 125. Only a few, like \"love to eat\", will actually appear in data."
+        },
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each term to its meaning.",
+          "pairs": [
+            [
+              "Corpus",
+              "The collection of texts used for counting"
+            ],
+            [
+              "Bigram",
+              "A sequence of two consecutive tokens"
+            ],
+            [
+              "Context",
+              "The n − 1 tokens before the predicted one"
+            ],
+            [
+              "Sparsity",
+              "Most possible n-grams have a count of zero"
+            ],
+            [
+              "KeyError",
+              "What a context missing from the data causes"
+            ]
+          ],
+          "explain": "These ideas run through the whole lab: count n-grams in a corpus, predict from the context, and watch out for sparse or missing counts."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order the steps to build and use an n-gram model.",
+          "items": [
+            "Load the text corpus",
+            "Split paragraphs into tokens",
+            "Turn token lists into n-grams",
+            "Count next tokens per context",
+            "Divide counts by the context total",
+            "Sample next tokens repeatedly"
+          ],
+          "explain": "Tokens come before n-grams, counts before probabilities, and probabilities before you can sample a continuation."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "P(B | A) = Count(A B) / Count(___)",
+          "options": [
+            "B",
+            "A B",
+            "the corpus",
+            "A"
+          ],
+          "answer": 3,
+          "explain": "You divide how often A is followed by B by how often A appears at all."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "For a trigram model (n = 3), how many tokens end up in `context`?",
+          "code": "# n = 3\ncontext = generated_words[-(n - 1):]\ncontext = \" \".join(context)",
+          "options": [
+            "2",
+            "3",
+            "1",
+            "All generated tokens"
+          ],
+          "answer": 0,
+          "explain": "`generated_words[-(n - 1):]` keeps the last n − 1 = 2 tokens, which are joined with a space to look up the model."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Because the next token is sampled, the same prompt can produce different continuations on different runs.",
+          "answer": true,
+          "explain": "The n-gram model draws each token with `random.choices`, so likely tokens usually win but less likely ones can be chosen too."
+        }
+      ]
+    },
+    {
+      "id": "c1-3",
+      "title": "N-grams vs. transformers",
+      "icon": "scale",
+      "lab": "course_1/gdm_lab_1_3_compare_n_gram_models_and_transformer_language_models.ipynb",
+      "cards": [
+        {
+          "title": "Meet the contenders",
+          "body": "The lab compares a trigram model built from Africa Galore with Gemma-1B, a transformer with about 1 billion parameters. Parameters are what training produces: for the n-gram model, its conditional probabilities; for a transformer, a vast set of numbers that only mean something together. The matchup is uneven: Gemma also learned from far more text."
+        },
+        {
+          "title": "Context window",
+          "body": "A trigram model sees only the last 2 tokens. \"Jide was hungry so she went looking for\" and the \"thirsty\" version both end in \"looking for\", so its prediction does not move. Gemma reads the whole prompt and shifts toward \"water\" for thirst. Transformers can use hundreds or thousands of tokens of context."
+        },
+        {
+          "title": "Judging generations",
+          "body": "The lab compares outputs on four criteria. Fluency: does it read naturally? Coherence: does it make sense and stay on topic? Relevance: does it answer the prompt? Bias: does it repeat stereotypes, like continuing \"nurse\" with she and \"doctor\" with he, patterns absorbed from human-written training text?"
+        },
+        {
+          "title": "Greedy vs. random",
+          "body": "Random sampling draws each token from the distribution, so reruns differ, which suits stories and creative tasks. Greedy sampling always takes the single most probable token, so a prompt gives the same output every time, which suits tasks that need accuracy and consistency. Note: transformer tokens can be pieces of words."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why does the trigram model give identical next-token odds for the 'hungry' and 'thirsty' Jide prompts?",
+          "options": [
+            "It treats the two words as synonyms",
+            "Both end with the same two tokens",
+            "It always picks the commonest word",
+            "Its data has no words about drinks"
+          ],
+          "answer": 1,
+          "explain": "A trigram model only looks at the last 2 tokens, \"looking for\", which are identical in both prompts. Everything earlier is invisible to it."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "Gemma-1B gets its name from having roughly 1 billion parameters.",
+          "answer": true,
+          "explain": "The \"1B\" refers to about one billion learned numbers. The lab's own small model, by comparison, has about 3.5 million."
+        },
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "What are the parameters of the n-gram model?",
+          "options": [
+            "The prompts used to test it",
+            "Gemma's billion numbers",
+            "The four evaluation criteria",
+            "Its conditional probabilities"
+          ],
+          "answer": 3,
+          "explain": "Training an n-gram model means estimating P(B | A) from counts. Those probabilities are exactly what the model learned, so they are its parameters."
+        },
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each evaluation criterion to the question it asks.",
+          "pairs": [
+            [
+              "Fluency",
+              "Does it read naturally and grammatically?"
+            ],
+            [
+              "Coherence",
+              "Does it make sense and stay on topic?"
+            ],
+            [
+              "Relevance",
+              "Does it actually fit the prompt?"
+            ],
+            [
+              "Bias",
+              "Does it repeat stereotypes from its data?"
+            ]
+          ],
+          "explain": "The lab uses these four criteria to compare the two models' generations."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "In the lab, which model often fails to predict any next token at all?",
+          "options": [
+            "The trigram model, on unseen contexts",
+            "Gemma-1B, on very long prompts",
+            "Both, whenever the prompt is a question",
+            "Neither; both always give an answer"
+          ],
+          "answer": 0,
+          "explain": "The trigram model only has a distribution if its two-token context occurs in Africa Galore. Gemma assigns probabilities for any prompt."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Fill in the mode that makes Gemma's output the same on every run.",
+          "code": "generation.prompt_transformer_model(\n    prompt,\n    max_new_tokens=50,\n    loaded_model=gemma_model,\n    sampling_mode=\"___\",\n)",
+          "options": [
+            "random",
+            "sparse",
+            "greedy",
+            "creative"
+          ],
+          "answer": 2,
+          "explain": "`sampling_mode=\"greedy\"` always takes the most probable token. \"random\" samples from the distribution and varies between runs."
+        },
+        {
+          "type": "tf",
+          "level": 3,
+          "prompt": "Gemma beats the trigram model in the lab purely because of its architecture; both learned from the same amount of text.",
+          "answer": false,
+          "explain": "The comparison is stacked: Gemma was trained on a very large dataset, the trigram model only on Africa Galore. The lab notes a transformer would still win on equal data."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "For a creative task like story writing, which approach does the lab favor?",
+          "options": [
+            "Always pick the single most likely token",
+            "Use only the trigram model",
+            "Cut the prompt down to two words",
+            "Sample randomly from the distribution"
+          ],
+          "answer": 3,
+          "explain": "Random sampling explores different plausible tokens, giving varied, imaginative text. Greedy decoding suits tasks that need consistency."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "A trigram model gets \"The doctor went to university in Ethiopia.\" Which tokens form its context?",
+          "options": [
+            "\"in\" and \"Ethiopia.\"",
+            "\"university\" and \"in\"",
+            "\"Ethiopia.\" alone",
+            "All seven tokens"
+          ],
+          "answer": 0,
+          "explain": "A trigram model uses the last n − 1 = 2 tokens. With space tokenization, those are \"in\" and \"Ethiopia.\" (period included)."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Gemma tends to continue \"nurse\" with \"she\" and \"doctor\" with \"he\". What causes this?",
+          "options": [
+            "The greedy sampling setting",
+            "Its short context window",
+            "Skewed patterns in its training text",
+            "Its tokenizer splitting words into pieces"
+          ],
+          "answer": 2,
+          "explain": "Models learn from human-written text, where male doctors and female nurses are written about more often, so they absorb that bias."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "Transformers beat n-gram models partly because they have a much larger ___ window.",
+          "options": [
+            "sampling",
+            "context",
+            "vocabulary",
+            "batch"
+          ],
+          "answer": 1,
+          "explain": "An n-gram model's context is only n − 1 tokens. Transformers can attend to hundreds or thousands of earlier tokens."
+        },
+        {
+          "type": "tf",
+          "level": 3,
+          "prompt": "Given as much training text as Gemma, a trigram model would match Gemma's quality, according to the lab.",
+          "answer": false,
+          "explain": "The lab says the transformer would still be much better: it has a far larger context window and learns abstract patterns, such as food and snack being related."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order these models from the smallest to the largest context.",
+          "items": [
+            "Bigram model",
+            "Trigram model",
+            "4-gram model",
+            "Gemma-1B transformer"
+          ],
+          "explain": "An n-gram model uses n − 1 tokens of context, so it grows by one with each step in n. Transformers use far longer contexts."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "A Gemma generation sometimes ends partway through a word. Why?",
+          "options": [
+            "It runs out of probability mass",
+            "The trigram model cuts it off",
+            "Greedy sampling truncates words",
+            "Its tokens can be parts of words"
+          ],
+          "answer": 3,
+          "explain": "Transformer tokens may be a single character or a piece of a word, so stopping after a fixed number of tokens can land mid-word."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Neural networks can learn that \"food\" and \"___\" have related meanings, which raw n-gram counts cannot.",
+          "options": [
+            "snack",
+            "pyramid",
+            "looking",
+            "for"
+          ],
+          "answer": 0,
+          "explain": "Neural networks learn abstract patterns that link related words, like food and snack. N-gram counts treat every token string as unrelated."
+        }
+      ]
+    },
+    {
+      "id": "c1-4",
+      "title": "From tokens to token IDs",
+      "icon": "token",
+      "lab": "course_1/gdm_lab_1_4_prepare_the_dataset_for_training_a_slm.ipynb",
+      "cards": [
+        {
+          "title": "Models need numbers",
+          "body": "A transformer cannot read strings. Preparing data means: tokenize every paragraph, collect the vocabulary (the unique tokens), and give each token an ID. IDs must be consecutive: with a vocabulary of size k, they run from 0 to k − 1."
+        },
+        {
+          "title": "Tokens vs. vocabulary",
+          "body": "`tokens` keeps every token in dataset order, repeats included. The vocabulary keeps each token exactly once. The lab's `space_tokenize` uses `re.split(r\" +\", text)`, so a run of spaces counts as one separator.",
+          "code": "tokens = []\nfor paragraph in dataset:\n    for token in space_tokenize(paragraph):\n        tokens.append(token)\nvocabulary = list(set(tokens))"
+        },
+        {
+          "title": "Two lookup tables",
+          "body": "`token_to_index` turns a token into its ID; `index_to_token` reverses it. `enumerate` hands out consecutive IDs 0, 1, 2, … in vocabulary order.",
+          "code": "for index, token in enumerate(vocabulary):\n    token_to_index[token] = index\n    index_to_token[index] = token"
+        },
+        {
+          "title": "Encode and decode",
+          "body": "`encode(text)` tokenizes the text and maps each token to its ID. `decode(ids)` maps IDs back to tokens and joins them with spaces, so decoding an encoding returns the original text. The `SimpleWordTokenizer` class bundles all of this; it sorts its vocabulary alphabetically before assigning IDs."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "Why must text become token IDs before training a transformer?",
+          "options": [
+            "IDs make the text shorter to read",
+            "The model processes numbers, not text",
+            "IDs strip punctuation from tokens",
+            "IDs put tokens in alphabetical order"
+          ],
+          "answer": 1,
+          "explain": "Neural networks compute with numbers. Mapping each token to a unique ID is the bridge between text and the model."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "\"the cat saw the dog\" is space-tokenized. How many tokens, and how many vocabulary entries?",
+          "options": [
+            "5 tokens, 4 unique",
+            "5 tokens, 5 unique",
+            "4 tokens, 4 unique",
+            "4 tokens, 5 unique"
+          ],
+          "answer": 0,
+          "explain": "There are 5 tokens, but \"the\" appears twice, so the vocabulary is {the, cat, saw, dog}: 4 entries."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Complete `build_vocabulary` so it keeps each token once.",
+          "code": "def build_vocabulary(tokens):\n    vocabulary = list(___(tokens))\n    return vocabulary",
+          "options": [
+            "sorted",
+            "tuple",
+            "set",
+            "len"
+          ],
+          "answer": 2,
+          "explain": "`set` removes duplicates; `list(...)` turns it back into a list. `sorted` alone would keep every repeat."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "A vocabulary has 5,000 tokens. Which IDs should it use?",
+          "options": [
+            "0 to 4,999",
+            "1 to 5,000",
+            "0 to 5,000",
+            "Any 5,000 numbers"
+          ],
+          "answer": 0,
+          "explain": "IDs are consecutive and start at 0, so a vocabulary of size k uses 0 to k − 1. Here that is 0 to 4,999."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Complete the loop that builds `index_to_token`.",
+          "code": "for token, index in token_to_index.items():\n    index_to_token[___] = token",
+          "options": [
+            "token",
+            "len(token)",
+            "index + 1",
+            "index"
+          ],
+          "answer": 3,
+          "explain": "`index_to_token` is the reverse map: the ID is the key and the token is the value."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "What does this return?",
+          "code": "vocab = [\"rice\", \"jollof\", \"spicy\"]\ntok = SimpleWordTokenizer(\n    [], vocabulary=vocab)\ntok.decode([1, 0])",
+          "options": [
+            "'rice jollof'",
+            "'jollof rice'",
+            "'spicy jollof'",
+            "[1, 0]"
+          ],
+          "answer": 1,
+          "explain": "With the given vocabulary, ID 1 is \"jollof\" and ID 0 is \"rice\". `decode` maps them in order and joins them with a space."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Using the same vocabulary, what does `tok.encode(\"spicy jollof rice\")` return?",
+          "code": "vocab = [\"rice\", \"jollof\", \"spicy\"]\ntok = SimpleWordTokenizer(\n    [], vocabulary=vocab)",
+          "options": [
+            "[0, 1, 2]",
+            "[3, 2, 1]",
+            "[1, 2, 3]",
+            "[2, 1, 0]"
+          ],
+          "answer": 3,
+          "explain": "IDs come from list positions starting at 0: rice = 0, jollof = 1, spicy = 2. Encoding keeps the word order of the text."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "Each token appears exactly once in the vocabulary, even if it occurs thousands of times in the data.",
+          "answer": true,
+          "explain": "The vocabulary is the set of unique tokens. Frequency matters for counts, not for the vocabulary list."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "In this `encode`, what happens to a token missing from `token_to_index`?",
+          "code": "indices = []\nfor token in space_tokenize(text):\n    idx = token_to_index.get(token)\n    indices.append(idx)",
+          "options": [
+            "A KeyError stops the encoding",
+            "It is added to the vocabulary",
+            "It becomes None; no error is raised",
+            "It is mapped to ID 0"
+          ],
+          "answer": 2,
+          "explain": "`dict.get(key)` returns None when the key is missing instead of raising an error. The next lab replaces this with a proper `<UNK>` token."
+        },
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each piece to its job.",
+          "pairs": [
+            [
+              "vocabulary",
+              "The list of unique tokens in the dataset"
+            ],
+            [
+              "token_to_index",
+              "Maps a token to its ID"
+            ],
+            [
+              "index_to_token",
+              "Maps an ID back to its token"
+            ],
+            [
+              "encode",
+              "Turns text into a list of token IDs"
+            ],
+            [
+              "decode",
+              "Turns token IDs back into text"
+            ]
+          ],
+          "explain": "Together these make a tokenizer: a vocabulary plus two inverse lookups, wrapped in encode and decode."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order the data-preparation steps from this lab.",
+          "items": [
+            "Load the Africa Galore paragraphs",
+            "Space-tokenize every paragraph",
+            "Collect the unique tokens",
+            "Give each token an ID",
+            "Encode texts as lists of IDs"
+          ],
+          "explain": "You need tokens before a vocabulary, a vocabulary before IDs, and IDs before encoding."
+        },
+        {
+          "type": "cloze",
+          "level": 3,
+          "prompt": "What does `re.split` return here (note the two spaces)?",
+          "code": "import re\nre.split(r\" +\", \"Kanga  cloth\")\n# result: ___",
+          "options": [
+            "['Kanga', '', 'cloth']",
+            "['Kanga', 'cloth']",
+            "['Kanga  cloth']",
+            "['Kanga', ' ', 'cloth']"
+          ],
+          "answer": 1,
+          "explain": "The pattern \" +\" matches one or more spaces, so the double space is one separator. Plain `split(\" \")` would leave an empty string."
+        },
+        {
+          "type": "tf",
+          "level": 3,
+          "prompt": "`SimpleWordTokenizer` gives IDs in the order tokens first appear in the dataset.",
+          "answer": false,
+          "explain": "Its `build_vocabulary` returns `sorted(list(set(tokens)))`, so IDs follow alphabetical (sorted) order, not order of appearance."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why does the `tokens` list have far more entries than `vocabulary`?",
+          "options": [
+            "Common tokens like \"the\" repeat a lot",
+            "The vocabulary drops all punctuation",
+            "Tokens are split into characters",
+            "The vocabulary covers one paragraph"
+          ],
+          "answer": 0,
+          "explain": "`tokens` keeps every occurrence; the vocabulary keeps each distinct token once. Frequent words account for most of the difference."
+        }
+      ]
+    },
+    {
+      "id": "c1-5",
+      "title": "Train a small LM",
+      "icon": "rocket",
+      "lab": "course_1/gdm_lab_1_5_train_your_own_small_language_model.ipynb",
+      "cards": [
+        {
+          "title": "Pad and truncate",
+          "body": "A batch is a matrix, so every row needs the same length. Paragraphs longer than `max_length` (300 in the lab) are cut, and shorter ones are filled with the `<PAD>` token. Here both happen at the end (\"post\"). The tokenizer puts `<PAD>` first (ID 0) and `<UNK>` last, for unseen words.",
+          "code": "padded = pad_sequences(\n    encoded_tokens, maxlen=300,\n    padding=\"post\", truncating=\"post\",\n    value=tokenizer.pad_token_id)"
+        },
+        {
+          "title": "Input and target",
+          "body": "The model learns next-token prediction, so the target is the input shifted left by one. For \"Table Mountain is beautiful\": input = Table Mountain is, target = Mountain is beautiful. Each sequence is now one token shorter.",
+          "code": "inputs = padded[:, :-1]   # drop last\ntargets = padded[:, 1:]   # drop first"
+        },
+        {
+          "title": "Shuffle and batch",
+          "body": "Africa Galore is ordered by topic (food paragraphs sit together), so paragraphs are shuffled before training, while tokens inside each paragraph keep their order. Then they are grouped into batches of 32. Larger batches can speed training but need more memory and may run out."
+        },
+        {
+          "title": "Training loop",
+          "body": "The model has about 3.5 million parameters, starting as random numbers. After each batch (a step) they are nudged to predict better; one pass over all batches is an epoch, and the lab suggests 200. The loss should trend down, and a callback prints a sample for \"Abeni,\" every 10 epochs."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "Why are paragraphs padded or truncated before training?",
+          "options": [
+            "Padding adds meaning to short texts",
+            "Truncation removes the rare tokens",
+            "The tokenizer needs equal-length words",
+            "Rows in a batch must share one length"
+          ],
+          "answer": 3,
+          "explain": "The model's input is a matrix with one paragraph per row, and every row of a matrix needs the same number of entries."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "`max_length` is 300 and padding is \"post\". A paragraph has 120 tokens. What happens?",
+          "options": [
+            "180 <PAD> tokens added at the end",
+            "180 <PAD> tokens added at the start",
+            "120 <PAD> tokens added at the end",
+            "It is cut down to 120 tokens"
+          ],
+          "answer": 0,
+          "explain": "300 − 120 = 180 padding tokens are needed, and \"post\" puts them after the real tokens."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "\"Table Mountain is beautiful\" is a training example. What is its target sequence?",
+          "options": [
+            "Table Mountain is",
+            "beautiful",
+            "Mountain is beautiful",
+            "Table Mountain is beautiful"
+          ],
+          "answer": 2,
+          "explain": "The target is the input shifted left by one: each position's target is the token that comes next."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Complete the slice that keeps every token except the last.",
+          "code": "# drop the last token of each row\ninput_sequences = padded[:, ___]",
+          "options": [
+            ":-1",
+            "1:",
+            "0",
+            "-1:"
+          ],
+          "answer": 0,
+          "explain": "`[:, :-1]` takes all rows and every column but the last. The target uses `[:, 1:]`, which drops the first."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "`padded_sequences` has 300 columns. What is `input_sequences.shape[1]` after the split?",
+          "options": [
+            "300",
+            "299",
+            "301",
+            "150"
+          ],
+          "answer": 1,
+          "explain": "Dropping one token (the last for inputs, the first for targets) leaves 300 − 1 = 299, so the lab updates `max_length` to match."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Shuffling the dataset also shuffles the order of tokens inside each paragraph.",
+          "answer": false,
+          "explain": "Only whole paragraphs are shuffled. Mixing tokens within a paragraph would turn sentences into word puzzles."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "7 padded paragraphs are shuffled and split into batches of size 3. What do you get?",
+          "options": [
+            "2 batches; the last holds 1 paragraph",
+            "3 batches of 3 paragraphs each",
+            "3 batches; the last holds 1 paragraph",
+            "7 batches of 1 paragraph each"
+          ],
+          "answer": 2,
+          "explain": "Batches of 3, 3 and 1 cover all 7 paragraphs. Since 7 is not divisible by 3, the final batch is smaller."
+        },
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each training term to its meaning.",
+          "pairs": [
+            [
+              "Epoch",
+              "One full pass over all the batches"
+            ],
+            [
+              "Step",
+              "One parameter update after a batch"
+            ],
+            [
+              "Batch size",
+              "How many paragraphs are grouped together"
+            ],
+            [
+              "Learning rate",
+              "How quickly the parameters change"
+            ],
+            [
+              "Loss",
+              "Error measure that should trend downward"
+            ]
+          ],
+          "explain": "Training repeats steps over batches; many epochs with a sensible learning rate should drive the loss down."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "A word that never appeared in the training data is mapped to the ___ token.",
+          "options": [
+            "<PAD>",
+            "<EOS>",
+            "<BOS>",
+            "<UNK>"
+          ],
+          "answer": 3,
+          "explain": "`encode` uses `token_to_index.get(token, unk_index)`, so unseen words fall back to `<UNK>`. All their information is lost."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "The dataset has 5,000 unique tokens. What are `vocabulary_size` and the ID of `<PAD>`?",
+          "code": "self.vocabulary = (\n    [self.PAD_TOKEN] + vocabulary\n    + [self.UNKNOWN_TOKEN]\n)",
+          "options": [
+            "5,000; <PAD> has ID 0",
+            "5,002; <PAD> has ID 0",
+            "5,002; <PAD> has ID 5,001",
+            "5,001; <PAD> has ID 1"
+          ],
+          "answer": 1,
+          "explain": "Two special tokens are added: `<PAD>` at the front (ID 0) and `<UNK>` at the end (ID 5,001), giving 5,000 + 2 = 5,002."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "At the start of training, the transformer's parameters are random numbers.",
+          "answer": true,
+          "explain": "Parameters are initialized randomly and improve step by step as the model learns to predict the next token."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order the steps from raw text to a trained SLM.",
+          "items": [
+            "Encode paragraphs as token IDs",
+            "Pad or truncate to max_length",
+            "Split into inputs and targets",
+            "Shuffle and group into batches",
+            "Train with model.fit for many epochs"
+          ],
+          "explain": "This is the lab's pipeline: numbers first, equal lengths next, then input/target pairs, batches, and finally training."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "What is a likely problem with a very large batch size?",
+          "options": [
+            "Running out of memory",
+            "Paragraphs lose their word order",
+            "The vocabulary keeps growing",
+            "The loss can no longer drop"
+          ],
+          "answer": 0,
+          "explain": "Bigger batches can speed up training, but each batch must fit in memory; too large and you get out-of-memory errors."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "If the loss goes up a little from one epoch to the next, training has failed and must be restarted.",
+          "answer": false,
+          "explain": "Small temporary rises are normal. What matters is that the loss trends downward over many epochs."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "The lab's SLM has about 3.5 ___ parameters, compared with about 1 billion in Gemma-1B.",
+          "options": [
+            "billion",
+            "thousand",
+            "million",
+            "trillion"
+          ],
+          "answer": 2,
+          "explain": "Around 3.5 million parameters makes it a small language model; it also trains on the small Africa Galore dataset."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1299 @@
+{
+  "id": "ml",
+  "title": "ML Toolkit",
+  "subtitle": "DeepMind Educational · Summer School",
+  "repo": "educational",
+  "skills": [
+    {
+      "id": "ml-1",
+      "title": "Python & NumPy basics",
+      "icon": "code",
+      "lab": "colabs/summer_schools/intro_to_python_numpy_for_deep_learning.ipynb",
+      "cards": [
+        {
+          "title": "Python in a nutshell",
+          "body": "Python is interpreted (no separate compile step), high-level (it reads almost like pseudo-code) and dynamically typed: a variable's type is checked while the code runs, so `v = 1` followed by `v = 'hi'` is fine. Adding an int to a float gives a float. `//` is floor division, `%` the remainder and `**` a power."
+        },
+        {
+          "title": "Containers",
+          "body": "Lists are mutable and can grow with `append` or `extend`. Tuples are immutable, and `(4)` is just the number 4 while `(4,)` is a one-element tuple. Strings are immutable too. Dicts map unique keys to values; reading a missing key raises `KeyError`, so test with `key in d` first."
+        },
+        {
+          "title": "Slices and comprehensions",
+          "body": "Indexing starts at 0. A slice `start:stop:step` includes `start` but excludes `stop`: `x[1:3]` gives items 1 and 2, `x[:-1]` drops the last item and `x[::2]` takes every other one. A list comprehension builds a new list in one readable line, with an optional `if` filter.",
+          "code": "a = [10, 4, 3, 2, 5, 9, 0]\nodds = [v+10 for v in a if v % 2 == 1]\n# [13, 15, 19]"
+        },
+        {
+          "title": "First NumPy arrays",
+          "body": "A NumPy array is a grid of values of one type. Its rank is the number of axes and its shape gives each axis's size: a scalar has rank 0, a vector rank 1, a matrix rank 2. `np.array([1, 2, 3.1])` becomes float because of the 3.1, while forcing `dtype=np.int32` truncates it to 3. Set `np.random.seed` for reproducible runs.",
+          "code": "a = np.zeros((2, 3))\na.ndim, a.shape, a.dtype\n# (2, (2, 3), dtype('float64'))"
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "What does `20 // 3` evaluate to in Python?",
+          "options": [
+            "6.67",
+            "2",
+            "6",
+            "7"
+          ],
+          "answer": 2,
+          "explain": "`//` is floor division: 20 / 3 ≈ 6.67, rounded down to 6. The remainder, 2, is what `20 % 3` gives."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "What does this print?",
+          "code": "x = (4)\nprint(type(x))",
+          "options": [
+            "<class 'tuple'>",
+            "<class 'int'>",
+            "<class 'list'>",
+            "TypeError"
+          ],
+          "answer": 1,
+          "explain": "Brackets alone only group an expression, so `(4)` is the integer 4. A one-element tuple needs a trailing comma: `(4,)`."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "Strings are immutable, so `s[0] = 'x'` raises a TypeError.",
+          "answer": true,
+          "explain": "You cannot change a character in place. Build a new string instead, for example `'x' + s[1:]`."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Complete the comprehension so it keeps only odd values, each plus 10.",
+          "code": "a = [10, 4, 3, 2, 5, 9, 0]\nodds = [v+10 for v in a ___ v % 2 == 1]",
+          "options": [
+            "while",
+            "and",
+            "where",
+            "if"
+          ],
+          "answer": 3,
+          "explain": "A trailing `if` clause filters items. Here it keeps 3, 5 and 9, giving [13, 15, 19]."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "What does this slice print?",
+          "code": "a = [10, 20, 30, 40, 50]\nprint(a[1:3])",
+          "options": [
+            "[20, 30]",
+            "[20, 30, 40]",
+            "[10, 20, 30]",
+            "[10, 20]"
+          ],
+          "answer": 0,
+          "explain": "The slice starts at index 1 (the second item) and stops before index 3, so you get items 1 and 2: 20 and 30."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "What does `list(range(8, 3, -1))` return?",
+          "options": [
+            "[8, 7, 6, 5, 4, 3]",
+            "[8, 7, 6, 5, 4]",
+            "[3, 4, 5, 6, 7, 8]",
+            "[]"
+          ],
+          "answer": 1,
+          "explain": "range counts down from 8 in steps of −1 and stops before reaching 3, so 3 itself is excluded."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "`(1 + 2) * -1 * (3 + 4 * 2)` evaluates to −21.",
+          "answer": false,
+          "explain": "Multiplication binds tighter than addition, so 3 + 4 * 2 = 11, not 14. The result is 3 × −1 × 11 = −33."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "Reading a key that is missing from a dict raises a ___.",
+          "options": [
+            "IndexError",
+            "ValueError",
+            "KeyError",
+            "StopIteration"
+          ],
+          "answer": 2,
+          "explain": "Dicts raise KeyError for unknown keys. Guard with `if key in my_dict:` before reading the value."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "What does calling the partial function print?",
+          "code": "import functools\n\ndef power(base, exponent):\n  return base ** exponent\n\ncube = functools.partial(\n    power, exponent=3)\nprint(cube(base=2))",
+          "options": [
+            "6",
+            "9",
+            "A function object",
+            "8"
+          ],
+          "answer": 3,
+          "explain": "`partial` returns a new function with exponent fixed to 3. Calling it with base=2 computes 2 ** 3 = 8."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "What happens on the last line?",
+          "code": "@dataclasses.dataclass\nclass Metrics:\n  loss: float\n  accuracy: float = 0.0\n\nm = Metrics(accuracy=0.3)",
+          "options": [
+            "It raises a TypeError",
+            "loss defaults to 0.0",
+            "loss defaults to None",
+            "loss is copied from accuracy"
+          ],
+          "answer": 0,
+          "explain": "A dataclass field with no default, like `loss`, must be passed when you create the object, so leaving it out raises a TypeError."
+        },
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each Python type to its description.",
+          "pairs": [
+            [
+              "list",
+              "Mutable sequence that can grow"
+            ],
+            [
+              "tuple",
+              "Immutable sequence you can unpack"
+            ],
+            [
+              "dict",
+              "Maps unique keys to values"
+            ],
+            [
+              "str",
+              "Immutable sequence of characters"
+            ],
+            [
+              "bool",
+              "Holds True or False"
+            ]
+          ],
+          "explain": "Lists change in place, while tuples and strings never do. Dicts look values up by key, and booleans store logical values."
+        },
+        {
+          "type": "order",
+          "level": 1,
+          "prompt": "Order these NumPy objects from rank 0 to rank 3.",
+          "items": [
+            "scalar, e.g. np.array(1)",
+            "vector, e.g. np.array([1, 2])",
+            "matrix, e.g. np.zeros((2, 3))",
+            "rank-3 tensor, e.g. np.zeros((2, 3, 4))"
+          ],
+          "explain": "Rank counts axes: a scalar has none, a vector one, a matrix two and a rank-3 tensor three."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Fill in the attribute that returns (2, 3).",
+          "code": "a = np.zeros((2, 3))\nprint(a.___)  # (2, 3)",
+          "options": [
+            "ndim",
+            "shape",
+            "dtype",
+            "size"
+          ],
+          "answer": 1,
+          "explain": "`shape` gives each axis's size. `ndim` would give the rank 2, `size` the element count 6, and `dtype` float64."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "What does forcing an integer dtype print here?",
+          "code": "a = np.array([1.0, 2.0, 3.1],\n             dtype=np.int32)\nprint(a)",
+          "options": [
+            "[1. 2. 3.1]",
+            "[1 2 4]",
+            "TypeError",
+            "[1 2 3]"
+          ],
+          "answer": 3,
+          "explain": "Forcing an integer dtype drops the fractional part, so 3.1 becomes 3. NumPy neither rounds up nor raises an error: precision is silently lost."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "After `np.random.seed(42)`, two back-to-back `np.random.random((2, 2))` calls return the same numbers.",
+          "answer": false,
+          "explain": "Each call advances the generator, so the second call gives new numbers. To repeat a draw, set the seed again right before it."
+        }
+      ]
+    },
+    {
+      "id": "ml-2",
+      "title": "Array maths & broadcasting",
+      "icon": "layers",
+      "lab": "colabs/summer_schools/intro_to_python_numpy_for_deep_learning.ipynb",
+      "cards": [
+        {
+          "title": "Indexing with commas",
+          "body": "NumPy indexes as `a[row, col]` instead of `a[row][col]`. A colon keeps a whole axis, so `a[:, 2]` is column 2. An integer index removes its axis: one row of a (3, 4) matrix has shape (4,). A boolean mask such as `a[a > 3]` keeps only the matching elements, returned as a flat 1-D array."
+        },
+        {
+          "title": "Elementwise maths",
+          "body": "`+`, `-`, `*`, `/` and comparisons act element by element, with no Python loop. Note that `*` is elementwise (the Hadamard product); matrix multiplication is `@` or `np.matmul`, and needs matching inner sizes: (n, k) @ (k, m) → (n, m). Aggregations like `np.sum(a, axis=0)` collapse the axis you name."
+        },
+        {
+          "title": "Broadcasting rules",
+          "body": "To combine different shapes, NumPy lines them up from the rightmost axis and pads the shorter shape with leading 1s. Two sizes fit if they are equal or one of them is 1; a size-1 axis is stretched without copying data. Any other mismatch raises a ValueError.",
+          "code": "a = np.ones((2, 4))\n(a + np.ones(4)).shape       # (2, 4)\n(a + np.ones((2, 1))).shape  # (2, 4)\na + np.ones((1, 2))          # ValueError"
+        },
+        {
+          "title": "Reshape, join, einsum",
+          "body": "`reshape` keeps the data but needs the same element count: 12 values fit (3, 4) but not (2, 7). `expand_dims` adds a size-1 axis and `squeeze` removes them. `concatenate` joins along an existing axis, `stack` along a new one. In `np.einsum('ij,jk->ik', a, b)` the shared j is multiplied and, being absent from the output, summed: that is matmul."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "What does this print?",
+          "code": "a = np.array([[1, 2, 3, 4],\n              [5, 6, 7, 8],\n              [9, 10, 11, 12]])\nprint(a[1, 2])",
+          "options": [
+            "6",
+            "7",
+            "10",
+            "2"
+          ],
+          "answer": 1,
+          "explain": "Row index 1 is [5, 6, 7, 8] because indexing starts at 0, and column index 2 within that row is 7."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Fill in the index that selects column 2.",
+          "code": "a = np.array([[1, 2, 3, 4],\n              [5, 6, 7, 8],\n              [9, 10, 11, 12]])\nprint(a[___])  # [ 3  7 11]",
+          "options": [
+            ":, 2",
+            "2, :",
+            "2",
+            "2:"
+          ],
+          "answer": 0,
+          "explain": "A colon keeps every row and 2 picks the third column. `a[2]` or `a[2, :]` would return the last row instead."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Which elements does the boolean mask select?",
+          "code": "a = np.array([[1, 5],\n              [7, 2]])\nprint(a[a > 3])",
+          "options": [
+            "[1 2]",
+            "[[0 5] [7 0]]",
+            "[5 7]",
+            "[False True True False]"
+          ],
+          "answer": 2,
+          "explain": "`a > 3` builds a boolean mask, and indexing with it returns the matching elements in row order as a flat array: 5, then 7."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "For two NumPy matrices, `a * b` performs matrix multiplication.",
+          "answer": false,
+          "explain": "`*` multiplies matching elements (the Hadamard product). Use `a @ b` or `np.matmul(a, b)` for matrix multiplication."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "What does summing over axis 0 print?",
+          "code": "a = np.array([[1, 2, 3],\n              [4, 5, 6]])\nprint(np.sum(a, axis=0))",
+          "options": [
+            "[ 6 15]",
+            "21",
+            "[1 4]",
+            "[5 7 9]"
+          ],
+          "answer": 3,
+          "explain": "axis=0 runs down the rows and collapses them: 1+4, 2+5, 3+6. Summing over axis=1 would give the row sums [ 6 15]."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Matrix shapes (3, 4) @ (4, 2) produce a result of shape ___.",
+          "options": [
+            "(4, 4)",
+            "(3, 2)",
+            "(3, 4)",
+            "(2, 3)"
+          ],
+          "answer": 1,
+          "explain": "In (n, k) @ (k, m) the shared inner size k disappears and the outer sizes remain, so the result is (3, 2)."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "What is the shape of `np.ones((3, 1)) + np.ones((1, 5))`?",
+          "options": [
+            "(3, 5)",
+            "(3, 1)",
+            "(1, 5)",
+            "ValueError"
+          ],
+          "answer": 0,
+          "explain": "Compare axes from the right: 1 vs 5 stretches to 5, then 3 vs 1 stretches to 3. Each size-1 axis grows to match, giving (3, 5)."
+        },
+        {
+          "type": "order",
+          "level": 3,
+          "prompt": "Order NumPy's broadcasting check for two shapes.",
+          "items": [
+            "Pad the shorter shape with leading 1s",
+            "Compare sizes from the last axis leftwards",
+            "Accept a pair if equal or if one is 1",
+            "Stretch each size-1 axis to match"
+          ],
+          "explain": "Shapes are padded on the left with 1s, compared from the rightmost axis and checked pair by pair; only then are size-1 axes virtually repeated."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "`np.arange(12)` can be reshaped into shape (2, 7).",
+          "answer": false,
+          "explain": "A reshape must keep the element count, and 2 × 7 = 14, not 12, so NumPy raises a ValueError. Shapes like (3, 4) or (2, 6) work."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "`a` and `b` both have shape (3, 2). What shape is `np.stack([a, b], axis=0)`?",
+          "options": [
+            "(6, 2)",
+            "(3, 4)",
+            "(2, 3, 2)",
+            "(3, 2, 2)"
+          ],
+          "answer": 2,
+          "explain": "`stack` adds a new leading axis holding the two matrices. `np.concatenate` on axis 0 would give (6, 2) instead."
+        },
+        {
+          "type": "match",
+          "level": 2,
+          "prompt": "Match each NumPy function to what it does.",
+          "pairs": [
+            [
+              "np.expand_dims",
+              "Adds a new axis of size 1"
+            ],
+            [
+              "np.squeeze",
+              "Removes every axis of size 1"
+            ],
+            [
+              "np.concatenate",
+              "Joins arrays along an existing axis"
+            ],
+            [
+              "np.stack",
+              "Joins arrays along a brand-new axis"
+            ],
+            [
+              "np.transpose",
+              "Permutes the axes, e.g. swaps them"
+            ]
+          ],
+          "explain": "These shape changers rearrange or combine data without altering the values themselves."
+        },
+        {
+          "type": "cloze",
+          "level": 3,
+          "prompt": "Fill in the einsum string for matrix multiplication.",
+          "code": "a = np.ones((2, 3))\nb = np.ones((3, 4))\nc = np.einsum('___', a, b)  # (2, 4)",
+          "options": [
+            "ij,ij->ij",
+            "ij->ji",
+            "ij,jk->ijk",
+            "ij,jk->ik"
+          ],
+          "answer": 3,
+          "explain": "The repeated index j is multiplied across a and b; because j is missing from the output 'ik', it is summed over. That is exactly a @ b."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "For a matrix `a`, `np.einsum('ij->j', a)` equals which call?",
+          "options": [
+            "np.sum(a, axis=1)",
+            "np.sum(a, axis=0)",
+            "np.transpose(a)",
+            "np.sum(a)"
+          ],
+          "answer": 1,
+          "explain": "Index i is missing from the output, so it is summed away, leaving one total per column j: the same as summing over axis 0."
+        },
+        {
+          "type": "tf",
+          "level": 3,
+          "prompt": "Broadcasting can hide bugs: an array that accidentally lost an axis may still combine with another without any error.",
+          "answer": true,
+          "explain": "If shapes stay compatible, NumPy silently repeats data along the missing axis. Checking shapes defensively catches these mistakes."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "What does argmax along axis 1 print?",
+          "code": "a = np.array([[1, 9, 3],\n              [8, 2, 7]])\nprint(np.argmax(a, axis=1))",
+          "options": [
+            "[1 0]",
+            "[9 8]",
+            "1",
+            "[1 0 1]"
+          ],
+          "answer": 0,
+          "explain": "axis=1 searches along each row: row 0's max (9) sits at index 1 and row 1's max (8) at index 0. `np.argmax(a)` alone would return the flat index 1."
+        }
+      ]
+    },
+    {
+      "id": "ml-3",
+      "title": "Linear models & overfitting",
+      "icon": "chart",
+      "lab": "colabs/summer_schools/intro_to_regression.ipynb",
+      "cards": [
+        {
+          "title": "A line with two knobs",
+          "body": "The first model is f(x) = w·x + b. The weight w sets the slope and the bias b shifts the line up or down. Together they are the model's parameters, and fitting means choosing values that put predictions close to the observed (x, y) points. Picking a straight line at all is already an assumption about the data."
+        },
+        {
+          "title": "A closed-form fit",
+          "body": "Put each input in a row [xₙ, 1] of a design matrix X, so X·w computes every prediction at once and the column of 1s carries the bias. For mean squared error the best weights have a formula, the normal equation w* = (XᵀX)⁻¹Xᵀy. Absolute error has no such closed form.",
+          "code": "X = np.vstack([xs, np.ones(len(xs))]).T\nw = np.linalg.inv(X.T @ X) @ X.T @ ys\ny_hat = X @ w"
+        },
+        {
+          "title": "Features bend the line",
+          "body": "Swap x for a feature vector such as [x⁴, x³, x², x, 1]. The fit can now curve, yet the model is still linear in its weights, so the same normal equation works. A line on sine-shaped data under-fits. A degree-4 polynomial through just 5 noisy points over-fits: near-zero training loss, but big errors on fresh points and when extrapolating."
+        },
+        {
+          "title": "Keeping models honest",
+          "body": "Hold out a validation set and watch the loss on data the fit never saw. Ridge regression adds an L2 penalty λ·Σw² that keeps weights small: w* = (ΦᵀΦ + λI)⁻¹Φᵀy. Sweep λ and keep the value with the lowest validation error; too large a λ under-fits. An L1 penalty (lasso) tends to set some weights exactly to zero."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "In f(x) = w·x + b, what does increasing b do?",
+          "options": [
+            "Tilts the line so it gets steeper",
+            "Bends the line into a curve",
+            "Shifts the whole line upward",
+            "Rescales every input x"
+          ],
+          "answer": 2,
+          "explain": "The bias is the intercept: adding to b raises f(x) by the same amount for every x. The weight w controls the slope."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "With w = 2 and b = 1, what does f(x) = w·x + b predict at x = 3?",
+          "options": [
+            "6",
+            "5",
+            "9",
+            "7"
+          ],
+          "answer": 3,
+          "explain": "f(3) = 2 × 3 + 1 = 7. The weight scales the input and the bias is added afterwards."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Fill in the function that adds the bias column.",
+          "code": "X = np.vstack([xs,\n               np.___(len(xs))]).T\n# each row of X is [x_n, 1]",
+          "options": [
+            "zeros",
+            "ones",
+            "eye",
+            "arange"
+          ],
+          "answer": 1,
+          "explain": "A column of ones multiplies the bias weight, so X @ [w, b] gives w·xₙ + b for every row at once."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "A degree-4 polynomial model can still be fitted with the normal equation, because it is linear in its weights.",
+          "answer": true,
+          "explain": "Powers of x are just fixed features in Φ. Predictions are Φ·w, a linear function of w, so w* = (ΦᵀΦ)⁻¹Φᵀy still applies."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "A degree-4 polynomial passes exactly through 5 noisy training points. What should you expect?",
+          "options": [
+            "Tiny training loss, big loss on new points",
+            "Large loss on training and on new points",
+            "Equal loss on training and new points",
+            "Accurate predictions well outside the data range"
+          ],
+          "answer": 0,
+          "explain": "With as many weights as points, the curve can thread through the noise itself. That is over-fitting: it memorises the training data and generalises poorly."
+        },
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each term to its meaning.",
+          "pairs": [
+            [
+              "Under-fitting",
+              "Too simple: misses structure even in training"
+            ],
+            [
+              "Over-fitting",
+              "Fits training noise, fails on unseen data"
+            ],
+            [
+              "Interpolation",
+              "Predicting inside the training input range"
+            ],
+            [
+              "Extrapolation",
+              "Predicting beyond the training input range"
+            ],
+            [
+              "Inductive bias",
+              "Assumptions built into the model"
+            ]
+          ],
+          "explain": "The notebook's line under-fits the sine wave, its 5-point polynomial over-fits, and the quartic interpolates well but extrapolates badly."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Ridge regression's closed form is w* = (ΦᵀΦ + ___)⁻¹Φᵀy.",
+          "options": [
+            "λΦ",
+            "λy",
+            "λI",
+            "λ²"
+          ],
+          "answer": 2,
+          "explain": "Adding λ times the identity to ΦᵀΦ is the only change from ordinary least squares. It comes from the gradient 2λw of the λ·Σw² penalty."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "What is the L2 penalty Σw² for weights w = [3, −4]?",
+          "options": [
+            "5",
+            "25",
+            "7",
+            "−7"
+          ],
+          "answer": 1,
+          "explain": "Square and add: 3² + (−4)² = 9 + 16 = 25. The L2 norm is √25 = 5, and the sum of absolute values (the L1 norm) is 7."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order a hyperparameter sweep for the ridge coefficient λ.",
+          "items": [
+            "List candidate values, e.g. 1e-4 to 1e2",
+            "Fit weights on the training set for each λ",
+            "Compute each fit's validation error",
+            "Keep the λ with the lowest validation error"
+          ],
+          "explain": "Each λ is trained only on training data; the validation set acts as the referee for picking the best one."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Making λ larger and larger keeps lowering the validation error.",
+          "answer": false,
+          "explain": "Past a point the penalty dominates and the model under-fits, so both training and validation error rise. The best λ sits in between."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "Lasso, which uses an L1 penalty, tends to set some weights exactly to zero, which can flag unhelpful inputs.",
+          "answer": true,
+          "explain": "Ridge only shrinks weights, but lasso zeroes some out, so it doubles as variable selection, e.g. for spotting which house features don't predict price."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "Data used to fit the weights is the training set; held-out data used to spot over-fitting is the ___ set.",
+          "options": [
+            "feature",
+            "design",
+            "bias",
+            "validation"
+          ],
+          "answer": 3,
+          "explain": "Loss on the validation set estimates performance on unseen data. Validation loss rising while training loss falls signals over-fitting."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "The normal equation w* = (XᵀX)⁻¹Xᵀy minimises which loss?",
+          "options": [
+            "Mean squared error",
+            "Mean absolute error",
+            "Log-loss of the data",
+            "Any loss you choose"
+          ],
+          "answer": 0,
+          "explain": "Setting the gradient of the squared loss to zero gives this closed form. With absolute error, no closed-form solution exists."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why did the early-stopped model generalise better than the one that over-fit?",
+          "options": [
+            "It used more polynomial features",
+            "Its weights had a smaller L2 norm",
+            "It reached zero training loss",
+            "It was fitted on the validation data"
+          ],
+          "answer": 1,
+          "explain": "Over-fit models often have large weights. Early stopping and the λ·Σw² penalty both keep weights small, which tames wild curves."
+        }
+      ]
+    },
+    {
+      "id": "ml-4",
+      "title": "Loss & gradient descent",
+      "icon": "compass",
+      "lab": "colabs/summer_schools/intro_to_regression.ipynb",
+      "cards": [
+        {
+          "title": "Scoring a fit",
+          "body": "A loss averages a per-point error over all N data points, so it is small when the fit is good. Using |yₙ − f(xₙ)| gives the mean absolute error; squaring the gap gives the mean squared error (MSE), which punishes large misses far more: a miss of 3 costs 9, not 3."
+        },
+        {
+          "title": "Walking downhill",
+          "body": "The gradient points where the loss rises fastest, so step against it: w ← w − η·∂loss/∂w, and the same for b. The learning rate η sets the step size. Too big and each step overshoots, so the loss explodes; too small and you need thousands of tiny steps.",
+          "code": "for _ in range(200):\n  gb, gw = grad_fn(b, w)\n  b = b - lr * gb\n  w = w - lr * gw"
+        },
+        {
+          "title": "Autodiff with JAX",
+          "body": "`jax.grad(f)` returns a new function that computes the gradient of f, so you never derive formulas by hand. `argnums` chooses which arguments to differentiate. `jax.numpy` (jnp) mirrors NumPy, works on whole vectors at once, and can run on GPUs and TPUs.",
+          "code": "def loss_fn(b, w):\n  f = w * x + b\n  return jnp.mean(jnp.abs(y - f))\n\ngrad_fn = jax.grad(loss_fn,\n                   argnums=(0, 1))"
+        },
+        {
+          "title": "Stopping early",
+          "body": "While training, also measure the loss on a validation set. Training loss keeps falling, but validation loss eventually turns upward as the model starts fitting noise. Stopping near that turning point, called early stopping, is a simple form of regularisation; in the notebook it also left the weights with a smaller L2 norm."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Targets y = [3, 2, 3] and predictions f = [2, 2, 5]. What is the mean squared error?",
+          "options": [
+            "1.67",
+            "1.0",
+            "5.0",
+            "3.0"
+          ],
+          "answer": 0,
+          "explain": "Errors are 1, 0 and −2; squared they are 1, 0 and 4. Their mean is 5/3 ≈ 1.67. The mean absolute error would be 1.0."
+        },
+        {
+          "type": "cloze",
+          "level": 3,
+          "prompt": "Targets y = [1, 4] and predictions f = [2, 2]. Their mean absolute error is ___.",
+          "options": [
+            "2.5",
+            "3",
+            "1.5",
+            "0.5"
+          ],
+          "answer": 2,
+          "explain": "Absolute errors are |1 − 2| = 1 and |4 − 2| = 2, with mean 1.5. Squaring first would give the MSE, (1 + 4) / 2 = 2.5."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Under squared error, a miss of 3 costs three times as much as a miss of 1.",
+          "answer": false,
+          "explain": "Squared error grows quadratically: 3² = 9 versus 1² = 1, so the bigger miss costs nine times as much. Absolute error would make it three times."
+        },
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "Why does gradient descent subtract the gradient?",
+          "options": [
+            "It keeps every weight positive",
+            "Minus the gradient is the steepest way down",
+            "Because loss gradients are always negative numbers",
+            "It cancels the learning rate out"
+          ],
+          "answer": 1,
+          "explain": "The gradient points toward the fastest increase of the loss. Stepping the opposite way, scaled by the learning rate, reduces it."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Loss l(w) = w² has gradient 2w. From w = 2.5 with learning rate 1.5, what is w after one step?",
+          "options": [
+            "1",
+            "−2.5",
+            "10",
+            "−5"
+          ],
+          "answer": 3,
+          "explain": "w − η·2w = 2.5 − 1.5 × 5 = −5. The loss jumps from 6.25 to 25: a learning rate this large overshoots the minimum and diverges."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "This minimises l(w) = w², whose gradient is 2w. What does it print?",
+          "code": "w = 2.5\nfor _ in range(2):\n  w = w - 0.3 * 2 * w\nprint(w)",
+          "options": [
+            "1.0",
+            "−0.5",
+            "0.4",
+            "0.16"
+          ],
+          "answer": 2,
+          "explain": "Each step multiplies w by 1 − 0.3 × 2 = 0.4: 2.5 → 1.0 → 0.4. With this smaller learning rate the loss falls steadily toward the minimum at 0."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "If the loss grows every step and shoots toward infinity, lowering the learning rate is a sensible first fix.",
+          "answer": true,
+          "explain": "An exploding loss usually means steps overshoot the minimum. Smaller steps stop the overshoot, though a rate far too small makes progress painfully slow."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Fill in the JAX transformation that produces a gradient function.",
+          "code": "grad_fn = jax.___(loss_fn, argnums=(0, 1))\ngb, gw = grad_fn(2.0, 3.0)",
+          "options": [
+            "grad",
+            "jit",
+            "vmap",
+            "numpy"
+          ],
+          "answer": 0,
+          "explain": "`jax.grad` turns a function into one that returns its gradient; argnums=(0, 1) asks for derivatives with respect to both b and w."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "What does `jax.grad(loss_fn)` return?",
+          "options": [
+            "The gradient evaluated at zero",
+            "A faster compiled copy of loss_fn",
+            "The parameter values at which loss_fn is smallest",
+            "A function that computes loss_fn's gradient"
+          ],
+          "answer": 3,
+          "explain": "jax.grad is a function transformation: you get back a new function, then call it with any parameter values to get the gradient there."
+        },
+        {
+          "type": "order",
+          "level": 1,
+          "prompt": "Put one iteration of gradient descent in order.",
+          "items": [
+            "Predict outputs with the current weights",
+            "Measure the loss against the targets",
+            "Compute the loss gradient for each weight",
+            "Subtract learning rate × gradient"
+          ],
+          "explain": "Each loop predicts, scores, differentiates, then updates; repeating it walks the weights downhill on the loss surface."
+        },
+        {
+          "type": "match",
+          "level": 2,
+          "prompt": "Match each idea to its role.",
+          "pairs": [
+            [
+              "Learning rate η",
+              "Scales the size of each update"
+            ],
+            [
+              "Gradient",
+              "Direction of steepest loss increase"
+            ],
+            [
+              "Autodiff",
+              "Computes exact gradients from code"
+            ],
+            [
+              "Early stopping",
+              "Halts when validation loss starts rising"
+            ],
+            [
+              "MSE",
+              "Mean of squared prediction errors"
+            ]
+          ],
+          "explain": "Gradient descent combines these: a loss such as MSE, its gradient from autodiff, a step size η, and a validation check for when to stop."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Training loss keeps falling, but validation loss began rising around step 200. Which weights should you keep?",
+          "options": [
+            "Those from the final step",
+            "Those from around step 200",
+            "Those with the lowest training loss",
+            "Those from step 0"
+          ],
+          "answer": 1,
+          "explain": "The validation minimum marks where the model generalised best; training further only fits noise. This is early stopping."
+        },
+        {
+          "type": "cloze",
+          "level": 3,
+          "prompt": "The derivative of |f − y| with respect to b is ±1. Complete the manual gradient.",
+          "code": "for x, y in zip(xs, ys):\n  f = w * x + b\n  grad_b += np.___(f - y)",
+          "options": [
+            "abs",
+            "sign",
+            "square",
+            "mean"
+          ],
+          "answer": 1,
+          "explain": "|f − y| rises by one per unit of b when f > y and falls by one when f < y, which is exactly np.sign(f − y)."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "`jax.numpy` mirrors NumPy's API, so similar array code can run on GPUs and TPUs.",
+          "answer": true,
+          "explain": "jnp offers NumPy-style functions such as jnp.mean and jnp.abs that compile for accelerators and work with jax.grad."
+        }
+      ]
+    },
+    {
+      "id": "ml-5",
+      "title": "Clustering: k-means & EM",
+      "icon": "puzzle",
+      "lab": "colabs/summer_schools/intro_to_unsupervised_learning.ipynb",
+      "cards": [
+        {
+          "title": "Learning without labels",
+          "body": "Supervised learning gets input-output pairs and reinforcement learning gets rewards; unsupervised learning gets only the observations. Its job is to find structure: groups of similar examples (clustering), the data's probability density, or compact codes. The notebook's height data has many peaks, so no single bell curve fits it and clusters are a natural description."
+        },
+        {
+          "title": "The k-means loop",
+          "body": "Pick K up front and initialise K means, e.g. evenly spaced. E-step: assign every point to its nearest mean. M-step: move each mean to the average of its assigned points. Repeat until the assignments stop changing. A cluster that ends up with no points simply vanishes.",
+          "code": "def e_step(x, mu):\n  d = np.abs(x[:, None] - mu[None])\n  return np.argmin(d, axis=1)\n\ndef m_step(x, r, K):\n  return np.array([x[r == k].mean()\n                   for k in range(K)])"
+        },
+        {
+          "title": "Soft clusters: mixtures & EM",
+          "body": "A mixture of Gaussians says each point came from a hidden cluster z, picked with prior probability πₖ. Bayes' rule gives the posterior, or responsibility, rₙₖ = πₖ·p(xₙ|k) / Σⱼ πⱼ·p(xₙ|j). EM alternates: the E-step computes responsibilities; the M-step re-estimates each μₖ, σₖ² and πₖ = Nₖ/N. K-means is the hard-assignment special case."
+        },
+        {
+          "title": "Compressing with clusters",
+          "body": "Replace every sample by its cluster id and store just the K means. An id among 4 clusters fits in 2 bits instead of a 64-bit float, roughly 32× smaller. Applied to an image's RGB pixels this is vector quantisation: each pixel takes its cluster's mean colour, rebuilt with `mu[r]`."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "What makes a learning problem unsupervised?",
+          "options": [
+            "Inputs come paired with target labels",
+            "An environment rewards each action",
+            "There are observations but no targets",
+            "A teacher labels a handful of samples"
+          ],
+          "answer": 2,
+          "explain": "Unsupervised methods see only the data and must discover patterns themselves, such as clusters, densities or compact codes."
+        },
+        {
+          "type": "order",
+          "level": 1,
+          "prompt": "Order the steps of k-means.",
+          "items": [
+            "Choose K, the number of clusters",
+            "Initialise the K cluster means",
+            "Assign each point to its nearest mean",
+            "Move each mean to its points' average",
+            "Repeat until assignments stop changing"
+          ],
+          "explain": "After choosing K and initial means, k-means alternates the assignment (E) and averaging (M) steps until nothing changes."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Cluster means are μ = [2, 10]. Which cluster does the E-step assign x = 7 to?",
+          "options": [
+            "The one with mean 2",
+            "The one with mean 10",
+            "Both, split equally",
+            "A new third cluster"
+          ],
+          "answer": 1,
+          "explain": "Distances are |7 − 2| = 5 and |7 − 10| = 3. The E-step picks the smallest distance, so x joins the cluster with mean 10."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "A cluster is assigned the points [1, 2, 6]. Where does the M-step move its mean?",
+          "options": [
+            "2",
+            "6",
+            "4.5",
+            "3"
+          ],
+          "answer": 3,
+          "explain": "The M-step sets the mean to the average of the assigned points: (1 + 2 + 6) / 3 = 3. The median, 2, plays no role."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Complete the E-step so each point gets the index of its nearest mean.",
+          "code": "def e_step(x, mu):\n  d = np.abs(x[:, None] - mu[None])\n  return np.___(d, axis=1)",
+          "options": [
+            "argmin",
+            "argmax",
+            "min",
+            "mean"
+          ],
+          "answer": 0,
+          "explain": "argmin returns the position of the smallest distance, i.e. a cluster id. `min` would return the distance itself, not which cluster it belongs to."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "K-means works out the right number of clusters on its own.",
+          "answer": false,
+          "explain": "K must be chosen up front. Running with more clusters on the height data gave some empty and some superfluous clusters, none matching the true 10."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Even with K = 10, k-means failed to recover the 10 true height groups. Why?",
+          "options": [
+            "The groups overlap heavily",
+            "It cannot run on 1-D data",
+            "There were too few samples",
+            "Its means started at zero"
+          ],
+          "answer": 0,
+          "explain": "K-means draws hard boundaries, which suits well-separated groups. Heights for neighbouring ages and genders overlap, so it cannot untangle them."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Source 1 gives p(x|z=1) = 0.3; source 2 gives p(x|z=2) = 0.01 but produces 100× more data. What is P(z=2 | x)?",
+          "options": [
+            "≈ 0.03",
+            "≈ 0.23",
+            "≈ 0.77",
+            "≈ 0.99"
+          ],
+          "answer": 2,
+          "explain": "Priors are 1/101 and 100/101, so the weighted likelihoods compare as 0.3 to 100 × 0.01 = 1. P(z=2|x) = 1 / 1.3 = 10/13 ≈ 0.77."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "In EM's M-step, each cluster's prior becomes πₖ = Nₖ / ___, where Nₖ = Σₙ rₙₖ.",
+          "options": [
+            "K",
+            "Nₖ²",
+            "σₖ²",
+            "N"
+          ],
+          "answer": 3,
+          "explain": "Nₖ is the soft count of points a cluster is responsible for; dividing by the total number of samples N gives its share of the data."
+        },
+        {
+          "type": "match",
+          "level": 2,
+          "prompt": "Match each mixture-model term to its meaning.",
+          "pairs": [
+            [
+              "Prior πₖ",
+              "How common cluster k is before seeing x"
+            ],
+            [
+              "Likelihood p(x|z=k)",
+              "How probable x is if cluster k produced it"
+            ],
+            [
+              "Posterior P(z=k|x)",
+              "Belief about x's cluster after seeing x"
+            ],
+            [
+              "Marginal p(x)",
+              "Σₖ πₖ·p(x|z=k), summed over clusters"
+            ],
+            [
+              "Latent variable z",
+              "Hidden id of the cluster behind a sample"
+            ]
+          ],
+          "explain": "Bayes' rule links them: posterior = prior × likelihood / marginal. In EM, the posterior is called the responsibility."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "How does EM for a Gaussian mixture differ from k-means?",
+          "options": [
+            "It needs no initial parameter guess",
+            "Points get soft, probabilistic memberships",
+            "It is guaranteed to find the global optimum",
+            "It ignores the cluster variances"
+          ],
+          "answer": 1,
+          "explain": "EM's responsibilities spread each point across clusters by probability; k-means is its hard-assignment special case. EM converges but can get stuck in local optima."
+        },
+        {
+          "type": "cloze",
+          "level": 3,
+          "prompt": "When compressing with 8 clusters, each cluster id needs ___ bits.",
+          "options": [
+            "3",
+            "8",
+            "4",
+            "2"
+          ],
+          "answer": 0,
+          "explain": "Each bit doubles the number of codes, and 2³ = 8 covers 8 clusters. With 4 clusters, 2 bits suffice: 00, 01, 10 and 11."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "1-D data stored as 64-bit floats is replaced by 2-bit cluster ids plus a few means. Roughly how much smaller is it?",
+          "options": [
+            "About 2×",
+            "About 64×",
+            "About 4×",
+            "About 32×"
+          ],
+          "answer": 3,
+          "explain": "64 bits shrink to 2 per sample, a factor of 32. Storing the K means adds a little, so the exact ratio 64N / (2N + 64K) is just under 32."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "Recolouring each pixel with its cluster's mean colour is called vector quantisation.",
+          "answer": true,
+          "explain": "K-means on RGB pixels picks K palette colours; `mu[r]` swaps each pixel for its palette colour, compressing and segmenting the image."
+        }
+      ]
+    },
+    {
+      "id": "ml-6",
+      "title": "Density & autoencoders",
+      "icon": "brain",
+      "lab": "colabs/summer_schools/intro_to_unsupervised_learning.ipynb",
+      "cards": [
+        {
+          "title": "From histogram to density",
+          "body": "Split the data range into bins and count the samples in each. Dividing the counts by N gives the probability of each bin; dividing that by the bin width Δx gives a density estimate p(x). A parametric model summarises the same data with a few numbers: a Gaussian needs only a mean μ and a variance σ²."
+        },
+        {
+          "title": "Maximum likelihood",
+          "body": "The likelihood multiplies p(xₙ|θ) over every data point, and the maximum-likelihood estimate is the θ that makes it largest. A product of many small numbers underflows, so work with its log: a sum with the same maximiser. Log-loss is the negative log-likelihood, minimised instead. For a Gaussian, MLE gives the sample mean and variance (dividing by N)."
+        },
+        {
+          "title": "Autoencoders",
+          "body": "An encoder maps a D-dimensional input x to a smaller latent code z (K < D) and a decoder rebuilds x̂ from z. Training minimises the square loss ½·Σ(x̂ᵢ − xᵢ)². The notebook squeezes 18 one-hot samples, each 18-dimensional, through 5 sigmoid units. Without its non-linearities, an autoencoder acts like PCA.",
+          "code": "def sigmoid(x):\n  return 1 / (1 + np.exp(-x))\n\nz = sigmoid(w_e @ x + b_e)  # encode\ny = sigmoid(w_d @ z + b_d)  # decode\nloss = np.sum((y - x) ** 2) / 2"
+        },
+        {
+          "title": "Backprop and SGD",
+          "body": "Backprop is the chain rule, d y(z(x))/dx = dy/dz · dz/dx, applied layer by layer while reusing gradients from the layer above. The sigmoid's derivative is σ(x)·σ(−x). Stochastic gradient descent updates the weights after every single sample: each step is cheap, but the total loss need not fall every time, so the curve looks noisier."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "What is the goal of density estimation?",
+          "options": [
+            "Predict a target label for each input",
+            "Choose actions that maximise reward",
+            "Assign each input to its nearest cluster mean",
+            "Model the distribution p(x) of the data"
+          ],
+          "answer": 3,
+          "explain": "Density estimation describes how likely each value is, via a histogram (empirical) or a fitted distribution such as a Gaussian (parametric)."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "A bin of width 0.5 holds 50 of N = 1000 samples. What density p(x) does it estimate?",
+          "options": [
+            "0.05",
+            "0.1",
+            "25",
+            "0.025"
+          ],
+          "answer": 1,
+          "explain": "The bin's probability mass is 50 / 1000 = 0.05. Dividing by the bin width gives the density: 0.05 / 0.5 = 0.1."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Dividing each histogram bin's count by N gives a density estimate p(x).",
+          "answer": false,
+          "explain": "Dividing by N gives each bin's probability mass. For a density you must also divide by the bin width Δx, which is what `plt.hist(x, density=True)` does."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Data: [2, 4, 6]. What are the maximum-likelihood mean and variance of a Gaussian fit?",
+          "options": [
+            "μ = 4, σ² = 4",
+            "μ = 4, σ² ≈ 1.63",
+            "μ = 4, σ² ≈ 2.67",
+            "μ = 6, σ² ≈ 2.67"
+          ],
+          "answer": 2,
+          "explain": "μ = (2 + 4 + 6) / 3 = 4 and σ² = (4 + 0 + 4) / 3 = 8/3 ≈ 2.67. MLE divides by N, not N − 1 (which would give 4)."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why optimise the log-likelihood instead of the likelihood itself?",
+          "options": [
+            "Products of tiny numbers become a sum",
+            "It changes which parameters are best",
+            "Likelihood values can be negative",
+            "It lets you skip normalising p(x)"
+          ],
+          "answer": 0,
+          "explain": "Multiplying many small probabilities underflows toward zero. The log is monotonic, so the best parameters are unchanged, and sums are easier to differentiate."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "Log-loss is the ___ log-likelihood, so minimising it gives the maximum-likelihood parameters.",
+          "options": [
+            "squared",
+            "negative",
+            "average",
+            "inverse"
+          ],
+          "answer": 1,
+          "explain": "C = −log L. Flipping the sign turns maximising a likelihood into minimising a loss, the language neural networks use."
+        },
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each autoencoder part to its role.",
+          "pairs": [
+            [
+              "Encoder",
+              "Maps input x to a compact latent code"
+            ],
+            [
+              "Decoder",
+              "Rebuilds the input from the latent code"
+            ],
+            [
+              "Latent code z",
+              "Compressed representation in the middle"
+            ],
+            [
+              "Square loss",
+              "½·Σ(x̂ᵢ − xᵢ)², the reconstruction error"
+            ],
+            [
+              "Sigmoid",
+              "1 / (1 + e⁻ˣ), squashes values into (0, 1)"
+            ]
+          ],
+          "explain": "The encoder compresses, the decoder reconstructs, and the square loss scores the reconstruction; sigmoids keep activities between 0 and 1."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "The encoder maps 18 inputs to 5 hidden units via z = σ(W·x + b). What is the shape of W?",
+          "options": [
+            "(18, 5)",
+            "(5, 5)",
+            "(18, 18)",
+            "(5, 18)"
+          ],
+          "answer": 3,
+          "explain": "W·x must turn an 18-vector into a 5-vector, so W has 5 rows and 18 columns, like the notebook's w_e of shape (n_hidden, n_x)."
+        },
+        {
+          "type": "cloze",
+          "level": 3,
+          "prompt": "Complete the sigmoid's derivative.",
+          "code": "def sigmoid_gradient(x):\n  return sigmoid(x) * ___",
+          "options": [
+            "sigmoid(-x)",
+            "sigmoid(x)",
+            "np.exp(-x)",
+            "(1 + sigmoid(x))"
+          ],
+          "answer": 0,
+          "explain": "By the chain rule σ′(x) = σ(x)·(1 − σ(x)), and 1 − σ(x) is the same as σ(−x)."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Using σ′(x) = σ(x)·σ(−x), what is the sigmoid's slope at x = 0?",
+          "options": [
+            "0.5",
+            "1",
+            "0.25",
+            "0"
+          ],
+          "answer": 2,
+          "explain": "σ(0) = 1 / (1 + 1) = 0.5, so σ′(0) = 0.5 × 0.5 = 0.25, the sigmoid's steepest point."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order one training step of the autoencoder on a single sample.",
+          "items": [
+            "Encode: z = σ(W_e·x)",
+            "Decode: y = σ(W_d·z)",
+            "Measure the error y − x",
+            "Backpropagate the error through both layers",
+            "Update: W ← W − learning rate × gradient"
+          ],
+          "explain": "A forward pass encodes and decodes, the error is measured, the chain rule sends gradients back, and the weights take a small step."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "An autoencoder with every non-linearity removed is closely related to PCA.",
+          "answer": true,
+          "explain": "The notebook notes that a linear autoencoder is equivalent to principal component analysis, a classic dimensionality-reduction method."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "SGD updates the weights after every single sample. What do you give up?",
+          "options": [
+            "The option of choosing a learning rate",
+            "Certainty that each step lowers total loss",
+            "Gradients computed with the chain rule",
+            "Access to most of the training data"
+          ],
+          "answer": 1,
+          "explain": "A single-sample gradient only approximates the full one, so the total loss can rise on some steps. Each step is cheap, but the curve is noisier."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "The chain rule states d y(z(x))/dx = dy/dz · ___.",
+          "options": [
+            "dx/dz",
+            "dy/dx",
+            "z(x)",
+            "dz/dx"
+          ],
+          "answer": 3,
+          "explain": "To differentiate a composition, multiply the outer derivative by the inner one. Backprop applies this repeatedly, layer by layer."
+        }
+      ]
+    }
+  ]
+}

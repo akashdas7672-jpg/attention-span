@@ -1,0 +1,475 @@
+{
+  "id": "f5",
+  "title": "Talking to AI",
+  "blurb": "Prompts that get useful answers.",
+  "sessions": [
+    {
+      "id": "f5-1",
+      "title": "Chat is a script",
+      "icon": "chat",
+      "goal": "See a chat as one long script that opens with a hidden first turn.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "One long script",
+          "body": "A film script labels every line with its speaker. So does a chat: one long script of labelled turns. With each reply, the model rereads it and predicts what comes next. Tap through one.",
+          "play": {
+            "kind": "chat",
+            "turns": [
+              ["system", "You are a helpful assistant for a marketing team. Keep answers short."],
+              ["user", "Give me a subject line for our spring sale email."],
+              ["assistant", "Spring is here, and so are the savings."],
+              ["user", "Make it shorter."],
+              ["assistant", "Spring savings are here."]
+            ]
+          }
+        },
+        {
+          "type": "tf",
+          "prompt": "Under the hood, a chat is one long script, and the model predicts what comes next.",
+          "answer": true,
+          "labels": { "true": "Fact", "false": "Myth" },
+          "explain": "Every turn is added to one growing script, with a label for who is speaking. The model reads the lot and predicts the next turn, just as it predicts the next word."
+        },
+        {
+          "type": "mcq",
+          "prompt": "You ask for a subject line, then type \"Make it shorter\". How does the model know what \"it\" is?",
+          "options": [
+            "It saved the subject line in its own private memory",
+            "Your first request is still on the script it reads",
+            "It can work that out from the word \"shorter\" alone"
+          ],
+          "answer": 1,
+          "explain": "Your request and its reply are still on the script. The model rereads all of it before every turn, so \"it\" points back to the subject line above."
+        },
+        {
+          "type": "card",
+          "title": "The hidden first turn",
+          "body": "A play opens with stage directions the audience never sees. Most chat products do the same. A hidden first turn, the **system message**, sets the role and the rules: who the assistant is, how it sounds, what to avoid. It is one big reason different AI products behave differently."
+        },
+        {
+          "type": "cloze",
+          "prompt": "The hidden first turn that sets an assistant's role and rules is the ___ message.",
+          "options": ["welcome", "user", "system"],
+          "answer": 2,
+          "explain": "The system message is usually written by the people who built the product, not by you. It sits at the top of the script, so it shapes every reply that follows."
+        },
+        {
+          "type": "mcq",
+          "prompt": "A shop's help chat declines to write a poem and steers you back to your order. What is the likeliest reason?",
+          "options": [
+            "Its system message says to stick to orders",
+            "The model inside has never come across a poem",
+            "A poem would use up too many pieces of words"
+          ],
+          "answer": 0,
+          "explain": "The shop wrote a hidden first turn giving the assistant its job and its limits. The model follows that script, even though it could write a poem perfectly well."
+        },
+        {
+          "type": "card",
+          "title": "Chatting had to be taught",
+          "body": "Autocomplete never answers your texts. It just carries on your sentence. A plain language model is the same: type a question and it may simply keep writing. Chat models got extra practice on many example conversations, so they learned the pattern: a user's turn, then a helpful reply."
+        },
+        {
+          "type": "tf",
+          "prompt": "Every language model answers questions naturally; nobody has to teach it the chat pattern.",
+          "answer": false,
+          "labels": { "true": "Fact", "false": "Myth" },
+          "explain": "Predicting the next word is all a plain model does. Answering is a pattern it has to pick up from many example conversations with labelled turns."
+        },
+        {
+          "type": "mcq",
+          "prompt": "You type \"What is a tagline?\" into a plain model that never learned the chat pattern. What might it do?",
+          "options": [
+            "Show an error and ask you to rephrase it",
+            "Search the web for a dictionary definition",
+            "Keep writing, maybe adding more questions"
+          ],
+          "answer": 2,
+          "explain": "It treats your question as the start of a document and continues it. It might write \"What is a slogan? What is a logo?\" because a list of questions is a likely continuation."
+        },
+        {
+          "type": "order",
+          "prompt": "Build the script the model reads, from the top down.",
+          "items": [
+            "System message: the role and rules",
+            "User: your first request",
+            "Assistant: its first reply",
+            "User: your note on that reply",
+            "Assistant: the reply it predicts next"
+          ],
+          "explain": "The hidden system message comes first, then the turns alternate. Each new reply is predicted from everything above it on the script."
+        }
+      ],
+      "takeaway": "A chat is one long labelled script, opened by a hidden system message; the model predicts the next turn.",
+      "tryit": "Ask a chat assistant for a subject line, then reply \"make it shorter\". Notice it knows what \"it\" means."
+    },
+    {
+      "id": "f5-2",
+      "title": "Give it the brief",
+      "icon": "target",
+      "goal": "Write a prompt that carries the audience, goal, brand and constraints.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "Brief it like a freelancer",
+          "body": "Picture a freelancer who has never met your client. Hand them one line and you get generic work. A model is in the same spot: about your job, it knows only what is on the page in front of it. So give it the audience, goal, brand and constraints."
+        },
+        {
+          "type": "cloze",
+          "prompt": "About your job, a model knows only what is on the ___, so the prompt must carry the brief.",
+          "options": ["shared drive", "page", "open web"],
+          "answer": 1,
+          "explain": "The model cannot see your inbox, your client or last week's meeting. Whatever it needs to know about the job has to be written into the prompt."
+        },
+        {
+          "type": "match",
+          "prompt": "Match each part of a brief to an example of it.",
+          "pairs": [
+            ["Audience", "First-time buyers in their twenties"],
+            ["Goal", "Get sign-ups for the free trial"],
+            ["Brand", "Warm and plain-spoken, never pushy"],
+            ["Constraints", "Under 20 words, no hashtags"]
+          ],
+          "explain": "Who it is for, what it should achieve, how the brand sounds and what limits apply: four things a freelancer would ask about, and four things the model needs on the page."
+        },
+        {
+          "type": "card",
+          "title": "Vague versus briefed",
+          "body": "Same job, two prompts: a social caption for a client's new oat drink. One is a single line. The other carries the brief. Tap each to see what comes back.",
+          "play": {
+            "kind": "compare",
+            "a": {
+              "label": "Vague",
+              "prompt": "Write a social caption for an oat drink.",
+              "result": "Say hello to your new favourite drink. Our oat drink is creamy, delicious and better for the planet. Try it today. #oatdrink #plantbased #delicious"
+            },
+            "b": {
+              "label": "Briefed",
+              "prompt": "Write a social caption for a new barista oat drink. For home coffee fans. Goal: try it in a flat white. Dry wit, under 15 words, no hashtags.",
+              "result": "Your flat white has been waiting for this. Oat drink that actually froths."
+            }
+          }
+        },
+        {
+          "type": "tf",
+          "prompt": "\"Write a 6-word tagline for a gym aimed at nervous first-timers over 60. Goal: book a free tour. Warm, no jargon.\"",
+          "answer": true,
+          "labels": { "true": "Strong prompt", "false": "Weak prompt" },
+          "explain": "It puts the audience, the goal, the voice and a limit on the page. The model has far less to guess, so the tagline is far less generic."
+        },
+        {
+          "type": "mcq",
+          "prompt": "A teammate's prompt says only: \"Write a client email about the delay.\" What should they add first?",
+          "options": [
+            "Who the client is, what slipped and the new date",
+            "A line saying that the email is extremely urgent",
+            "A longer greeting and a much friendlier sign-off"
+          ],
+          "answer": 0,
+          "explain": "The model knows nothing about this client or this delay unless you say so. Facts about the situation give it something real to write from."
+        },
+        {
+          "type": "card",
+          "title": "No magic words",
+          "body": "No brief was ever rescued by one clever phrase, and prompts are no different. There are no magic words. A prompt works through what it puts on the page: each specific detail tilts the odds toward an answer that fits. Specific context beats clever phrasing."
+        },
+        {
+          "type": "tf",
+          "prompt": "The right secret phrase will unlock great answers, however little else the prompt says.",
+          "answer": false,
+          "labels": { "true": "Fact", "false": "Myth" },
+          "explain": "A stock phrase carries almost no information about your job. What changes the answer is the detail you put on the page: who it is for, what it must do, what to avoid."
+        },
+        {
+          "type": "sort",
+          "prompt": "You are prompting for a sales email. Which lines give the model something to work with?",
+          "buckets": ["Useful context", "Empty filler"],
+          "items": [
+            ["Readers are busy finance directors", 0],
+            ["Make it amazing and world-class", 1],
+            ["We want them to book a demo", 0],
+            ["This is very, very important", 1],
+            ["It must fit on one phone screen", 0],
+            ["Use all of your brain power", 1]
+          ],
+          "explain": "Audience, goal and limits tell the model about the job. The other lines add pressure but no information, so they leave it guessing just as much as before."
+        }
+      ],
+      "takeaway": "The model only knows what is on the page, so brief it like a freelancer who has never met the client.",
+      "tryit": "Take a prompt you used this week and add four lines: audience, goal, brand voice and limits. Compare the answers."
+    },
+    {
+      "id": "f5-3",
+      "title": "Show, don't tell",
+      "icon": "book",
+      "goal": "Steer tone and format by pasting two or three good examples.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "Samples beat adjectives",
+          "body": "Tell a designer \"make it feel premium\" and you get a guess. Show them three ads you love and they get much closer. A model is the same. It learned from patterns in examples, so two or three samples of what good looks like steer it strongly."
+        },
+        {
+          "type": "mcq",
+          "prompt": "What is the most reliable way to show a model what \"good\" looks like?",
+          "options": [
+            "Describe it with stronger adjectives",
+            "Repeat the request several times",
+            "Type the request in capital letters",
+            "Paste two or three samples of it"
+          ],
+          "answer": 3,
+          "explain": "A model is a pattern machine. Samples give it a pattern to follow, which steers far more strongly than words like \"premium\" or \"punchy\" that could mean almost anything."
+        },
+        {
+          "type": "tf",
+          "prompt": "\"Here are three subject lines that worked for us: [three lines]. Write five more like these for the autumn sale.\"",
+          "answer": true,
+          "labels": { "true": "Strong prompt", "false": "Weak prompt" },
+          "explain": "It shows what good looks like and then asks for more of it. The model can match the length and feel of real lines that already worked."
+        },
+        {
+          "type": "card",
+          "title": "It copies more than you think",
+          "body": "Hand a new assistant three old decks as a guide and the next deck will match them, quirks included. A model does the same. It copies the pattern, length and tone of your examples: long samples bring long answers. So choose them with care."
+        },
+        {
+          "type": "tf",
+          "prompt": "A model picks up only the topic of your examples, not their length or tone.",
+          "answer": false,
+          "labels": { "true": "Fact", "false": "Myth" },
+          "explain": "Everything about a sample is a pattern to continue: how long it is, how it opens, how formal it sounds. The model mirrors all of it, wanted or not."
+        },
+        {
+          "type": "sort",
+          "prompt": "You want short, witty captions. Which samples should go into your prompt?",
+          "buckets": ["Paste it", "Leave it out"],
+          "items": [
+            ["A one-line pun from a live campaign", 0],
+            ["A formal three-page press release", 1],
+            ["A dry six-word caption that did well", 0],
+            ["A caption the client called off-brand", 1],
+            ["A playful line from last month's post", 0],
+            ["A long blog post on the same topic", 1]
+          ],
+          "explain": "The model will mirror whatever you paste. Short, witty samples pull the answer toward short and witty; long or off-brand ones pull it the wrong way."
+        },
+        {
+          "type": "card",
+          "title": "The fast route to a voice",
+          "body": "Brand voice is hard to describe. \"Friendly but premium\" could mean a hundred things. It is easy to show. Paste a few published lines the client loved and ask for more in that style. The model picks up the voice from the samples, with no adjectives needed."
+        },
+        {
+          "type": "order",
+          "prompt": "Put the steps for borrowing a brand voice in order.",
+          "items": [
+            "Collect a few published lines you like",
+            "Paste them into your prompt",
+            "Ask for more in the same style",
+            "Check the new lines against the originals"
+          ],
+          "explain": "Samples first, then the request. The model reads your chosen lines, picks up their voice and continues the pattern. Your check at the end catches any line that drifts."
+        },
+        {
+          "type": "mcq",
+          "prompt": "A new client's voice is hard to put into words. What is the quickest way to get on-brand drafts?",
+          "options": [
+            "List ten adjectives for the brand's personality",
+            "Give the brand's name and let the model work it out",
+            "Paste published posts and ask for more like them"
+          ],
+          "answer": 2,
+          "explain": "Published posts carry the voice in a form the model can copy directly. Adjectives leave it guessing, and a name alone says little about how this client likes to sound."
+        }
+      ],
+      "takeaway": "Show two or three samples of what good looks like; the model copies their pattern, length and tone.",
+      "tryit": "Paste three published lines you love from a past campaign and ask for five more in the same style."
+    },
+    {
+      "id": "f5-4",
+      "title": "Ask for the shape",
+      "icon": "puzzle",
+      "goal": "Ask for a format, a role and a reader, and for steps on hard problems.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "Name the format",
+          "body": "Ask a colleague for \"thoughts on the deck\" and you might get one line or three pages. Leave the shape open and a model has to guess too. So say it: a table, five bullets, three options, under 50 words. A stated format tilts the odds toward exactly that."
+        },
+        {
+          "type": "tf",
+          "prompt": "\"Summarise these meeting notes for me.\"",
+          "answer": false,
+          "labels": { "true": "Shape named", "false": "Shape missing" },
+          "explain": "Nothing on the page says whether you want one line or three pages. Add the shape, such as five bullets with owners and dates, and the model no longer has to guess."
+        },
+        {
+          "type": "match",
+          "prompt": "Match each job to the shape you would ask for.",
+          "pairs": [
+            ["Compare three vendors", "A table with one row per vendor"],
+            ["Recap a long meeting", "Five bullets with owners and dates"],
+            ["Name a new product", "Ten options of one or two words each"],
+            ["Write a banner line", "One line of eight words or fewer"]
+          ],
+          "explain": "Comparisons read best in a table, recaps in bullets, naming needs plenty of options, and a banner needs a tight word limit. Saying so gets you there first time."
+        },
+        {
+          "type": "card",
+          "title": "Give it a role and a reader",
+          "body": "The same news reads differently in a press release and in a text to a friend. So tell the model who is writing and who is reading: \"Write as a media planner, for a client who is new to advertising.\" That sets the vocabulary, depth and tone."
+        },
+        {
+          "type": "cloze",
+          "prompt": "\"Write as a strategist, for a busy chief executive\" gives the model a role and an ___.",
+          "options": ["example", "audience", "outline"],
+          "answer": 1,
+          "explain": "The strategist is the role and the chief executive is the audience. Together they tell the model which words to choose and how much detail to include."
+        },
+        {
+          "type": "mcq",
+          "prompt": "You must explain a media plan to a client who is new to advertising. Which opening line helps most?",
+          "options": [
+            "Write as a media planner, for a new advertiser",
+            "Write the smartest explanation that you possibly can",
+            "Write about media plans in a general sort of way"
+          ],
+          "answer": 0,
+          "explain": "Naming the writer and the reader tells the model to use a planner's knowledge but a beginner's vocabulary. \"Smartest\" gives it no idea who is listening."
+        },
+        {
+          "type": "card",
+          "title": "Steps first, then options",
+          "body": "Teachers ask pupils to show their working, and it helps here too. For a hard problem, ask the model to work through the steps first: each step it writes lands on the page and guides the next. Then ask for three options, not one."
+        },
+        {
+          "type": "tf",
+          "prompt": "For a hard problem, asking the model to work through the steps first can lead to a better answer.",
+          "answer": true,
+          "labels": { "true": "Fact", "false": "Myth" },
+          "explain": "Each step it writes lands on the page, where it guides the next one. Jumping straight to an answer skips that help, and hides the reasoning from you too."
+        },
+        {
+          "type": "sort",
+          "prompt": "Which of these jobs are worth asking the model to work through step by step?",
+          "buckets": ["Just ask", "Steps first"],
+          "items": [
+            ["Fix a typo in a headline", 0],
+            ["Split a budget across five channels", 1],
+            ["Shorten a caption to ten words", 0],
+            ["Plan a three-month launch timeline", 1],
+            ["Suggest another word for \"fresh\"", 0],
+            ["Weigh two pitch routes against a brief", 1]
+          ],
+          "explain": "Simple edits need no working. Problems with several moving parts go better when the model lays out the steps first, because each step shapes the next."
+        },
+        {
+          "type": "mcq",
+          "prompt": "Why ask for three taglines when you only need one?",
+          "options": [
+            "Three taglines use up fewer pieces of words",
+            "You can compare them, then pick or blend",
+            "The first one it writes is always the worst"
+          ],
+          "answer": 1,
+          "explain": "Any single answer is just one draw from many likely ones. Seeing several lets you judge them side by side, as you would with routes from a creative team."
+        }
+      ],
+      "takeaway": "Name the format, the role and the reader; for hard problems ask for steps first and several options.",
+      "tryit": "Ask for your next AI answer as a table or as five bullets, and say who will read it."
+    },
+    {
+      "id": "f5-5",
+      "title": "Edit, don't restart",
+      "icon": "wrench",
+      "goal": "Improve a draft with notes, and know when to start a fresh chat.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "The first answer is a draft",
+          "body": "When a junior colleague hands you a first draft, you do not bin it and brief someone new. You give notes: \"shorter, warmer, lose the second paragraph\". Do the same here. The draft and your notes both sit on the page, so the next version builds on them."
+        },
+        {
+          "type": "mcq",
+          "prompt": "The first answer is close, but too formal. What is the best next move?",
+          "options": [
+            "Open a new chat and paste the same prompt",
+            "Accept it, as the first try is the best one",
+            "Reply with a note: keep this, but warmer"
+          ],
+          "answer": 2,
+          "explain": "The draft is still on the page, so a short note is enough to steer the next version. Starting over throws away everything that was already working."
+        },
+        {
+          "type": "tf",
+          "prompt": "\"I don't like it. Try again.\"",
+          "answer": false,
+          "labels": { "true": "Useful note", "false": "Vague note" },
+          "explain": "It says something is wrong but not what. The model can only guess, as a junior colleague would. Name the change you want: shorter, plainer, a different opening."
+        },
+        {
+          "type": "card",
+          "title": "Ask it to push back",
+          "body": "Before a pitch, you ask a colleague to pick holes in it. Ask the model the same: \"What are the three weakest points here?\" Or have it argue the other side, as a sceptical client would. Ask for critique and critique becomes the likely reply."
+        },
+        {
+          "type": "cloze",
+          "prompt": "To find the holes in a draft, ask the model to ___ its own work.",
+          "options": ["praise", "translate", "critique"],
+          "answer": 2,
+          "explain": "What you ask for shapes what comes next. A request for weak points makes weak points the likely reply, and if you never ask, you are unlikely to hear them."
+        },
+        {
+          "type": "mcq",
+          "prompt": "You have drafted a pitch idea you love. Which request is most likely to expose its weak spots?",
+          "options": [
+            "Argue against this as a sceptical client would",
+            "Tell me what you like best about this pitch idea",
+            "Rewrite this in a bolder, more confident tone"
+          ],
+          "answer": 0,
+          "explain": "Asking for the other side puts objections on the page before the client raises them. The other two requests invite agreement or polish, not scrutiny."
+        },
+        {
+          "type": "card",
+          "title": "Know when to start fresh",
+          "body": "A meeting that has run two hours rarely gets clearer in hour three. Long chats are the same: old instructions clash with new ones, and the earliest turns can slip out of view. Open a fresh chat with a better brief and your best draft so far."
+        },
+        {
+          "type": "tf",
+          "prompt": "When a long chat has become confused, a fresh chat with a better brief is often the quickest fix.",
+          "answer": true,
+          "explain": "A long script is full of old instructions and abandoned ideas that still pull on every reply. A fresh page holds only what you choose to put on it."
+        },
+        {
+          "type": "sort",
+          "prompt": "Give notes, or open a new chat? Sort each situation.",
+          "buckets": ["Reply with notes", "Start fresh"],
+          "items": [
+            ["The draft is good but a bit long", 0],
+            ["It keeps ignoring rules you set early on", 1],
+            ["The tone is right but one fact is off", 0],
+            ["It is mixing up two different clients", 1],
+            ["You want two more like the second option", 0],
+            ["Old and new instructions keep clashing", 1]
+          ],
+          "explain": "A draft that is nearly right needs a note. A chat that has lost the thread is past rescuing with notes, and is better served by a clean page and a clear brief."
+        },
+        {
+          "type": "order",
+          "prompt": "Put this way of working with a chat assistant in order.",
+          "items": [
+            "Write a clear brief",
+            "Read the first draft",
+            "Reply with specific notes",
+            "Do the final polish yourself"
+          ],
+          "explain": "Brief, draft, notes, then your own judgement at the end. It is the same loop you would run with a junior colleague, only faster."
+        }
+      ],
+      "takeaway": "Treat the first answer as a draft: give notes, ask for critique, and start fresh when the chat gets tangled.",
+      "tryit": "Reply to your next AI draft with two specific notes instead of starting over, then ask for its weakest point."
+    }
+  ]
+}

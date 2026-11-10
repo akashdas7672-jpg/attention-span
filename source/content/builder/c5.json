@@ -1,0 +1,1290 @@
+{
+  "id": "c5",
+  "title": "Finetune Your Model",
+  "subtitle": "AI Research Foundations · Course 5",
+  "repo": "ai-foundations",
+  "skills": [
+    {
+      "id": "c5-1",
+      "title": "Base models and questions",
+      "icon": "chat",
+      "lab": "course_5/gdm_lab_5_1_prompt_your_slm_with_questions.ipynb",
+      "cards": [
+        {
+          "title": "A base model only continues",
+          "body": "Your small language model (SLM) learned one skill from the Africa Galore dataset: predict the next token. Given any prompt, it extends the text with likely tokens. It was never trained on questions paired with answers, so replying to a user is not something it was taught."
+        },
+        {
+          "title": "Statement or question?",
+          "body": "The lab compares openers like \"Jollof rice is\" and \"Tagine is\" with questions like \"What is Jollof rice?\". Statement openers resemble the training text, so the continuations read well. Questions look unusual in that data, so the output tends to drift, repeat or ignore what was asked."
+        },
+        {
+          "title": "Greedy, repeatable output",
+          "body": "With sampling_mode=\"greedy\" the model takes the most probable token at every step, so one prompt always yields the same continuation. That keeps the statement-versus-question comparison fair. The helper's other mode, \"random\", samples from the distribution instead.",
+          "code": "text, probs = generation.generate_text(\n    \"Jollof rice is\",\n    10,  # tokens to generate\n    model=model,\n    tokenizer=tokenizer,\n    pad_token_id=tokenizer.pad_token_id,\n    sampling_mode=\"greedy\",\n)"
+        },
+        {
+          "title": "Base vs instruction-tuned",
+          "body": "A base model is a general text completer. An instruction-tuned model has had extra training on prompt-response examples, so it answers questions and follows a requested format. The rest of this course builds that extra step for your own model: fine-tuning."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "Before this lab, what task was your SLM trained on?",
+          "options": [
+            "Answering questions about African food",
+            "Sorting texts into categories",
+            "Predicting the next token of text",
+            "Translating between languages"
+          ],
+          "answer": 2,
+          "explain": "The SLM is a base model: it only learned next-token prediction on Africa Galore, so it completes text but was never taught to answer."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Which prompt is the base SLM most likely to continue well?",
+          "options": [
+            "What is Tagine?",
+            "Tagine is",
+            "Can you explain Tagine?",
+            "Tell me what Tagine is."
+          ],
+          "answer": 1,
+          "explain": "A statement opener looks like the narrative training text, which is exactly what next-token prediction learned to extend."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why does the base SLM often fail on \"What is Jollof rice?\"",
+          "options": [
+            "It rarely saw questions paired with answers",
+            "Its vocabulary has no token for a question mark",
+            "The question exceeds its 399-token length limit",
+            "Greedy decoding cannot produce full sentences"
+          ],
+          "answer": 0,
+          "explain": "The model copies patterns from its training data. Narrative text seldom shows a question followed by a direct answer, so it has no habit of replying."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "With sampling_mode=\"greedy\", the model picks the single most probable token at each step.",
+          "answer": true,
+          "explain": "Greedy decoding always takes the highest-probability next token, which makes generation deterministic for a given prompt."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "A base model that completes statements fluently will also answer direct questions reliably.",
+          "answer": false,
+          "explain": "Completing text and answering questions are different behaviours. The lab shows the base SLM handles statements but stumbles on questions."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "Fill in the mode that always picks the highest-probability token.",
+          "code": "text, probs = generation.generate_text(\n    prompt,\n    num_tokens_to_generate,\n    model=model,\n    tokenizer=tokenizer,\n    pad_token_id=tokenizer.pad_token_id,\n    sampling_mode=\"___\",\n)",
+          "options": [
+            "random",
+            "beam",
+            "top_k",
+            "greedy"
+          ],
+          "answer": 3,
+          "explain": "\"greedy\" selects the most likely token at every step; the helper's other supported mode, \"random\", samples instead."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "A model trained only on next-token prediction, with no extra tuning for questions, is called a ___ model.",
+          "options": [
+            "base",
+            "instruction-tuned",
+            "fine-tuned",
+            "distilled"
+          ],
+          "answer": 0,
+          "explain": "The lab calls it a base model: a general text completer, as opposed to an instruction-tuned model trained on prompt-response pairs."
+        },
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "In the lab's prompt cell, what does this setting control?",
+          "code": "num_tokens_to_generate = 10",
+          "options": [
+            "How many prompts are tested in a row",
+            "How many new tokens follow the prompt",
+            "How many tokens long the prompt may be",
+            "How many candidate tokens are compared"
+          ],
+          "answer": 1,
+          "explain": "It sets the length of the continuation: the model generates 10 tokens, one at a time, after your prompt."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "You run the greedy prompt cell twice with \"Jollof rice is\". What happens?",
+          "options": [
+            "The second run gives a better, longer answer",
+            "Each run samples a new continuation",
+            "Both runs print the same continuation",
+            "The second run continues the first"
+          ],
+          "answer": 2,
+          "explain": "Greedy decoding is deterministic, and prompting never updates the weights, so the same prompt gives the same output."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Prompting the model in this lab adjusts its parameters a little each time.",
+          "answer": false,
+          "explain": "Generation is inference only. Parameters change only during training, for example when you later call model.fit to fine-tune."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Put the lab's steps in order.",
+          "items": [
+            "Load the BPE tokenizer",
+            "Define the model with create_model",
+            "Load the trained weights from file",
+            "Prompt with statements and questions",
+            "Compare the quality of the outputs"
+          ],
+          "explain": "create_model needs the tokenizer's vocabulary size, the weights need a matching model, and only a loaded model can be prompted."
+        },
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each term to its meaning.",
+          "pairs": [
+            [
+              "Base model",
+              "Trained only to continue text"
+            ],
+            [
+              "Instruction-tuned",
+              "Further trained to respond to prompts"
+            ],
+            [
+              "Greedy sampling",
+              "Always takes the most probable token"
+            ],
+            [
+              "Tokenizer",
+              "Converts text to token IDs and back"
+            ],
+            [
+              "Prompt",
+              "The starting text the model continues"
+            ]
+          ],
+          "explain": "A tokenizer turns the prompt into IDs for the base model, and greedy sampling picks each next token."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Fill in the Keras method that copies the downloaded parameters into the model.",
+          "code": "model = training.create_model(\n    max_length=399,\n    vocabulary_size=tokenizer.vocabulary_size,\n)\nmodel.___(model_filename)",
+          "options": [
+            "fit",
+            "summary",
+            "load_weights",
+            "save_weights"
+          ],
+          "answer": 2,
+          "explain": "load_weights sets every parameter to the saved pre-trained values. The model must first be defined with the same hyperparameters."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Which change would most directly teach the SLM to answer questions?",
+          "options": [
+            "Generate 50 tokens instead of 10",
+            "Switch from greedy to random sampling",
+            "Prompt it with shorter questions",
+            "Train it further on formatted Q&A pairs"
+          ],
+          "answer": 3,
+          "explain": "Decoding settings only change how existing knowledge is sampled. The model needs fine-tuning on examples of questions followed by answers."
+        }
+      ]
+    },
+    {
+      "id": "c5-2",
+      "title": "Turn-based formatting",
+      "icon": "token",
+      "lab": "course_5/gdm_lab_5_2_format_text_for_turn_based_dialogue.ipynb",
+      "cards": [
+        {
+          "title": "Why mark the turns?",
+          "body": "Narrative text has no speakers, so a model trained on it cannot tell where a question stops and a reply starts. Dialogue data for fine-tuning therefore wraps each turn in special delimiter tokens. Like <PAD> or <UNK>, these are signals to the model rather than ordinary words."
+        },
+        {
+          "title": "The turn template",
+          "body": "Each turn opens with <start_of_turn>, names the speaker (user or model) on its first line, and closes with <end_of_turn>. Gemma's instruction-tuned models use this same layout.",
+          "code": "formatted_q = f\"{sot}user\\n{question}{eot}\\n\"\nformatted_a = f\"{sot}model\\n{answer}{eot}\""
+        },
+        {
+          "title": "Flashcard answers",
+          "body": "For the revision flashcard generator, each answer should open with its category, such as \"Category: Food\", then a newline, then the answer text. Applied consistently across the dataset, this teaches the model both the content and the shape of a good flashcard."
+        },
+        {
+          "title": "Working row by row",
+          "body": "Each Africa Galore QA row has the fields category, name, question and answer. Your format_qa takes one row and returns two strings: the formatted question and the formatted answer. Its sot and eot arguments default to the two turn tokens."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "What job do <start_of_turn> and <end_of_turn> do?",
+          "options": [
+            "Tell the tokenizer which words to skip",
+            "Mark where each speaker's turn starts and ends",
+            "Pad short examples to the same length",
+            "Stand in for words missing from the vocabulary"
+          ],
+          "answer": 1,
+          "explain": "They are delimiter tokens that separate the user's question turn from the model's answer turn."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Which string does formatted_q hold?",
+          "code": "sot = \"<start_of_turn>\"\neot = \"<end_of_turn>\"\nquestion = \"What is Fufu?\"\nformatted_q = f\"{sot}user\\n{question}{eot}\\n\"",
+          "options": [
+            "`<start_of_turn>user\\nWhat is Fufu?<end_of_turn>\\n`",
+            "`<start_of_turn>model\\nWhat is Fufu?<end_of_turn>\\n`",
+            "`<start_of_turn>\\nWhat is Fufu?\\n<end_of_turn>user`",
+            "`<end_of_turn>user\\nWhat is Fufu?<start_of_turn>\\n`"
+          ],
+          "answer": 0,
+          "explain": "The template starts with sot, adds the speaker label user and a newline, then the question, then eot and a final newline."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Fill in the placeholder so the answer opens with its category.",
+          "code": "category = data[\"category\"]\nquestion = data[\"question\"]\nanswer = data[\"answer\"]\nformatted_a = (f\"{sot}model\\nCategory: ___\"\n               f\"\\n{answer}{eot}\")",
+          "options": [
+            "{question}",
+            "{name}",
+            "{answer}",
+            "{category}"
+          ],
+          "answer": 3,
+          "explain": "The flashcard answer needs a line like \"Category: Food\", so the row's category value goes right after \"Category: \"."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "Fill in the speaker label for the question turn.",
+          "code": "formatted_q = f\"{sot}___\\n{question}{eot}\\n\"",
+          "options": [
+            "model",
+            "system",
+            "user",
+            "question"
+          ],
+          "answer": 2,
+          "explain": "The person asking is the user, so the question turn is labelled user; the answer turn is labelled model."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "In this format, the answer turn begins with <start_of_turn> followed by the label model.",
+          "answer": true,
+          "explain": "formatted_a begins with f\"{sot}model\\n\", which marks the start of the model's reply."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "The category goes into the question turn so the user sees it first.",
+          "answer": false,
+          "explain": "The category opens the model's answer turn (\"Category: ...\"), because the model should learn to generate it."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Which dataset field does the flashcard format_qa leave out?",
+          "options": [
+            "name",
+            "category",
+            "question",
+            "answer"
+          ],
+          "answer": 0,
+          "explain": "The function reads only category, question and answer from each row; the name field never appears in the formatted text."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order the parts of a formatted flashcard answer.",
+          "items": [
+            "<start_of_turn>",
+            "model",
+            "Category: Food",
+            "Jollof rice is a one-pot rice dish...",
+            "<end_of_turn>"
+          ],
+          "explain": "The model turn opens with the start token and speaker label, then the category line and answer, and closes with the end token."
+        },
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each piece of the format to its role.",
+          "pairs": [
+            [
+              "<start_of_turn>",
+              "Opens a speaker's turn"
+            ],
+            [
+              "<end_of_turn>",
+              "Closes a speaker's turn"
+            ],
+            [
+              "user",
+              "Labels the turn holding the question"
+            ],
+            [
+              "model",
+              "Labels the turn holding the answer"
+            ],
+            [
+              "Category: Food",
+              "First line of a flashcard answer"
+            ]
+          ],
+          "explain": "Turn tokens bracket each turn, the label names the speaker, and the category line opens the flashcard answer."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "How many times does <end_of_turn> appear in formatted_q + formatted_a for one row?",
+          "options": [
+            "1",
+            "2",
+            "3",
+            "4"
+          ],
+          "answer": 1,
+          "explain": "Each of the two turns, the question and the answer, is closed by exactly one <end_of_turn>."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why apply exactly the same delimiter format to every example?",
+          "options": [
+            "So the tokenizer can learn extra merge rules",
+            "So every example ends up the same length",
+            "So the model learns the dialogue pattern, not just facts",
+            "So the loss skips the tokens of each question"
+          ],
+          "answer": 2,
+          "explain": "Consistent structure lets the model pick up the conversational shape, a question turn then an answer turn, along with the content."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Turn delimiters work like the ___ and <UNK> tokens from earlier courses: signals, not ordinary words.",
+          "options": [
+            "<EOS>",
+            "<PAD>",
+            "<CLS>",
+            "<MASK>"
+          ],
+          "answer": 1,
+          "explain": "The lab compares them to <PAD> and <UNK>, special tokens you met before that carry meaning for the model rather than text."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "A row has category \"Landmark\" and question \"What is Table Mountain?\". Which line comes right after <start_of_turn>model?",
+          "options": [
+            "What is Table Mountain?",
+            "Landmark: Table Mountain",
+            "<end_of_turn>",
+            "Category: Landmark"
+          ],
+          "answer": 3,
+          "explain": "formatted_a is f\"{sot}model\\nCategory: {category}\\n{answer}{eot}\", so the line after the label is \"Category: Landmark\"."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Without turn delimiters, a model has no reliable signal for where a question ends and the answer begins.",
+          "answer": true,
+          "explain": "That missing boundary is exactly why the lab wraps each turn with <start_of_turn> and <end_of_turn>."
+        }
+      ]
+    },
+    {
+      "id": "c5-3",
+      "title": "Full fine-tuning an SLM",
+      "icon": "tune",
+      "lab": "course_5/gdm_lab_5_3_fine_tune_all_parameters_of_your_slm.ipynb",
+      "cards": [
+        {
+          "title": "Fine-tuning is more training",
+          "body": "Full-parameter fine-tuning continues gradient descent on the pre-trained SLM, now with the small Africa Galore QA dataset. Every weight may change. Because the model already knows language patterns, it picks up the new task in far fewer iterations than training from scratch would need."
+        },
+        {
+          "title": "Keep the same tokenizer",
+          "body": "Tokenize fine-tuning data with the exact tokenizer used in pre-training. If ID 532 meant \"rice\", it must still mean \"rice\": everything the model learned about that ID (a food, a noun) would be useless if the ID suddenly stood for a different word."
+        },
+        {
+          "title": "Only answers count",
+          "body": "Targets are the inputs shifted one place left. Question positions become <PAD>, which the loss ignores, so the model is trained to write answers rather than questions, while still attending to the question.",
+          "code": "full = q_ids + a_ids\nmasked = [pad_id] * len(q_ids) + a_ids\ninputs = full[:-1]\ntargets = masked[1:]"
+        },
+        {
+          "title": "Go gently",
+          "body": "Fine-tuning learning rates are usually 10-100× below pre-training (often ~1e-4); the lab sets 5e-5. Start with about 50 epochs and small batches of 4. Push too hard or too long and catastrophic forgetting can overwrite what pre-training taught."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "In full-parameter fine-tuning, which weights get updated?",
+          "options": [
+            "Only the final output layer",
+            "Every weight in the model",
+            "Only small added matrices",
+            "Only the token embeddings"
+          ],
+          "answer": 1,
+          "explain": "Full-parameter fine-tuning is ordinary training continued, so gradient descent can change all parameters, which is what makes it memory-hungry for big models."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why must you fine-tune with the tokenizer used in pre-training?",
+          "options": [
+            "Each token ID must keep the meaning it learned",
+            "A new tokenizer would slow every epoch",
+            "Keras rejects weights from other tokenizers",
+            "Only that tokenizer can encode question marks"
+          ],
+          "answer": 0,
+          "explain": "The embeddings learned what each ID stands for. Remapping IDs would discard those representations and force the model to relearn them."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Fill in the slice that builds the input sequence.",
+          "code": "concatenated_tokens = q_ids + a_ids\nconcatenated_masked = (\n    [pad_token_id] * len_q + a_ids)\nencoded_inputs.append(\n    concatenated_tokens[___])\nencoded_targets.append(\n    concatenated_masked[1:])",
+          "options": [
+            "1:",
+            ":",
+            ":-1",
+            "::-1"
+          ],
+          "answer": 2,
+          "explain": "Inputs drop the last token, since nothing follows it to predict; targets drop the first token, creating the one-step shift."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Fill in the token ID used to hide the question from the loss.",
+          "code": "concatenated_masked = (\n    [___] * len_q + encoded_answers[idx])",
+          "options": [
+            "pad_token_id",
+            "unk_token_id",
+            "eot_token_id",
+            "len_q"
+          ],
+          "answer": 0,
+          "explain": "Question positions are filled with the <PAD> ID, and the loss function skips every position whose target is <PAD>."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "A question encodes to 8 tokens. After masking and shifting, how many <PAD> tokens open the target sequence?",
+          "options": [
+            "8",
+            "9",
+            "7",
+            "0"
+          ],
+          "answer": 2,
+          "explain": "The masked sequence starts with 8 pads; targets = masked[1:] drops the first, leaving 7. The 8th target is the first answer token."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Masking the question in the targets stops the model from attending to the question.",
+          "answer": false,
+          "explain": "Masking only removes question positions from the loss. The inputs are unchanged, so the model still attends to the question while predicting the answer."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "What is catastrophic forgetting?",
+          "options": [
+            "Dropping the turn delimiters after an epoch",
+            "Losing pre-trained knowledge by overfitting new data",
+            "The optimizer resetting its state each epoch",
+            "Losing progress when GPU memory runs out"
+          ],
+          "answer": 1,
+          "explain": "If the model fits the small fine-tuning set too closely, the patterns it learned in pre-training can be overwritten."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Pre-training used a learning rate of 1e-4. Which fine-tuning rate follows the 10-100× lower guideline?",
+          "options": [
+            "1e-4",
+            "1e-3",
+            "5e-4",
+            "1e-5"
+          ],
+          "answer": 3,
+          "explain": "1e-5 is ten times smaller than 1e-4. The others are equal or larger, which raises the risk of catastrophic forgetting."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "Small fine-tuning batches give noisier gradients, and that noise can act as a regularizer.",
+          "answer": true,
+          "explain": "The lab notes that noisier estimates from small batches make overfitting less likely, on top of saving GPU memory."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "Fill in the callback that prints sample generations after each epoch.",
+          "code": "history = model.fit(\n    x=batches,\n    epochs=num_epochs,\n    callbacks=[___],\n)",
+          "options": [
+            "tokenizer",
+            "text_gen_callback",
+            "prompt_ids",
+            "tf_dataset"
+          ],
+          "answer": 1,
+          "explain": "text_gen_callback generates text from a flashcard-style prompt after each epoch, so you can see when the format has been learned."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order the fine-tuning pipeline from the lab.",
+          "items": [
+            "Load tokenizer and pre-trained model",
+            "Load the Africa Galore QA dataset",
+            "Format and tokenize each QA pair",
+            "Build masked inputs and targets",
+            "Pad, shuffle and batch the data",
+            "Continue training with model.fit"
+          ],
+          "explain": "Data must be formatted, tokenized, aligned into inputs and targets, and batched before the pre-trained model can keep training on it."
+        },
+        {
+          "type": "match",
+          "level": 2,
+          "prompt": "Match each setting to its value in the lab.",
+          "pairs": [
+            [
+              "Learning rate",
+              "5e-5"
+            ],
+            [
+              "Starting epochs",
+              "50"
+            ],
+            [
+              "Batch size",
+              "4"
+            ],
+            [
+              "Max sequence length",
+              "Read from the pre-trained model"
+            ],
+            [
+              "Shuffle buffer",
+              "The size of the whole dataset"
+            ]
+          ],
+          "explain": "The lab sets lr 5e-5, starts with 50 epochs, batches of 4, takes max length from model.input_shape, and shuffles across all examples."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "After fine-tuning, why does \"What is Mount Aconcagua?\" still get a poor answer?",
+          "options": [
+            "None of its training data covers that mountain",
+            "The question is longer than the model allows",
+            "The learning rate was too low to learn it",
+            "The flashcard format has no category for it"
+          ],
+          "answer": 0,
+          "explain": "Aconcagua is in South America. Neither Africa Galore nor the QA set mentions it, so the SLM has no facts to draw on."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "In pad_sequences, what does padding=\"post\" do?",
+          "code": "keras.preprocessing.sequence.pad_sequences(\n    encoded_inputs,\n    maxlen=max_input_length,\n    padding=\"post\",\n    truncating=\"post\",\n    value=tokenizer.pad_token_id)",
+          "options": [
+            "Adds pad tokens before the real tokens",
+            "Pads only after batches are created",
+            "Adds pad tokens after the real tokens",
+            "Pads targets but leaves inputs alone"
+          ],
+          "answer": 2,
+          "explain": "\"post\" places the <PAD> tokens after the real tokens, so every sequence reaches the model's maximum length."
+        }
+      ]
+    },
+    {
+      "id": "c5-4",
+      "title": "Full fine-tuning Gemma",
+      "icon": "memory",
+      "lab": "course_5/gdm_lab_5_4_full_parameter_fine_tuning_of_gemma.ipynb",
+      "cards": [
+        {
+          "title": "A far bigger foundation",
+          "body": "Gemma-1B vs your SLM: about 1 billion vs 523,470 parameters; 256,000 vs 3,086 vocabulary tokens; around 2 trillion vs 92,568 training tokens; web text in 140 languages vs the Africa Galore dataset. Fine-tuned, it should handle far more topics."
+        },
+        {
+          "title": "Keras handles the prep",
+          "body": "Gemma's Keras preprocessor tokenizes, joins each prompt with its response, and masks the prompt from the loss for you. It does not add <start_of_turn> or <end_of_turn>, so format_qa still supplies them.",
+          "code": "data = {\"prompts\": questions,\n        \"responses\": answers}\nmodel = keras_hub.models.Gemma3CausalLM\\\n    .from_preset(\"gemma3_1b\")\nmodel.preprocessor.sequence_length = 400"
+        },
+        {
+          "title": "Fits for inference",
+          "body": "Gemma-1B has roughly 700M parameters in its transformer blocks and 300M in token embeddings shared by input and output. That takes about 4 GB, so it loads and generates fine on a T4 GPU with about 15 GB. A 27B model would need around 100 GB."
+        },
+        {
+          "title": "Fails for training",
+          "body": "Training stores far more than the weights: every parameter also needs a gradient plus extra optimizer variables. Calling model.fit on all 1B parameters therefore hits an out-of-memory (OOM) error and crashes the Colab session. The way out is to train far fewer parameters."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "Roughly how many parameters does your SLM have?",
+          "options": [
+            "About 52 million",
+            "About 1 billion",
+            "About 523 thousand",
+            "About 3 thousand"
+          ],
+          "answer": 2,
+          "explain": "The lab's table lists 523,470 parameters for the SLM, versus about 1,000,000,000 for Gemma-1B."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why should a fine-tuned Gemma-1B handle far more topics than the fine-tuned SLM?",
+          "options": [
+            "It was pre-trained on far more, and more varied, text",
+            "Its fine-tuning dataset is much bigger",
+            "It uses a bigger batch size when training",
+            "It skips the turn delimiters entirely"
+          ],
+          "answer": 0,
+          "explain": "Both are fine-tuned on the same small QA set; the difference is Gemma's ~2 trillion pre-training tokens of web text in 140 languages."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "The Keras Gemma preprocessor adds <start_of_turn> and <end_of_turn> for you.",
+          "answer": false,
+          "explain": "It tokenizes, concatenates and masks prompts, but the turn delimiters must already be in the strings, which format_qa provides."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "The Keras preprocessor excludes prompt tokens from the loss automatically.",
+          "answer": true,
+          "explain": "This replaces the manual <PAD> masking of the targets that you did for the SLM in the previous lab."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "Fill in the key that Keras's Gemma expects for the questions.",
+          "code": "data = {\n    \"___\": questions,\n    \"responses\": answers,\n}",
+          "options": [
+            "inputs",
+            "prompts",
+            "questions",
+            "x"
+          ],
+          "answer": 1,
+          "explain": "The fine-tuning dictionary uses exactly two keys: \"prompts\" for the questions and \"responses\" for the answers."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "At about 3.7 GB per billion parameters, roughly how much memory would a 27B model need just to load?",
+          "options": [
+            "About 27 GB",
+            "About 15 GB",
+            "About 400 GB",
+            "About 100 GB"
+          ],
+          "answer": 3,
+          "explain": "27 × 3.7 GB ≈ 100 GB, several times the ~15 GB of a T4."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "In 32-bit floats each parameter takes 4 bytes. About how much memory do 1 billion parameters need?",
+          "options": [
+            "About 1 GB",
+            "About 4 GB",
+            "About 8 GB",
+            "About 32 GB"
+          ],
+          "answer": 1,
+          "explain": "1,000,000,000 × 4 bytes = 4 billion bytes, about 4 GB (3.7 GB in 1024-based units), matching the lab's figure for Gemma-1B."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why does fine-tuning need much more GPU memory than generating text?",
+          "options": [
+            "It must load the tokenizer a second time",
+            "It produces longer outputs than inference",
+            "It keeps gradients and optimizer values per parameter",
+            "It copies the whole dataset into each layer"
+          ],
+          "answer": 2,
+          "explain": "Training holds each parameter's gradient and optimizer variables alongside the weights, multiplying memory use."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Fill in the method that downloads and builds the pre-trained Gemma-1B.",
+          "code": "model = keras_hub.models.Gemma3CausalLM\\\n    .___(\"gemma3_1b\")\nmodel.summary()",
+          "options": [
+            "from_preset",
+            "load_weights",
+            "fit",
+            "compile"
+          ],
+          "answer": 0,
+          "explain": "from_preset creates the model with its architecture and pre-trained weights in a single call."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order what happens in this lab.",
+          "items": [
+            "Format the QA pairs with turn delimiters",
+            "Build the prompts/responses dictionary",
+            "Load Gemma-1B from its preset",
+            "Prompt the base model with a question",
+            "Call model.fit on all parameters",
+            "Hit an out-of-memory error"
+          ],
+          "explain": "Data is prepared, the model loads and generates fine, and only the full-parameter training step runs out of memory."
+        },
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each item to its figure from the lab.",
+          "pairs": [
+            [
+              "Gemma-1B vocabulary",
+              "256,000 tokens"
+            ],
+            [
+              "SLM vocabulary",
+              "3,086 tokens"
+            ],
+            [
+              "Gemma-1B training data",
+              "About 2 trillion tokens"
+            ],
+            [
+              "SLM training data",
+              "92,568 tokens"
+            ],
+            [
+              "T4 GPU memory",
+              "About 15 GB"
+            ]
+          ],
+          "explain": "Gemma's vocabulary is about 80× larger and its training data about 20 million times larger than the SLM's."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Prompted with \"What is Jollof rice?\", what does the base Gemma-1B typically produce?",
+          "options": [
+            "A concise flashcard that opens with Category",
+            "Rambling, repetitive text in no flashcard format",
+            "An error because the prompt lacks delimiters",
+            "Nothing at all until it is fine-tuned"
+          ],
+          "answer": 1,
+          "explain": "Like your base SLM, base Gemma was trained only on next-token prediction, so its replies are long, repetitive and unformatted."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Gemma-1B's roughly 300M embedding parameters are ___ between the input and the output layer.",
+          "options": [
+            "duplicated",
+            "frozen",
+            "shared",
+            "quantized"
+          ],
+          "answer": 2,
+          "explain": "One embedding matrix both embeds input tokens and scores output tokens, so it is stored only once."
+        },
+        {
+          "type": "tf",
+          "level": 3,
+          "prompt": "If a model fits on a GPU for inference, full-parameter fine-tuning on that GPU will fit too.",
+          "answer": false,
+          "explain": "Gemma-1B shows the gap: its ~4 GB of weights load fine on a T4, but training all parameters runs out of memory."
+        }
+      ]
+    },
+    {
+      "id": "c5-5",
+      "title": "LoRA from scratch",
+      "icon": "layers",
+      "lab": "course_5/gdm_lab_5_5_implement_lora_for_parameter_efficient_fine_tuning.ipynb",
+      "cards": [
+        {
+          "title": "Freeze W₀, learn ΔW",
+          "body": "LoRA (Low-Rank Adaptation) keeps the pre-trained matrix W₀ frozen and learns only an update: W = W₀ + ΔW. The trick is writing ΔW as the product of two thin matrices, ΔW = B·A, which hold far fewer numbers than ΔW itself."
+        },
+        {
+          "title": "Low rank, broad rules",
+          "body": "B (inputs × r) and A (r × outputs) each encode a few broad rules. In the lab's toy example, zeros in B silence inputs 1 and 2, negatives in B flip the sign of inputs 3 and 6, and 5s in A make outputs 4 and 7 five times larger. Each extra rank adds room for another rule."
+        },
+        {
+          "title": "The forward pass",
+          "body": "W₀ is stored with trainable=False; A, B and the bias are trainable. B starts as all zeros, so ΔW = 0 and the layer initially behaves exactly like the pre-trained one.",
+          "code": "def call(self, x):\n    delta_W = jnp.matmul(\n        jnp.asarray(self.B),\n        jnp.asarray(self.A))\n    W = self.W0 + delta_W\n    return jnp.matmul(x, W) + self.bias"
+        },
+        {
+          "title": "Counting the savings",
+          "body": "In a 512×512 layer the full matrix has 262,144 weights. With rank 8, A and B hold 8×512 = 4,096 each: 8,192 trainable, about 3.1% (2r/d). Counting the 512 trainable biases gives ≈3.3%. In practice LoRA performs about as well as full fine-tuning."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "What happens to the pre-trained matrix W₀ during LoRA fine-tuning?",
+          "options": [
+            "It is updated together with A and B",
+            "It is replaced by the product B·A",
+            "It stays frozen; only LoRA weights train",
+            "It is deleted to free up memory"
+          ],
+          "answer": 2,
+          "explain": "LoRA keeps W₀ fixed (trainable=False) and learns the update ΔW = B·A on top of it."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "LoRA writes the weight update as ΔW = ___, a product of two thin matrices.",
+          "options": [
+            "B·A",
+            "W₀·A",
+            "A + B",
+            "W₀ − B"
+          ],
+          "answer": 0,
+          "explain": "ΔW = B·A: B has shape inputs × r and A has shape r × outputs, so their product has the same shape as W₀."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Fill in the missing term in LoraDense's forward pass.",
+          "code": "delta_W = jnp.matmul(\n    jnp.asarray(self.B),\n    jnp.asarray(self.A))\nW = self.W0 + ___\ny = jnp.matmul(x, W) + self.bias",
+          "options": [
+            "self.A",
+            "self.B",
+            "self.bias",
+            "delta_W"
+          ],
+          "answer": 3,
+          "explain": "The effective weight is the frozen W₀ plus the learned update ΔW; the layer output is then xW + b."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "A 512×512 dense layer gets LoRA with rank 8. How many weights do A and B hold together?",
+          "options": [
+            "4,096",
+            "8,192",
+            "262,144",
+            "65,536"
+          ],
+          "answer": 1,
+          "explain": "A is 8×512 = 4,096 and B is 512×8 = 4,096, so 8,192 in total, versus 262,144 in the full matrix."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "For a 1024×1024 layer with rank 4, what share of the weights does LoRA train (ignoring biases)?",
+          "options": [
+            "About 3.1%",
+            "About 0.4%",
+            "About 0.8%",
+            "About 8%"
+          ],
+          "answer": 2,
+          "explain": "2 × 4 × 1024 = 8,192 trainable out of 1024² = 1,048,576, so 2r/d = 8/1024 ≈ 0.78%."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "What does this print (shown as integers)?",
+          "code": "A = jnp.array([[1, 1, 1, 5, 1, 1, 5, 1]])\nB = jnp.array([[0, 0,-1, 1, 1,-1, 1, 1]]).T\ndelta_W = jnp.matmul(B, A)\nx = jnp.ones(8)\nprint(jnp.matmul(x, delta_W))",
+          "options": [
+            "[2 2 2 10 2 2 10 2]",
+            "[8 8 8 40 8 8 40 8]",
+            "[1 1 1 5 1 1 5 1]",
+            "[0 0 -1 1 1 -1 1 1]"
+          ],
+          "answer": 0,
+          "explain": "Each output equals (sum of B) × A. B's entries sum to 2, so the result is 2 × A."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "In that toy ΔW, raising inputs 1 and 2 to 100 changes the output.",
+          "answer": false,
+          "explain": "B is 0 for inputs 1 and 2, so their rows of ΔW are all zeros and those inputs have no effect at all."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why does the lab initialize B with zeros?",
+          "options": [
+            "So the gradients for A start at zero",
+            "So the layer starts by ignoring inputs",
+            "So A can stay frozen during training",
+            "So ΔW starts at 0 and the layer matches W₀"
+          ],
+          "answer": 3,
+          "explain": "With B = 0, B·A = 0, so before any update the LoRA layer gives exactly the pre-trained layer's output."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "A layer has 256 inputs and 1024 units. With rank 8, what shape is A in the lab's LoraDense?",
+          "options": [
+            "(256, 8)",
+            "(8, 1024)",
+            "(8, 256)",
+            "(1024, 8)"
+          ],
+          "answer": 1,
+          "explain": "A is rank × num_units = (8, 1024) and B is inputs × rank = (256, 8), so B·A has W₀'s shape, (256, 1024)."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "With LoRA, a model's total parameter count rises slightly while its trainable count falls sharply.",
+          "answer": true,
+          "explain": "A and B are added on top of W₀, so the total grows, but W₀, the bulk of the weights, is frozen."
+        },
+        {
+          "type": "match",
+          "level": 2,
+          "prompt": "Match each LoraDense weight to its description.",
+          "pairs": [
+            [
+              "W0",
+              "Frozen copy of the pre-trained weights"
+            ],
+            [
+              "A",
+              "Trainable, rank × outputs, small random init"
+            ],
+            [
+              "B",
+              "Trainable, inputs × rank, zero init"
+            ],
+            [
+              "bias",
+              "Copied from the pre-trained layer, trainable"
+            ],
+            [
+              "delta_W",
+              "Computed as B times A in each forward pass"
+            ]
+          ],
+          "explain": "Only W₀ is frozen; A, B and the bias train, and ΔW is recomputed from B and A on every call."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order the steps in LoraDense's forward pass.",
+          "items": [
+            "Compute ΔW = B·A",
+            "Add ΔW to W₀ to get W",
+            "Multiply the input x by W",
+            "Add the bias"
+          ],
+          "explain": "The update is built first, merged with the frozen weights, then used like an ordinary dense layer: y = xW + b."
+        },
+        {
+          "type": "cloze",
+          "level": 3,
+          "prompt": "For a d×d layer with rank r, LoRA's trainable share (ignoring bias) is ___.",
+          "options": [
+            "2r/d",
+            "r/d",
+            "r²/d²",
+            "d/(2r)"
+          ],
+          "answer": 0,
+          "explain": "A and B hold r·d weights each, 2rd in total, out of d²: 2rd/d² = 2r/d. For d = 512 and r = 8 that is 3.125%."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "How would you use LoRA in Keras without writing your own layer?",
+          "options": [
+            "Wrap the model in keras.LoRA()",
+            "Pass lora=True to model.fit()",
+            "Set lora_rank on Dense layers",
+            "Swap each Dense for SimplifiedDense"
+          ],
+          "answer": 2,
+          "explain": "Keras's layers.Dense already supports LoRA through lora_rank: None during pre-training, a rank such as 8 for fine-tuning."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "In practice, LoRA fine-tuning performs about as well as full-parameter fine-tuning.",
+          "answer": true,
+          "explain": "The lab notes little to no loss in performance, while training only a small fraction of the parameters."
+        }
+      ]
+    },
+    {
+      "id": "c5-6",
+      "title": "Fine-tune Gemma with LoRA",
+      "icon": "rocket",
+      "lab": "course_5/gdm_lab_5_6_fine_tune_gemma_with_lora.ipynb",
+      "cards": [
+        {
+          "title": "LoRA in one line",
+          "body": "Keras's Gemma has LoRA built in. After rank-4 LoRA is enabled, the summary shows the total parameter count up slightly but only a small fraction trainable, which is what lets Gemma-1B fine-tune on a T4 GPU.",
+          "code": "model = keras_hub.models.Gemma3CausalLM\\\n    .from_preset(\"gemma3_1b\")\nmodel.backbone.enable_lora(rank=4)\nmodel.summary()"
+        },
+        {
+          "title": "Three probe questions",
+          "body": "\"What is Kente cloth?\" is in the fine-tuning set. \"What is the tallest mountain in Africa?\" is new but on a covered topic. \"What is Mount Aconcagua?\" lies outside the fine-tuning data. A callback prints answers to all three after every epoch."
+        },
+        {
+          "title": "Picking a learning rate",
+          "body": "For models like Gemma, try learning rates from 1e-4 down to 1e-6 and 1-20 epochs; lower rates need more epochs. In the lab's logs, 2e-5 gave stable, factual answers after about 7-8 of 10 epochs, while 1e-4 and higher produced fluent answers containing factual errors."
+        },
+        {
+          "title": "Pre-training + fine-tuning",
+          "body": "After fine-tuning, Gemma answers even about Aconcagua in flashcard format: the facts come from ~2 trillion pre-training tokens, the format from a small QA set. Forgetting can be subtle, so pick validation prompts you could judge as an expert."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "Fill in the call that switches on rank-4 LoRA.",
+          "code": "model.backbone.___(rank=4)",
+          "options": [
+            "add_lora",
+            "enable_lora",
+            "freeze",
+            "compile"
+          ],
+          "answer": 1,
+          "explain": "enable_lora on the backbone adds low-rank matrices to the model's layers and freezes the original weights."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "After enable_lora(rank=4), how does model.summary() change?",
+          "options": [
+            "Total and trainable both drop a lot",
+            "Total halves; trainable stays the same",
+            "Nothing changes until training starts",
+            "Total rises slightly; trainable drops a lot"
+          ],
+          "answer": 3,
+          "explain": "LoRA adds a few new weights, so the total goes up, and freezes the pre-trained ones, so the trainable count goes down."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Which evaluation prompt checks knowledge absent from the fine-tuning data?",
+          "options": [
+            "What is Kente cloth?",
+            "What is the tallest mountain in Africa?",
+            "What is Mount Aconcagua?",
+            "What is Jollof rice?"
+          ],
+          "answer": 2,
+          "explain": "Aconcagua is a South American mountain that Africa Galore QA never covers, so a good answer must come from pre-training."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Which learning rate does the lab's solution recommend for 10 epochs of LoRA on Gemma-1B?",
+          "options": [
+            "1e-3",
+            "1e-4",
+            "2e-5",
+            "5e-4"
+          ],
+          "answer": 2,
+          "explain": "At 2e-5 the answers stabilised after 7-8 epochs and stayed factual; 1e-4 and higher introduced factual errors."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "A higher learning rate reaches good results faster, so it is always the safer choice.",
+          "answer": false,
+          "explain": "High rates looked fine at a glance but damaged pre-trained facts, such as false claims about Kilimanjaro at 1e-4."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Catastrophic forgetting can be subtle: fluent, confident answers that contain wrong facts.",
+          "answer": true,
+          "explain": "The lab's 1e-4 run sounded convincing yet invented facts, which is why expert-checkable validation prompts matter."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "If you lower the learning rate, what usually has to change?",
+          "options": [
+            "Train for more epochs",
+            "Use a higher LoRA rank",
+            "Drop the turn delimiters",
+            "Use fewer test prompts"
+          ],
+          "answer": 0,
+          "explain": "Smaller steps mean more updates are needed to learn the task, so lower learning rates generally require more epochs."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Fill in the callback that prints the three probe answers each epoch.",
+          "code": "training_history = model.fit(\n    data,\n    epochs=num_epochs,\n    batch_size=1,\n    verbose=1,\n    callbacks=[___],\n)",
+          "options": [
+            "evaluation_callback",
+            "format_question",
+            "training_logs",
+            "model.optimizer"
+          ],
+          "answer": 0,
+          "explain": "EvaluationCallback.on_epoch_end generates answers to the three evaluation prompts so you can watch format and facts emerge."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "format_question wraps only the ___ turn, which is how prompts are built for evaluation.",
+          "options": [
+            "model",
+            "category",
+            "system",
+            "user"
+          ],
+          "answer": 3,
+          "explain": "It returns f\"{sot}user\\n{question}{eot}\\n\"; the fine-tuned model is expected to write the model turn itself."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order the lab's workflow.",
+          "items": [
+            "Format the QA data into a dict",
+            "Load Gemma-1B from its preset",
+            "Prompt the base model",
+            "Enable LoRA with rank 4",
+            "Set learning rate and epochs",
+            "Fine-tune with an evaluation callback"
+          ],
+          "explain": "You first see the base model's behaviour, then add LoRA, choose hyperparameters, and watch fine-tuning through the probes."
+        },
+        {
+          "type": "match",
+          "level": 2,
+          "prompt": "Match each probe question to what it tests.",
+          "pairs": [
+            [
+              "What is Kente cloth?",
+              "A question found in the fine-tuning data"
+            ],
+            [
+              "Africa's tallest peak?",
+              "A new question on a covered topic"
+            ],
+            [
+              "What is Mount Aconcagua?",
+              "A topic missing from the fine-tuning data"
+            ],
+            [
+              "What is Python?",
+              "An extra probe far from African culture"
+            ]
+          ],
+          "explain": "Together they separate memorizing the fine-tuning set, generalizing within its topics, and drawing on pre-trained knowledge."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Before fine-tuning, base Gemma gets a formatted question. What will you most likely see?",
+          "options": [
+            "A short answer opening with Category",
+            "Repetitive text with no Category line",
+            "An error about unknown turn tokens",
+            "Only <end_of_turn> and nothing else"
+          ],
+          "answer": 1,
+          "explain": "The base model never learned the flashcard format; it often repeats itself or even writes more questions."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why does LoRA fine-tuning fit on the T4 when full fine-tuning did not?",
+          "options": [
+            "LoRA moves the frozen weights to the CPU",
+            "LoRA cuts every sequence to 100 tokens",
+            "Only the small LoRA matrices need gradients",
+            "LoRA removes the embedding layer while training"
+          ],
+          "answer": 2,
+          "explain": "The frozen weights still sit in memory, but gradients and optimizer state are needed only for the few trainable LoRA weights."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "After LoRA fine-tuning, Gemma answered in flashcard format even on topics absent from Africa Galore QA.",
+          "answer": true,
+          "explain": "It combined facts from pre-training with the format learned from the fine-tuning examples, as with Mount Aconcagua."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Which setup sits inside the lab's suggested ranges for fine-tuning Gemma?",
+          "options": [
+            "Learning rate 2e-5 for 10 epochs",
+            "Learning rate 1e-2 for 10 epochs",
+            "Learning rate 2e-5 for 200 epochs",
+            "Learning rate 1e-3 for 50 epochs"
+          ],
+          "answer": 0,
+          "explain": "The lab suggests rates between 1e-4 and 1e-6 and roughly 1-20 epochs; only 2e-5 for 10 epochs fits both."
+        }
+      ]
+    }
+  ]
+}

@@ -1,13 +1,13 @@
 {
   "name": "Attention Span",
   "short_name": "Attention",
-  "description": "Learn how modern AI works in five minutes a day.",
+  "description": "Get fluent in AI, four minutes a day.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#F3F5FB",
-  "theme_color": "#3B5BFF",
+  "background_color": "#EEF0FF",
+  "theme_color": "#4F46E5",
   "icons": [
     {
       "src": "icons/icon-192.png",

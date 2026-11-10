@@ -1,0 +1,1306 @@
+{
+  "id": "c2",
+  "title": "Represent Your Language Data",
+  "subtitle": "AI Research Foundations · Course 2",
+  "repo": "ai-foundations",
+  "skills": [
+    {
+      "id": "c2-1",
+      "title": "Cleaning raw text",
+      "icon": "filter",
+      "lab": "course_2/gdm_lab_2_1_preprocess_data.ipynb",
+      "cards": [
+        {
+          "title": "Why clean web text?",
+          "body": "Text scraped from the web carries leftovers: HTML tags like `<br>` or `<strong>`, entities like `&amp;`, and stray symbols. Cleaning aims to cut noise while keeping useful information. Every choice shapes what the model learns, so automatic cleaning still benefits from a human review."
+        },
+        {
+          "title": "Strip tags with a regex",
+          "body": "`<` and `>` are literal brackets, `.` matches any character, `*` repeats it zero or more times, and `?` makes the match lazy (as short as possible). Without the `?`, `<.*>` grabs everything from the first `<` to the last `>`. The `r` prefix marks a raw string.",
+          "code": "def clean_html_tags(text):\n    return re.sub(r\"<.*?>\", \"\", text)"
+        },
+        {
+          "title": "Decode HTML entities",
+          "body": "Entities survive tag stripping, so `clean_html` replaces them one by one with `re.sub`: `&nbsp;` becomes a space, `&amp;` becomes &, `&lt;` becomes <, and `&gt;` becomes >. Tags are removed first, so a decoded < or > is never mistaken for a tag.",
+          "code": "text = re.sub(r\"<.*?>\", \"\", text)\ntext = re.sub(\"&nbsp;\", \" \", text)\ntext = re.sub(\"&amp;\", \"&\", text)"
+        },
+        {
+          "title": "Filter by Unicode category",
+          "body": "Each character has a code point (😱 is U+1F631) and a two-letter category. The first letter is the group: L letter, N number, P punctuation, S symbol, Z separator, C control. `clean_unicode` keeps whitespace plus chosen groups; {\"L\", \"N\", \"P\"} drops emojis (So) and currency (Sc). Add \"Sc\" to keep ₦."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "What does this return?",
+          "code": "text = \"Let's <strong>win</strong> this!\"\nre.sub(r\"<.*?>\", \"\", text)",
+          "options": [
+            "\"Let's  this!\"",
+            "\"Let's win this!\"",
+            "\"Let's strongwin/strong this!\"",
+            "\"Let's <win> this!\""
+          ],
+          "answer": 1,
+          "explain": "The lazy pattern removes each tag separately, `<strong>` and `</strong>`, and keeps the text between them."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Without the `?`, what does `re.sub(r\"<.*>\", \"\", \"<h3>Hi <b>you</b></h3>\")` return?",
+          "options": [
+            "An empty string",
+            "\"Hi you\"",
+            "\"Hi <b>you</b>\"",
+            "\"<h3></h3>\""
+          ],
+          "answer": 0,
+          "explain": "Greedy `.*` stretches from the first `<` to the very last `>`, which here covers the whole string, so everything is deleted."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "In the regex `<.*?>`, the `?` makes `*` ___, so it matches the shortest possible string.",
+          "options": [
+            "greedy",
+            "optional",
+            "literal",
+            "lazy"
+          ],
+          "answer": 3,
+          "explain": "By default `*` is greedy and grabs as much as it can. The `?` flips it to lazy mode."
+        },
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each HTML entity to what `clean_html` turns it into.",
+          "pairs": [
+            [
+              "&amp;",
+              "& (ampersand)"
+            ],
+            [
+              "&lt;",
+              "< (less-than sign)"
+            ],
+            [
+              "&gt;",
+              "> (greater-than sign)"
+            ],
+            [
+              "&nbsp;",
+              "a plain space"
+            ]
+          ],
+          "explain": "These four entities are the ones the lab's `clean_html` decodes after stripping tags."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Complete the replacement for the less-than entity.",
+          "code": "text = re.sub(r\"<.*?>\", \"\", text)\ntext = re.sub(\"&nbsp;\", \" \", text)\ntext = re.sub(\"&amp;\", \"&\", text)\ntext = re.sub(\"&lt;\", ___, text)",
+          "options": [
+            "\">\"",
+            "\"\"",
+            "\"<\"",
+            "\"&\""
+          ],
+          "answer": 2,
+          "explain": "`&lt;` stands for <, so it is replaced with \"<\". `&gt;` is the one that becomes \">\"."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why does `clean_html` strip tags before decoding `&lt;` and `&gt;`?",
+          "options": [
+            "re.sub can run only once per string",
+            "So decoded < and > aren't taken for tags",
+            "Entities only ever appear inside tags",
+            "It makes the regex run in lazy mode"
+          ],
+          "answer": 1,
+          "explain": "If `&lt;b&gt;` were decoded first it would become `<b>`, and the tag remover would then delete text that was meant to stay."
+        },
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "What does `unicodedata.category('😊')` return?",
+          "options": [
+            "'So'",
+            "'Sc'",
+            "'Lo'",
+            "'Po'"
+          ],
+          "answer": 0,
+          "explain": "Emojis are \"Symbol, other\": the S group with sub-code o. \"Sc\" is for currency signs like ₦."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "`categories_to_keep = {\"L\", \"N\", \"P\"}`. What survives `clean_unicode(\"Ah! 😱 ₦150\")`?",
+          "options": [
+            "Everything except 😱",
+            "Only the letters and digits",
+            "Everything except ₦",
+            "Letters, digits, ! and spaces"
+          ],
+          "answer": 3,
+          "explain": "Result: \"Ah!  150\". 😱 (So) and ₦ (Sc) are symbols, which are not kept; spaces are always preserved."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "An emoji like 😱 is stored in text as a small image pasted inline.",
+          "answer": false,
+          "explain": "An emoji is a character with its own Unicode code point; 😱 is U+1F631."
+        },
+        {
+          "type": "cloze",
+          "level": 3,
+          "prompt": "To keep currency signs like ₦ while still dropping emojis, add ___ to `categories_to_keep`.",
+          "options": [
+            "\"Sc\"",
+            "\"S\"",
+            "\"So\"",
+            "\"C\""
+          ],
+          "answer": 0,
+          "explain": "\"Sc\" matches only currency symbols. Adding \"S\" would also keep emojis (\"So\"), and \"So\" is the emoji category itself."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Dropping the whole S group would remove emojis but also currency and math symbols.",
+          "answer": true,
+          "explain": "S covers Sm (math, ±), Sc (currency, ₦), Sk (modifiers) and So (emojis and other symbols)."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "Unicode categories follow the same scheme across every language and script.",
+          "answer": true,
+          "explain": "That consistency is why category checks work for Arabic, Chinese or Yoruba text as well as English."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order the parts of the pattern `<.*?>` from left to right.",
+          "items": [
+            "< literal opening bracket",
+            ". any single character",
+            "* repeat zero or more times",
+            "? make the match lazy",
+            "> literal closing bracket"
+          ],
+          "explain": "The pattern reads: an opening bracket, then any characters (as few as possible), then a closing bracket."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "For sentiment analysis on social media, which emoji handling does the lab suggest?",
+          "options": [
+            "Always delete every emoji",
+            "Convert emojis to code points",
+            "Swap emojis for tags like <emoji_happy>",
+            "Keep emojis and drop the words"
+          ],
+          "answer": 2,
+          "explain": "Emojis carry feeling, so replacing them with descriptive tags keeps that signal in a form the model can use."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "What does `hex(ord('😱'))` return?",
+          "options": [
+            "'U+1F631'",
+            "'0x1f631'",
+            "'1F631'",
+            "'😱'"
+          ],
+          "answer": 1,
+          "explain": "`ord` gives the code point as a number and `hex` prints it in hexadecimal, which Python writes with a `0x` prefix."
+        }
+      ]
+    },
+    {
+      "id": "c2-2",
+      "title": "Zipf's law and tokenizers",
+      "icon": "chart",
+      "lab": "course_2/gdm_lab_2_2_tokenize_texts_into_characters_and_words.ipynb",
+      "cards": [
+        {
+          "title": "Count before you model",
+          "body": "The lab lowercases text and pulls out words with `re.findall(r'\\b\\w+\\b', text)`, which skips punctuation, so \"Music,\" and \"music\" count as one token. A `Counter` then tallies them. In Africa Galore, \"the\" comes first, with \"a\", \"and\", \"of\" and \"is\" close behind, as in most English text."
+        },
+        {
+          "title": "Zipf's law",
+          "body": "Rank tokens by frequency (rank 1 = most common). Frequency is roughly proportional to 1 / rank: rank 2 appears about half as often as rank 1, rank 10 about a tenth. On a log-log plot this is a straight line with slope −1. Most tokens live in a long tail of rare words, which models struggle to learn."
+        },
+        {
+          "title": "Characters vs. words",
+          "body": "Character tokenization splits text into single characters: a tiny vocabulary and almost no unknown tokens, but long sequences. Africa Galore's first paragraph is 685 character tokens versus 118 word tokens. Word tokenization gives short sequences but a huge vocabulary.",
+          "code": "def character_tokenize(text):\n    return list(text)\ndef space_tokenize(text):\n    return text.split(\" \")"
+        },
+        {
+          "title": "Vocabulary trade-offs",
+          "body": "A model can only read and write tokens in its vocabulary. A bigger vocabulary spreads meaning over specific tokens, while a single character like \"t\" must help represent every word it appears in. But each token needs its own parameters, so the model gets bigger and slower, and more tokens are too rare to learn."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "Which token is the most frequent in the Africa Galore counts?",
+          "options": [
+            "Africa",
+            "jollof",
+            "the",
+            "music"
+          ],
+          "answer": 2,
+          "explain": "Function words dominate English text. \"the\" tops the list, as it does in much larger English corpora."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Under Zipf's law, if the top token appears 6,000 times, about how often does the rank-3 token appear?",
+          "options": [
+            "About 2,000",
+            "About 3,000",
+            "About 1,000",
+            "About 600"
+          ],
+          "answer": 0,
+          "explain": "Frequency ∝ 1 / rank, so rank 3 appears about a third as often: 6,000 / 3 = 2,000."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "On a log-log plot of frequency against rank, Zipf's law looks like a straight line sloping down.",
+          "answer": true,
+          "explain": "Taking logs turns the power law f ∝ 1/r into log f = −log r + constant, a straight line."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Taking logs of f ∝ 1/r gives log f = −log r + constant: a line with slope ___.",
+          "options": [
+            "1",
+            "0",
+            "−2",
+            "−1"
+          ],
+          "answer": 3,
+          "explain": "The equation has the form y = kx + b with k = −1, so frequency falls as rank rises."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "What does this return?",
+          "code": "text = \"The drum, the DRUM!\"\nre.findall(r'\\b\\w+\\b', text.lower())",
+          "options": [
+            "['the', 'drum,', 'the', 'drum!']",
+            "['the', 'drum', 'the', 'drum']",
+            "['The', 'drum', 'the', 'DRUM']",
+            "['the', 'drum']"
+          ],
+          "answer": 1,
+          "explain": "`lower()` makes the case match, and `\\b\\w+\\b` grabs runs of word characters, so punctuation is left out. Repeats are kept."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Complete `get_token_counts`.",
+          "code": "def get_token_counts(tokens_list):\n    token_counts = ___(tokens_list)\n    return token_counts",
+          "options": [
+            "Counter",
+            "set",
+            "sorted",
+            "len"
+          ],
+          "answer": 0,
+          "explain": "`Counter(tokens_list)` maps each token to how often it appears, and `most_common()` ranks them."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "For \"Hi, Ada\", how many tokens do a character tokenizer and a space tokenizer produce?",
+          "options": [
+            "6 and 2",
+            "5 and 3",
+            "7 and 3",
+            "7 and 2"
+          ],
+          "answer": 3,
+          "explain": "Characters: H, i, ',', ' ', A, d, a = 7 (the comma and space count). Spaces: \"Hi,\" and \"Ada\" = 2."
+        },
+        {
+          "type": "tf",
+          "level": 3,
+          "prompt": "In the lab, the first paragraph needed roughly 6 times as many character tokens as word tokens.",
+          "answer": true,
+          "explain": "685 character tokens versus 118 word tokens: 685 / 118 ≈ 5.8."
+        },
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each idea to its description.",
+          "pairs": [
+            [
+              "Character-level",
+              "Tiny vocabulary, very long sequences"
+            ],
+            [
+              "Word-level",
+              "Huge vocabulary, short sequences"
+            ],
+            [
+              "Zipf's law",
+              "Frequency is roughly proportional to 1/rank"
+            ],
+            [
+              "Long tail",
+              "The many tokens that appear only rarely"
+            ],
+            [
+              "Log-log plot",
+              "Turns a power law into a straight line"
+            ]
+          ],
+          "explain": "These are the lab's two tokenizers and the tools used to study word frequencies."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "A model can generate a word outside its vocabulary if that word is common in everyday English.",
+          "answer": false,
+          "explain": "The vocabulary is fixed during training. A model can neither process nor generate a token that is not in it."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why is a huge word-level vocabulary expensive?",
+          "options": [
+            "Its sequences get much longer",
+            "Punctuation can't be removed",
+            "Each token needs its own parameters",
+            "Zipf's law no longer applies"
+          ],
+          "answer": 2,
+          "explain": "Every token gets its own stored representation, so more tokens means a bigger model that is slower to train and run."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why do character-level tokens struggle to capture meaning?",
+          "options": [
+            "Characters are left out of the vocabulary",
+            "One character serves many unrelated words",
+            "Each text yields too few tokens",
+            "Punctuation can't be represented"
+          ],
+          "answer": 1,
+          "explain": "The token \"t\" has to help represent \"time\", \"the\" and \"train\", so its parameters can't hold one precise meaning."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order from smallest to largest typical vocabulary.",
+          "items": [
+            "English letters A–Z",
+            "Characters in Africa Galore",
+            "Word tokens in Africa Galore",
+            "Words in English (~1 million)"
+          ],
+          "explain": "26 letters, then a few dozen more characters with capitals, digits and punctuation, then thousands of word tokens, then around a million English words."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "Splitting text with `list(text)` is ___-level tokenization.",
+          "options": [
+            "character",
+            "word",
+            "subword",
+            "sentence"
+          ],
+          "answer": 0,
+          "explain": "`list` breaks a string into its individual characters, each of which becomes a token."
+        }
+      ]
+    },
+    {
+      "id": "c2-3",
+      "title": "Subword tokens in Gemma",
+      "icon": "puzzle",
+      "lab": "course_2/gdm_lab_2_3_tokenize_texts_into_subword_tokens.ipynb",
+      "cards": [
+        {
+          "title": "Best of both worlds",
+          "body": "Subword tokenization keeps frequent words like \"the\" or \"is\" as single tokens and breaks rare words into smaller pieces. The vocabulary stays a fixed size, yet almost any word can be written. Gemma learns its pieces with byte pair encoding (BPE) and has a vocabulary of more than 260,000 tokens."
+        },
+        {
+          "title": "How Gemma splits text",
+          "body": "\"The Baobab (genus Adansonia) is\" becomes 11 tokens: The · ␣Ba · ob · ab · ␣( · genus · ␣Ad · ans · onia · ) · ␣is. A space attaches to the start of the next word, common words stay whole, and rare names break into chunks. Emojis get IDs too: ☺️ is 145233."
+        },
+        {
+          "title": "Encode and decode",
+          "body": "`encode` turns text into IDs; `decode` turns IDs (or a single ID) back into text, exactly matching the original. Even a made-up word gets familiar pieces instead of an uninformative `<UNK>`.",
+          "code": "tok = gm.text.Gemma3Tokenizer()\nids = tok.encode(\"Clusterophonexia\")\nfirst = tok.decode(ids[0])\ntext = tok.decode(ids)"
+        },
+        {
+          "title": "Special tokens",
+          "body": "Some tokens carry structure, not content. `<BOS>` and `<EOS>` mark where a sequence begins and ends, which helps pack texts into batches, and producing `<EOS>` lets a model stop on its own. `<PAD>` fills sequences to equal length; `<UNK>` stands in for unknown characters. Use `encode(text, add_bos=True, add_eos=True)`."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "How does a subword tokenizer treat a frequent word like \"the\"?",
+          "options": [
+            "Splits it into letters",
+            "Keeps it as one token",
+            "Maps it to <UNK>",
+            "Drops it entirely"
+          ],
+          "answer": 1,
+          "explain": "Frequent words earn their own tokens; only rare or complex words are broken into pieces."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "How many tokens does Gemma produce for \"The Baobab (genus Adansonia) is\"?",
+          "options": [
+            "11",
+            "5",
+            "31",
+            "8"
+          ],
+          "answer": 0,
+          "explain": "The · ␣Ba · ob · ab · ␣( · genus · ␣Ad · ans · onia · ) · ␣is = 11. There are 5 words and 31 characters."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "In Gemma's tokens, a space usually sticks to the end of the previous word, as in \"The \".",
+          "answer": false,
+          "explain": "It is the other way round: the space joins the start of the next word, which is why tokens like \" Ba\" and \" is\" carry a leading space."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Turn the first token ID back into text.",
+          "code": "ids = tok.encode(\"Clusterophonexia\")\nfirst_token_as_text = tok.___(ids[0])",
+          "options": [
+            "encode",
+            "split",
+            "decode",
+            "vocab_size"
+          ],
+          "answer": 2,
+          "explain": "`decode` maps IDs to text, and it accepts a single ID as well as a list."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why is splitting \"Clusterophonexia\" into pieces better than mapping it to <UNK>?",
+          "options": [
+            "It keeps the vocabulary smaller",
+            "<UNK> tokens can never be decoded",
+            "It shortens the token sequence",
+            "Pieces like \"Cluster\" still hint at meaning"
+          ],
+          "answer": 3,
+          "explain": "Familiar subwords carry information about the word; a blanket `<UNK>` throws all of it away."
+        },
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each special token to its job.",
+          "pairs": [
+            [
+              "<BOS>",
+              "Marks where a sequence begins"
+            ],
+            [
+              "<EOS>",
+              "Marks the end; a cue to stop generating"
+            ],
+            [
+              "<PAD>",
+              "Fills short sequences to equal length"
+            ],
+            [
+              "<UNK>",
+              "Stands in for a character not in the vocab"
+            ]
+          ],
+          "explain": "Special tokens carry structural information rather than content."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "What lets a model decide for itself when a reply is finished?",
+          "options": [
+            "Reaching a <PAD> token",
+            "Producing an <UNK> token",
+            "Generating an <EOS> token",
+            "Running out of vocabulary"
+          ],
+          "answer": 2,
+          "explain": "When the model outputs `<EOS>`, generation stops, instead of always producing a fixed number of tokens."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "Gemma's tokenizer has a vocabulary of more than 260,000 tokens.",
+          "answer": true,
+          "explain": "Its vocabulary was built from a huge, varied dataset covering many languages, subwords and emojis."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Complete the call so both boundary markers are added.",
+          "code": "tok.encode(\"Hello world!\",\n           add_bos=True,\n           ___=True)",
+          "options": [
+            "add_eos",
+            "add_pad",
+            "add_unk",
+            "add_end"
+          ],
+          "answer": 0,
+          "explain": "`add_bos=True` prepends the beginning marker and `add_eos=True` appends the end marker, useful when teaching a chatbot when to stop."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "`n` is the token count without markers. How long is `ids`?",
+          "code": "text = \"Good morning!\"\nn = len(tok.encode(text))\nids = tok.encode(text, add_bos=True,\n                 add_eos=True)",
+          "options": [
+            "n",
+            "n + 2",
+            "n + 1",
+            "2 × n"
+          ],
+          "answer": 1,
+          "explain": "`add_bos=True` puts one `<BOS>` token in front and `add_eos=True` puts one `<EOS>` token at the end, so the sequence grows by exactly 2."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Decoding the IDs returned by Gemma's `encode(text)` gives back exactly the original text.",
+          "answer": true,
+          "explain": "The lab checks this with a ✅: encoding and then decoding is lossless for normal text."
+        },
+        {
+          "type": "order",
+          "level": 3,
+          "prompt": "Put Gemma's first six tokens for \"The Baobab (genus\" in order.",
+          "items": [
+            "\"The\"",
+            "\" Ba\"",
+            "\"ob\"",
+            "\"ab\"",
+            "\" (\"",
+            "\"genus\""
+          ],
+          "explain": "Baobab splits as Ba + ob + ab, and the space before \"(\" travels with it. \"genus\" has no space because it follows the bracket."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "The emoji ☺️ has ID 145233. What does `tok.decode(145233)` return?",
+          "options": [
+            "'<UNK>'",
+            "'145233'",
+            "'smiling'",
+            "'☺️'"
+          ],
+          "answer": 3,
+          "explain": "The emoji is a regular entry in Gemma's vocabulary, so decoding its ID returns the emoji itself."
+        },
+        {
+          "type": "cloze",
+          "level": 1,
+          "prompt": "Subword tokenization sits between ___-level and word-level tokenization.",
+          "options": [
+            "sentence",
+            "paragraph",
+            "document",
+            "character"
+          ],
+          "answer": 3,
+          "explain": "It mixes both: common words stay whole and rare words fall back to smaller pieces, down to characters if needed."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "How do <BOS> and <EOS> help with batching?",
+          "options": [
+            "Texts can share a batch with less padding",
+            "They remove the need for a vocabulary",
+            "They make every sequence one token",
+            "They sort texts by their length"
+          ],
+          "answer": 0,
+          "explain": "Clear start and end markers let several documents sit in one batch without padding each one heavily."
+        }
+      ]
+    },
+    {
+      "id": "c2-4",
+      "title": "Build a BPE tokenizer",
+      "icon": "wrench",
+      "lab": "course_2/gdm_lab_2_4_implement_a_bpe_tokenizer.ipynb",
+      "cards": [
+        {
+          "title": "The BPE recipe",
+          "body": "1) Split each word into characters plus an end-of-word marker `</w>`; the vocabulary starts as the unique characters. 2) Count every adjacent pair of tokens. 3) Add the most frequent pair as a new merged token. 4) Replace that pair everywhere in the corpus. 5) Repeat until you reach the target number of merges or vocabulary size."
+        },
+        {
+          "title": "Initialize",
+          "body": "\"rice\" becomes ['r', 'i', 'c', 'e', '</w>']. The marker lets the tokenizer tell a word-final piece like \"e</w>\" from an \"e\" inside a word.",
+          "code": "for word in paragraph.split(\" \"):\n    chars = list(word) + [EOW_SYMBOL]\n    corpus.append(chars)\n    vocabulary.update(chars)"
+        },
+        {
+          "title": "Count pairs",
+          "body": "A word of L tokens has L − 1 adjacent pairs. In Africa Galore the top pair is ('e', '</w>'), since many words end in \"e\"; pairs like ('i', 'n') and ('t', 'h') are common too.",
+          "code": "for word in corpus:\n    for i in range(len(word) - 1):\n        pair = (word[i], word[i + 1])\n        pairs[pair] += 1"
+        },
+        {
+          "title": "Merge and repeat",
+          "body": "`merge_pair_in_word` walks along the word: if positions i and i + 1 match the pair, it appends the merged token and jumps ahead by 2; otherwise it copies one token and moves on. Each merge adds exactly one token to the vocabulary. `learn_bpe` loops this for `num_merges` rounds."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "order",
+          "level": 1,
+          "prompt": "Order the steps of byte pair encoding.",
+          "items": [
+            "Split words into characters + </w>",
+            "Count adjacent token pairs",
+            "Pick the most frequent pair",
+            "Add the merged token to the vocab",
+            "Replace that pair across the corpus",
+            "Repeat until enough merges"
+          ],
+          "explain": "Initialize, count, merge, replace, repeat: each round adds one new subword token."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "After initialization, how is the word \"rice\" stored?",
+          "options": [
+            "['rice', '</w>']",
+            "['r', 'i', 'c', 'e']",
+            "['r', 'i', 'c', 'e', '</w>']",
+            "['</w>', 'r', 'i', 'c', 'e']"
+          ],
+          "answer": 2,
+          "explain": "Each word becomes its characters followed by the end-of-word marker."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Complete the initialization line.",
+          "code": "EOW_SYMBOL = \"</w>\"\nchars = list(word) + ___",
+          "options": [
+            "[EOW_SYMBOL]",
+            "EOW_SYMBOL",
+            "[\" \"]",
+            "[word]"
+          ],
+          "answer": 0,
+          "explain": "You can only add a list to a list, so the marker is wrapped in brackets. Adding the bare string would raise a TypeError."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "How many adjacent pairs are counted in ['r', 'i', 'c', 'e', '</w>']?",
+          "options": [
+            "5",
+            "4",
+            "3",
+            "10"
+          ],
+          "answer": 1,
+          "explain": "5 tokens give 5 − 1 = 4 pairs: (r, i), (i, c), (c, e), (e, </w>)."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Complete the pair inside `get_pair_frequencies`.",
+          "code": "for i in range(len(word) - 1):\n    pair = (word[i], ___)\n    pairs[pair] += 1",
+          "options": [
+            "word[i - 1]",
+            "word[i]",
+            "word[-1]",
+            "word[i + 1]"
+          ],
+          "answer": 3,
+          "explain": "Each pair is a token and its right-hand neighbour. The loop stops one early so `i + 1` never runs off the end."
+        },
+        {
+          "type": "cloze",
+          "level": 3,
+          "prompt": "How far does `i` jump after a merge?",
+          "code": "while i < len(word):\n    if (i < len(word) - 1 and\n            (word[i], word[i + 1]) == pair):\n        new_word.append(merged)\n        i += ___\n    else:\n        new_word.append(word[i])\n        i += 1",
+          "options": [
+            "1",
+            "0",
+            "2",
+            "3"
+          ],
+          "answer": 2,
+          "explain": "A merge consumes two tokens, positions i and i + 1, so the next unread token is at i + 2."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Merge the pair ('a', 'n') in ['b', 'a', 'n', 'a', 'n', 'a', '</w>']. What do you get?",
+          "options": [
+            "['b', 'an', 'an', 'a', '</w>']",
+            "['b', 'an', 'a', 'n', 'a', '</w>']",
+            "['ban', 'an', 'a', '</w>']",
+            "['b', 'a', 'nan', 'a', '</w>']"
+          ],
+          "answer": 0,
+          "explain": "Every adjacent ('a', 'n') is merged: two matches become \"an\", \"an\". The last \"a\" is followed by </w>, so it stays alone."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "Each BPE merge adds exactly one new token to the vocabulary.",
+          "answer": true,
+          "explain": "One merge creates one new token, the concatenation of the chosen pair, so after k merges the vocabulary has grown by k."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "Corpus: desert ×3, deserted ×2, deserts, desertion ×2, tested, test, function. Which pair does BPE merge first?",
+          "options": [
+            "('d', 'e'), 8 times",
+            "('r', 't'), 8 times",
+            "('t', '</w>'), 4 times",
+            "('e', 's'), 10 times"
+          ],
+          "answer": 3,
+          "explain": "\"es\" appears once in each of the 8 desert-words plus \"tested\" and \"test\": 10 times, more than any other pair."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "That corpus starts with 11 characters plus </w> in its vocabulary. How big is the vocabulary after 10 merges?",
+          "options": [
+            "21",
+            "22",
+            "12",
+            "10"
+          ],
+          "answer": 1,
+          "explain": "It starts with 11 + 1 = 12 tokens, and each merge adds one: 12 + 10 = 22."
+        },
+        {
+          "type": "tf",
+          "level": 3,
+          "prompt": "After 10 merges on that corpus, \"deserted\" is tokenized as \"desert\" + \"ed</w>\".",
+          "answer": true,
+          "explain": "The early merges build up \"desert\", and later ones create \"ed</w>\", so the word splits into a stem and an ending."
+        },
+        {
+          "type": "match",
+          "level": 2,
+          "prompt": "Match each piece of the BPE code to its role.",
+          "pairs": [
+            [
+              "</w>",
+              "Marks the end of a word"
+            ],
+            [
+              "bpe_initialize",
+              "Splits words into chars and seeds the vocab"
+            ],
+            [
+              "get_pair_frequencies",
+              "Counts adjacent token pairs in the corpus"
+            ],
+            [
+              "merge_pair_in_word",
+              "Replaces a pair with one merged token"
+            ],
+            [
+              "most_common(1)",
+              "Returns the top pair and its count"
+            ]
+          ],
+          "explain": "These are the building blocks that `learn_bpe` combines into the full algorithm."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "BPE merges the least frequent pair first so that rare words get their own tokens.",
+          "answer": false,
+          "explain": "BPE always merges the most frequent pair. Common words become single tokens, while rare words stay split into smaller pieces."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why does BPE add `</w>` to every word?",
+          "options": [
+            "To mark characters it doesn't know",
+            "To pad words to equal length",
+            "To tell word endings from inner pieces",
+            "To separate one paragraph from the next"
+          ],
+          "answer": 2,
+          "explain": "With the marker, \"e</w>\" (a word-final e) and \"e\" inside a word become different tokens, which also lets decoding restore spaces."
+        }
+      ]
+    },
+    {
+      "id": "c2-5",
+      "title": "Embeddings and similarity",
+      "icon": "vector",
+      "lab": "course_2/gdm_lab_2_5_experiment_with_embeddings.ipynb",
+      "cards": [
+        {
+          "title": "Tokens as vectors",
+          "body": "An embedding maps each token to a high-dimensional vector; Gemma 1B uses 1,152 dimensions. The embedding table is a matrix with one row per token. To save memory and time, the lab loads only 24 of Gemma's 260,000+ rows, so `embeddings.shape` is (24, 1152). `labels.index(token)` gives a token's row."
+        },
+        {
+          "title": "numpy basics",
+          "body": "`.shape` gives (rows, columns), or just (length,) for a plain vector. Indexing starts at 0, and `:` means all rows or all columns.",
+          "code": "v = np.array([1, 2, 3])     # (3,)\nM = np.array([[6, 1, 4],\n              [9, 0, 2]])  # (2, 3)\nM[1, :]   # row 2: [9 0 2]\nM[:, 0]   # column 1: [6 9]"
+        },
+        {
+          "title": "Dot product",
+          "body": "u · v = u₁v₁ + u₂v₂ + … + uₖvₖ, computed with `np.dot(u, v)` or `np.matmul(u.T, v)`. Positive: the angle is under 90° and the vectors point a similar way. Zero: they are orthogonal, loosely unrelated. Negative: over 90°, pointing apart. With many dimensions the raw value can get very large."
+        },
+        {
+          "title": "Cosine similarity",
+          "body": "cos(u, v) = u · v / (‖u‖ ‖v‖) divides out vector length, so the result is always between −1 and +1, and it is symmetric. In Gemma: king–queen 0.42, sad–happy 0.22, king–bus 0.04. Even antonyms such as good–bad (0.42) can score high, since both describe quality. t-SNE squeezes embeddings into 2D while keeping neighbours close."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "How many dimensions does each Gemma 1B token embedding have?",
+          "options": [
+            "24",
+            "260,000",
+            "1,152",
+            "2"
+          ],
+          "answer": 2,
+          "explain": "Each token is a 1,152-number vector. 24 is how many tokens the lab loads; 260,000+ is the vocabulary size."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "What is the shape of `np.array([[7, 4], [3, 5], [1, 6], [4, 7]])`?",
+          "options": [
+            "(4, 2)",
+            "(2, 4)",
+            "(8,)",
+            "(4,)"
+          ],
+          "answer": 0,
+          "explain": "There are 4 inner lists (rows), each with 2 numbers (columns), so the shape is (4, 2)."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Get the embedding dimension, i.e. the number of columns.",
+          "code": "embedding_dim = embeddings.shape[___]",
+          "options": [
+            "0",
+            "-2",
+            "2",
+            "1"
+          ],
+          "answer": 3,
+          "explain": "`shape` is (rows, columns) = (24, 1152). Index 1 picks the columns, so `embedding_dim` is 1,152."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "`embeddings` has shape (24, 1152). What is the shape of `embeddings[:, 6]`?",
+          "options": [
+            "(1152,)",
+            "(24,)",
+            "(6,)",
+            "(24, 6)"
+          ],
+          "answer": 1,
+          "explain": "`[:, 6]` takes column 7 from every row: one number per token, so 24 values."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "What is the dot product of [1, 2, 3] and [4, −1, 2]?",
+          "options": [
+            "12",
+            "6",
+            "0",
+            "8"
+          ],
+          "answer": 3,
+          "explain": "1·4 + 2·(−1) + 3·2 = 4 − 2 + 6 = 8. Forgetting the minus sign gives 12."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "A negative dot product means the angle between two embeddings is greater than 90°.",
+          "answer": true,
+          "explain": "Negative means the vectors point in roughly opposite directions, a sign of dissimilarity."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Complete `cos_sim`.",
+          "code": "dot_uv = np.matmul(u.T, v)\nlen_u = np.linalg.norm(u, 2)\nlen_v = np.linalg.norm(v, 2)\ncosine_sim = dot_uv / ___",
+          "options": [
+            "(len_u * len_v)",
+            "(len_u + len_v)",
+            "len_u",
+            "(dot_uv * len_v)"
+          ],
+          "answer": 0,
+          "explain": "Cosine similarity divides the dot product by the product of the two vector lengths, which scales it into the range −1 to +1."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "u = [3, 4] and v = [6, 8]. What is their cosine similarity?",
+          "options": [
+            "50",
+            "0.5",
+            "1.0",
+            "0"
+          ],
+          "answer": 2,
+          "explain": "u · v = 18 + 32 = 50, ‖u‖ = 5, ‖v‖ = 10, so 50 / 50 = 1. They point the same way; only their lengths differ."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "Because \"good\" and \"bad\" are antonyms, Gemma gives them a cosine similarity close to −1.",
+          "answer": false,
+          "explain": "It is 0.42. Opposites still share a lot: both are adjectives about quality, so they sit in similar contexts."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Complete `get_embedding`.",
+          "code": "token_idx = labels.index(token)\nembedding = embeddings[___, :]",
+          "options": [
+            "token",
+            "token_idx",
+            ":",
+            "labels"
+          ],
+          "answer": 1,
+          "explain": "The row number comes from `labels.index(token)`; numpy needs that integer index, not the token string."
+        },
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each term to its meaning.",
+          "pairs": [
+            [
+              "Dot product",
+              "Sum of element-wise products"
+            ],
+            [
+              "Cosine similarity",
+              "Dot product divided by both lengths"
+            ],
+            [
+              "Orthogonal",
+              "At 90°, with a dot product of zero"
+            ],
+            [
+              "t-SNE",
+              "Projects to 2D while keeping neighbours"
+            ],
+            [
+              ".shape",
+              "The dimensions of a numpy array"
+            ]
+          ],
+          "explain": "These are the tools the lab uses to measure and picture embedding similarity."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why did plotting two raw embedding dimensions against each other rarely show clear groups?",
+          "options": [
+            "Meaning is spread over many dimensions",
+            "Most dimensions hold only zeros",
+            "Only dimension 0 stores meaning",
+            "The plot can't show 24 tokens"
+          ],
+          "answer": 0,
+          "explain": "Word relationships come from combinations of many dimensions, so any two on their own capture little of the structure."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "In the t-SNE plot, \"cat\" lands right next to \"car\". What's the best explanation?",
+          "options": [
+            "Gemma treats cats as vehicles",
+            "Their cosine similarity must be 1",
+            "t-SNE orders tokens alphabetically",
+            "Detail lost squeezing 1,152 dims into 2"
+          ],
+          "answer": 3,
+          "explain": "Projecting to two dimensions throws away fine-grained information, so some neighbours, like cat and car, are artifacts."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order these Gemma similarities from highest to lowest.",
+          "items": [
+            "king – king",
+            "king – queen",
+            "sad – happy",
+            "king – bus"
+          ],
+          "explain": "A vector compared with itself gives 1.0, then king–queen 0.42, sad–happy 0.22, and the unrelated king–bus 0.04."
+        },
+        {
+          "type": "cloze",
+          "level": 3,
+          "prompt": "`np.array([[4, 4, 4]])` has shape ___.",
+          "options": [
+            "(3,)",
+            "(3, 1)",
+            "(1, 3)",
+            "(4, 4, 4)"
+          ],
+          "answer": 2,
+          "explain": "The double brackets make one row of three columns. `np.array([4, 4, 4])` without the outer brackets would be (3,)."
+        },
+        {
+          "type": "tf",
+          "level": 1,
+          "prompt": "The lab loads embeddings for just 24 tokens to save memory and speed up computation.",
+          "answer": true,
+          "explain": "The full table has a row for each of 260,000+ tokens; 24 is enough to explore similarity."
+        }
+      ]
+    },
+    {
+      "id": "c2-6",
+      "title": "Train an SLM with BPE",
+      "icon": "brain",
+      "lab": "course_2/gdm_lab_2_6_train_an_slm_with_your_bpe_tokenizer.ipynb",
+      "cards": [
+        {
+          "title": "Train the tokenizer first",
+          "body": "`BPEWordTokenizer(dataset, num_merges=3000)` learns 3,000 merges from Africa Galore. The constructor then makes sure a–z, A–Z and 0–9 are present and wraps the sorted tokens as [`<PAD>`] + … + [`<UNK>`], so `<PAD>` is ID 0 and `<UNK>` the last ID. The final vocabulary is therefore a bit larger than merging alone gives."
+        },
+        {
+          "title": "Encoding new text",
+          "body": "Each word becomes its characters plus `</w>`, then the learned merges are replayed in order. \"launched\" → la · un · ched</w>. The unseen \"Zimbabwian\" → Zimbab · wi · an, which can relate to \"Zimbabwe\". 😋 never appeared, so it becomes `<UNK>`.",
+          "code": "for word in text.strip().split():\n    chars = list(word) + [\"</w>\"]\n    for pair in self.merges:\n        chars = self._merge_pairs_in_word(\n            chars, pair)\n    tokens.extend(chars)"
+        },
+        {
+          "title": "Same training pipeline",
+          "body": "Encode every paragraph, pad or truncate to 300 with `<PAD>`, then shift by one for inputs and targets (299 tokens each). The model trains for 100 epochs with batch size 2 and learning rate 8e-5, printing a \"Jide\" sample every 10 epochs. Early samples contain non-words because subword pieces are combined at random."
+        },
+        {
+          "title": "What the embeddings learned",
+          "body": "The model's first trainable weight matrix holds its token embeddings. A t-SNE plot of food words, prepositions, adjectives and countries shows the prepositions (on, in, with, for, of) clustering tightly: frequent function words give even a small dataset plenty of evidence. Rarer words cluster less cleanly. The best merge count depends on data, language and goal."
+        }
+      ],
+      "exercises": [
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Why is the final vocabulary larger than the tokens produced by merging?",
+          "options": [
+            "Each merge adds two tokens instead of one",
+            "Letters, digits, <PAD> and <UNK> are added",
+            "Every word is also stored as a whole",
+            "Gemma's vocabulary gets merged in too"
+          ],
+          "answer": 1,
+          "explain": "After learning merges, the constructor adds missing letters and digits plus the two special tokens."
+        },
+        {
+          "type": "mcq",
+          "level": 1,
+          "prompt": "How does your BPE tokenizer handle the unseen word \"Zimbabwian\"?",
+          "options": [
+            "Splits it into Zimbab · wi · an",
+            "Maps the whole word to <UNK>",
+            "Adds it to the vocabulary",
+            "Splits it into single letters"
+          ],
+          "answer": 0,
+          "explain": "Replaying the learned merges builds familiar pieces, so the word gets informative subwords instead of `<UNK>`."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "The emoji 😋 is encoded as <UNK> because no emoji appears in Africa Galore.",
+          "answer": true,
+          "explain": "BPE can only build tokens from characters it has seen, and no emoji was added to the vocabulary by hand."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Complete `_split_text`: which list of pairs is replayed on each word?",
+          "code": "for word in text.strip().split():\n    chars = list(word) + [\"</w>\"]\n    for pair in self.___:\n        chars = self._merge_pairs_in_word(\n            chars, pair)",
+          "options": [
+            "vocabulary",
+            "token_to_index",
+            "tokenized_corpus",
+            "merges"
+          ],
+          "answer": 3,
+          "explain": "`self.merges` stores the learned pairs in the order they were learned, and applying them in that order reproduces the training tokenization."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "The vocabulary is [<PAD>] + sorted tokens + [<UNK>], 3,200 tokens in total. What are the IDs of <PAD> and <UNK>?",
+          "options": [
+            "0 and 3,199",
+            "1 and 3,200",
+            "0 and 3,200",
+            "3,199 and 0"
+          ],
+          "answer": 0,
+          "explain": "IDs are list positions starting at 0. `<PAD>` is first (0) and `<UNK>` is last (3,200 − 1 = 3,199)."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "Early in training, why do the \"Jide…\" samples contain made-up words?",
+          "options": [
+            "The tokenizer forgot its merges",
+            "Padding tokens are being printed",
+            "It hasn't learned how pieces combine",
+            "The learning rate was set to zero"
+          ],
+          "answer": 2,
+          "explain": "The model samples subword tokens. Until it learns which pieces go together, it glues them randomly into non-words."
+        },
+        {
+          "type": "tf",
+          "level": 3,
+          "prompt": "With `max_length = 300`, the input and target sequences are each 299 tokens long.",
+          "answer": true,
+          "explain": "Inputs drop the last token and targets drop the first, so both are one shorter than the padded length."
+        },
+        {
+          "type": "order",
+          "level": 2,
+          "prompt": "Order the steps of this lab.",
+          "items": [
+            "Learn 3,000 BPE merges on Africa Galore",
+            "Encode each paragraph as token IDs",
+            "Pad and truncate to length 300",
+            "Shift by one into inputs and targets",
+            "Train the transformer for 100 epochs",
+            "Plot learned embeddings with t-SNE"
+          ],
+          "explain": "The tokenizer must exist before encoding, and the model must be trained before its embeddings are worth plotting."
+        },
+        {
+          "type": "mcq",
+          "level": 2,
+          "prompt": "In the t-SNE plot of your model's embeddings, which group forms the tightest cluster?",
+          "options": [
+            "Countries like Egypt, Ghana",
+            "Adjectives like aromatic, hot",
+            "Food words like stew, sauce",
+            "Prepositions like in, on, of"
+          ],
+          "answer": 3,
+          "explain": "Prepositions are very frequent, so even this small dataset shows the model many examples of how they are used."
+        },
+        {
+          "type": "cloze",
+          "level": 2,
+          "prompt": "Prepositions cluster well because they are ___ in the dataset, giving the model lots of evidence.",
+          "options": [
+            "rare",
+            "frequent",
+            "capitalized",
+            "unknown"
+          ],
+          "answer": 1,
+          "explain": "Frequent function words appear in many contexts, so the model learns stable embeddings for them; rare words get far fewer examples."
+        },
+        {
+          "type": "match",
+          "level": 1,
+          "prompt": "Match each name from the lab to its role.",
+          "pairs": [
+            [
+              "num_merges=3000",
+              "How many merge rules the tokenizer learns"
+            ],
+            [
+              "pad_token_id",
+              "ID used to fill short sequences"
+            ],
+            [
+              "unknown_token_id",
+              "ID for symbols outside the vocabulary"
+            ],
+            [
+              "trainable_weights[0]",
+              "The model's token embedding matrix"
+            ],
+            [
+              "_merge_pairs_in_word",
+              "Applies one merge to a single word"
+            ]
+          ],
+          "explain": "These names tie the tokenizer, the padding step and the trained model together."
+        },
+        {
+          "type": "mcq",
+          "level": 3,
+          "prompt": "What does the `assert` check?",
+          "code": "token_ids = []\nfor token in tokens:\n    ids = tokenizer.encode(token)\n    token_ids.extend(ids)\nassert len(token_ids) == len(tokens)",
+          "options": [
+            "Each word is in Gemma's vocabulary",
+            "No word was padded to length 300",
+            "Each chosen word is one BPE token",
+            "Embeddings have 1,152 dimensions"
+          ],
+          "answer": 2,
+          "explain": "If a word split into several subword tokens, `token_ids` would be longer than `tokens` and the plot labels would not line up."
+        },
+        {
+          "type": "tf",
+          "level": 2,
+          "prompt": "The best number of BPE merges is fixed and does not depend on the dataset or language.",
+          "answer": false,
+          "explain": "The right number depends on the data, the language and the goal, so it is usually found by experimenting."
+        },
+        {
+          "type": "cloze",
+          "level": 3,
+          "prompt": "With zero merges learned, \"stew\" would be encoded as ___ tokens.",
+          "options": [
+            "5",
+            "4",
+            "1",
+            "6"
+          ],
+          "answer": 0,
+          "explain": "No merges means pure characters: s, t, e, w plus the `</w>` marker, which is itself in the vocabulary. That makes 5."
+        }
+      ]
+    }
+  ]
+}

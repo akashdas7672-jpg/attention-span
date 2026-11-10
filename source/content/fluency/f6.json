@@ -1,0 +1,444 @@
+{
+  "id": "f6",
+  "title": "Making it yours",
+  "blurb": "Fine-tuning, look-ups and what it costs.",
+  "sessions": [
+    {
+      "id": "f6-1",
+      "title": "Generalist to specialist",
+      "icon": "rocket",
+      "goal": "Explain how fine-tuning turns a general model into a specialist.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "The well-read all-rounder",
+          "body": "Picture a new graduate who has read widely: some law, some cooking, some marketing. A **base model** is like that. It is the general model you start with, trained on a broad sweep of text. It can turn its hand to most things, and is a specialist in none."
+        },
+        {
+          "type": "cloze",
+          "prompt": "A base model is a ___: trained on a broad sweep of text, not on one company's work.",
+          "options": ["specialist", "generalist", "database"],
+          "answer": 1,
+          "explain": "Its training covered a little of almost everything. That makes it useful for most everyday jobs, and an expert in no single brand, client or house style."
+        },
+        {
+          "type": "tf",
+          "prompt": "A base model was trained specially on your agency's past campaigns and house style.",
+          "answer": false,
+          "labels": { "true": "Fact", "false": "Myth" },
+          "explain": "It learned from a broad sweep of general text. Your house style is not something it has studied, which is why it starts out sounding generic."
+        },
+        {
+          "type": "card",
+          "title": "A short specialist course",
+          "body": "A generalist becomes a specialist through focused practice. **Fine-tuning** is a short extra round of training on a small, specific set of examples, such as a brand's best customer replies. The model builds on what it already knows about language and picks up the specialism on top."
+        },
+        {
+          "type": "mcq",
+          "prompt": "What is fine-tuning?",
+          "options": [
+            "Writing a longer and more detailed prompt",
+            "Building a brand-new model from nothing",
+            "Extra training on a small set of examples"
+          ],
+          "answer": 2,
+          "explain": "Fine-tuning starts from a model that already handles language well and gives it a short extra round of practice on examples of one particular job."
+        },
+        {
+          "type": "order",
+          "prompt": "Put the making of a specialist model in order.",
+          "items": [
+            "Train on a broad sweep of text",
+            "Result: a generalist base model",
+            "Train a bit more on specific examples",
+            "Result: a specialist for one job"
+          ],
+          "explain": "The broad training comes first and does most of the work. Fine-tuning is the short second round that turns the all-rounder into a specialist."
+        },
+        {
+          "type": "card",
+          "title": "Change the page or the dials",
+          "body": "You can hand an actor a new script, or send them on a course. A prompt is the script: it changes what is on the page and leaves the model as it was. Fine-tuning is the course: it changes the dials themselves, the learned settings inside the model."
+        },
+        {
+          "type": "sort",
+          "prompt": "Does each line describe a prompt or fine-tuning?",
+          "buckets": ["Prompt", "Fine-tuning"],
+          "items": [
+            ["Changes what is on the page", 0],
+            ["Changes the dials inside the model", 1],
+            ["Leaves the model exactly as it was", 0],
+            ["Needs an extra round of training", 1],
+            ["Done by typing clearer instructions", 0],
+            ["Builds the new behaviour into the model", 1]
+          ],
+          "explain": "A prompt only ever adds words to the page. Fine-tuning is training, so it moves the dials and the change stays in the model afterwards."
+        },
+        {
+          "type": "mcq",
+          "prompt": "You paste a few style rules into a chat and the answers improve. What has changed?",
+          "options": [
+            "The page; the model's dials are just the same",
+            "The dials; the model has now been retrained",
+            "Both the page and the dials, in equal measure"
+          ],
+          "answer": 0,
+          "explain": "Pasting text is prompting. It changes what the model can see in this chat and nothing else. Open a new chat and the style rules are gone."
+        },
+        {
+          "type": "match",
+          "prompt": "Match each term to its meaning.",
+          "pairs": [
+            ["Base model", "A generalist trained on a broad sweep of text"],
+            ["Fine-tuning", "Extra training on a small set of examples"],
+            ["Prompt", "The words you put on the page"],
+            ["Dials", "The learned settings inside a model"]
+          ],
+          "explain": "The base model is the starting point, fine-tuning retrains its dials a little, and a prompt works without touching them at all."
+        }
+      ],
+      "takeaway": "A prompt changes what is on the page; fine-tuning is extra training that changes the dials themselves.",
+      "tryit": "Ask a chat assistant to reply in rhyme, then open a new chat. The rhyme is gone: you changed the page, not the dials."
+    },
+    {
+      "id": "f6-2",
+      "title": "The light-touch tweak",
+      "icon": "wrench",
+      "goal": "Explain how a small add-on can specialise a model cheaply.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "Retuning every dial",
+          "body": "Fine-tuning means extra training on specific examples. The full version adjusts every dial, the settings inside the model, and a big model has billions. It is like repainting the whole house to change one room: slow, costly, and you end up storing a complete second copy of the model."
+        },
+        {
+          "type": "tf",
+          "prompt": "Full fine-tuning adjusts every dial in the model.",
+          "answer": true,
+          "explain": "Every dial is free to move during the extra training. On a model with billions of them, that means a lot of computing work and a full-size copy to keep."
+        },
+        {
+          "type": "mcq",
+          "prompt": "A team wants a fully fine-tuned copy of a huge model for each of 30 clients. What is the main drawback?",
+          "options": [
+            "The model would stop understanding prompts",
+            "Thirty full-size copies to train and store",
+            "All the clients would share one set of dials"
+          ],
+          "answer": 1,
+          "explain": "Full fine-tuning produces a complete new copy of the model each time. Thirty clients means thirty rounds of heavy training and thirty huge files."
+        },
+        {
+          "type": "card",
+          "title": "A clip-on lens",
+          "body": "A clip-on lens changes what your phone camera can do without rebuilding the camera. A popular shortcut works the same way: freeze the original dials and train a small add-on that sits alongside them. One well-known method is called **LoRA**."
+        },
+        {
+          "type": "cloze",
+          "prompt": "With a method such as LoRA, the original dials are ___ and only a small add-on is trained.",
+          "options": ["frozen", "deleted", "doubled"],
+          "answer": 0,
+          "explain": "Frozen means left exactly as they were. All the learning happens in the small add-on, which is why this shortcut is so much lighter than retuning everything."
+        },
+        {
+          "type": "tf",
+          "prompt": "Training a small add-on rewrites the model's original dials.",
+          "answer": false,
+          "labels": { "true": "Fact", "false": "Myth" },
+          "explain": "The original dials do not move at all. The add-on learns the new job beside them, like a lens clipped onto a camera you have not rebuilt."
+        },
+        {
+          "type": "card",
+          "title": "Small, cheap, swappable",
+          "body": "The add-on is tiny next to the model, so it is quick to train and cheap to store. One model can keep a whole drawer of them: one for a playful snack brand, one for a formal bank. Swap the add-on and you swap the specialism."
+        },
+        {
+          "type": "sort",
+          "prompt": "Full fine-tuning or a small add-on? Sort each description.",
+          "buckets": ["Full fine-tuning", "Small add-on"],
+          "items": [
+            ["Adjusts every dial", 0],
+            ["Original dials stay frozen", 1],
+            ["Leaves a full-size copy to store", 0],
+            ["Tiny and cheap to keep", 1],
+            ["Slow and costly on a big model", 0],
+            ["Easy to swap for each job", 1]
+          ],
+          "explain": "Full fine-tuning moves everything and saves everything. The add-on route trains and stores only a small extra part, so you can keep one for each job."
+        },
+        {
+          "type": "mcq",
+          "prompt": "One model writes for a snack brand and a bank. With add-ons, how do you switch between their voices?",
+          "options": [
+            "Keep two full copies of the big model",
+            "Retrain every dial each time you switch",
+            "Swap one small add-on for the other"
+          ],
+          "answer": 2,
+          "explain": "The big model stays the same for both clients. Each voice lives in its own small add-on, so switching is a matter of swapping one for the other."
+        }
+      ],
+      "takeaway": "A small trained add-on can specialise a model while its original dials stay frozen: tiny, cheap and easy to swap.",
+      "tryit": "Explain the clip-on lens idea to a colleague in one sentence: freeze the model, train a small add-on."
+    },
+    {
+      "id": "f6-3",
+      "title": "Give it a library card",
+      "icon": "book",
+      "goal": "Explain how a look-up puts fresh facts and sources in front of a model.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "Fetch it, don't memorise it",
+          "body": "A good librarian has not memorised every book. They know how to fetch the right one. An AI product can do the same: when you ask, it finds the relevant documents and puts them on the page for the model to read. This look-up is often called **retrieval**."
+        },
+        {
+          "type": "mcq",
+          "prompt": "What does retrieval do when you ask a question?",
+          "options": [
+            "Fetches relevant documents onto the page",
+            "Retrains the model's dials on your files",
+            "Sends your question to a human expert"
+          ],
+          "answer": 0,
+          "explain": "Nothing inside the model changes. The product finds the right documents and places them on the page, where the model can read them like any other part of your prompt."
+        },
+        {
+          "type": "cloze",
+          "prompt": "A tool that pulls up the HR handbook before answering your holiday question is using ___.",
+          "options": ["fine-tuning", "retrieval", "a bigger model"],
+          "answer": 1,
+          "explain": "It looked the answer up. Many tools find the right passage by matching meaning, not exact words, then put it on the page for the model to read."
+        },
+        {
+          "type": "card",
+          "title": "Best for facts that change",
+          "body": "A printed brochure goes stale the day prices change. So does a model: its training stopped at a cut-off date. A look-up reads the live document instead. Update the document and the next answer updates too. Ideal for prices, policies and this week's numbers."
+        },
+        {
+          "type": "tf",
+          "prompt": "A look-up suits facts that change, because updating the document updates the next answer.",
+          "answer": true,
+          "explain": "The model reads the current document each time you ask. Nobody has to retrain anything when a price or a policy changes."
+        },
+        {
+          "type": "sort",
+          "prompt": "Which questions need a look-up, and which can a model answer from its training?",
+          "buckets": ["Needs a look-up", "Model knows it"],
+          "items": [
+            ["This week's campaign results", 0],
+            ["How to write a polite email", 1],
+            ["The current rate card", 0],
+            ["What a tagline is", 1],
+            ["Our latest travel policy", 0],
+            ["Basic grammar and spelling", 1]
+          ],
+          "explain": "General skills and long-settled knowledge are in the model already. Facts that are recent, changing or private to your company have to be fetched and put on the page."
+        },
+        {
+          "type": "card",
+          "title": "Answers that show their sources",
+          "body": "When a model answers from fetched documents, the product can show which ones it used, like footnotes in a report. You can open the source and check the claim yourself. A look-up does not guarantee a right answer, but it makes a wrong one much easier to catch."
+        },
+        {
+          "type": "mcq",
+          "prompt": "What is the main benefit of an answer that points to its sources?",
+          "options": [
+            "It proves the answer has to be correct",
+            "You can open them and check the claim",
+            "It makes the answer arrive much faster"
+          ],
+          "answer": 1,
+          "explain": "A source turns \"trust me\" into \"see for yourself\". The model can still misread a document, so the point is that you can check, not that you can skip checking."
+        },
+        {
+          "type": "tf",
+          "prompt": "An AI answer cites the rate card for a price. You paste the price into a client deck without opening the rate card.",
+          "answer": false,
+          "labels": { "true": "Safe", "false": "Risky" },
+          "explain": "The source is there so you can check it. The model can misread a table or pick the wrong row, and a quick look at the rate card would catch that."
+        },
+        {
+          "type": "order",
+          "prompt": "Put the steps of a look-up in order.",
+          "items": [
+            "You ask a question",
+            "The product fetches matching documents",
+            "The documents are placed on the page",
+            "The model writes an answer from them",
+            "The answer points to its sources"
+          ],
+          "explain": "Fetch first, then write. The model answers from what was just put on the page, which is why the answer can name the documents it came from."
+        }
+      ],
+      "takeaway": "A look-up fetches the right documents onto the page: ideal for facts that change, and easier to check.",
+      "tryit": "Ask an AI tool that can search or read files where an answer came from, then open the source and check one claim."
+    },
+    {
+      "id": "f6-4",
+      "title": "Prompt, look-up or fine-tune?",
+      "icon": "compass",
+      "goal": "Choose between a better prompt, a look-up and fine-tuning for a given need.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "Start with the prompt",
+          "body": "When a tap drips, you tighten it before you call a plumber. When an AI tool disappoints, start with the prompt. A clearer brief and a couple of good examples cost almost nothing, take minutes, and are often all you need. Try the cheapest fix first."
+        },
+        {
+          "type": "cloze",
+          "prompt": "The cheapest and fastest fix for a disappointing answer is a better ___.",
+          "options": ["chip", "add-on", "prompt"],
+          "answer": 2,
+          "explain": "A prompt costs nothing to rewrite and you see the result in seconds. It makes sense to use up the cheap fix before reaching for anything heavier."
+        },
+        {
+          "type": "mcq",
+          "prompt": "Captions from your AI tool come back too long and too formal. What should you try first?",
+          "options": [
+            "Order a fine-tuned model just for captions",
+            "Add a word limit and two sample captions",
+            "Move to the largest model you can find"
+          ],
+          "answer": 1,
+          "explain": "Length and tone are things a prompt can fix. A limit and a couple of samples put the shape you want on the page, with no training and no new tools."
+        },
+        {
+          "type": "card",
+          "title": "Fresh or private facts",
+          "body": "The best copywriter alive cannot quote a price list nobody has shown them. A model is the same with this morning's sales figures or a private contract. For fresh or private facts the fix is a look-up, which fetches the document onto the page."
+        },
+        {
+          "type": "tf",
+          "prompt": "No wording, however clever, can make a model know this morning's sales figures if they are not on the page.",
+          "answer": true,
+          "labels": { "true": "Fact", "false": "Myth" },
+          "explain": "A prompt can only steer what the model already has. Figures from this morning were never in its training, so they must be fetched or pasted onto the page. Check your company's policy before pasting private data."
+        },
+        {
+          "type": "mcq",
+          "prompt": "Staff keep asking an assistant about the expenses policy, which changes every quarter. What fits best?",
+          "options": [
+            "A look-up that fetches the latest policy",
+            "Fine-tuning on last year's policy document",
+            "A prompt telling it to be extra accurate"
+          ],
+          "answer": 0,
+          "explain": "The policy is private and keeps changing. A look-up reads the current version every time, while fine-tuning would build in whichever version it was trained on."
+        },
+        {
+          "type": "card",
+          "title": "The same thing, at huge volume",
+          "body": "A coffee chain trains its baristas so the thousandth cup matches the first. Some AI jobs need that: every product description in one voice, thousands of times a day. If prompts cannot hold it steady, consider fine-tuning, extra training that builds the behaviour in. Try it last, not first."
+        },
+        {
+          "type": "match",
+          "prompt": "Match each need to the tool to reach for first.",
+          "pairs": [
+            ["A sharper first draft", "A clearer prompt with examples"],
+            ["Today's price list", "A look-up that fetches the document"],
+            ["One voice, huge volume", "Fine-tuning on approved examples"]
+          ],
+          "explain": "Prompts fix most everyday problems, look-ups supply facts the model has never seen, and fine-tuning builds in a behaviour you need again and again."
+        },
+        {
+          "type": "sort",
+          "prompt": "Look-up or fine-tuning? Sort each need.",
+          "buckets": ["Look-up", "Fine-tuning"],
+          "items": [
+            ["Answer from this week's media plan", 0],
+            ["Write 50,000 listings in one fixed voice", 1],
+            ["Quote the current rate card", 0],
+            ["Reply to every ticket in one fixed layout", 1],
+            ["Check the newest brand guidelines", 0],
+            ["Hold one house style across every reply", 1]
+          ],
+          "explain": "Missing or changing facts call for a look-up. A fixed style or behaviour repeated at huge volume is where fine-tuning earns its cost."
+        }
+      ],
+      "takeaway": "Start with a better prompt, add a look-up for fresh or private facts, and keep fine-tuning for fixed behaviour at volume.",
+      "tryit": "Pick one AI answer that let you down this week and decide: did it need a clearer brief or a missing fact?"
+    },
+    {
+      "id": "f6-5",
+      "title": "Why AI costs money",
+      "icon": "chip",
+      "goal": "Explain why bigger models cost more, and pick the right size for a job.",
+      "steps": [
+        {
+          "type": "card",
+          "title": "Every word takes work",
+          "body": "Like a taxi meter, a model runs up work with every word. An answer takes billions of small calculations through its dials, its inner settings, on specialised chips. A bigger model has more dials, so it does more work per word. That takes hardware and electricity, which cost money."
+        },
+        {
+          "type": "tf",
+          "prompt": "A bigger model does more work for each word it writes than a smaller one.",
+          "answer": true,
+          "explain": "More dials means more calculations every time a word is produced. The answer may be better, but each word of it costs more to make."
+        },
+        {
+          "type": "mcq",
+          "prompt": "Why does a long answer from a big model cost more than a short answer from a small one?",
+          "options": [
+            "Big models search the whole web every time",
+            "Long answers need a new round of training",
+            "More words, and more work for each word"
+          ],
+          "answer": 2,
+          "explain": "Cost follows the amount of calculating. A longer answer means more words to produce, and a bigger model means more calculations for each of them."
+        },
+        {
+          "type": "card",
+          "title": "It has to fit in memory",
+          "body": "A sofa is useless if it cannot get through the door. Likewise, a model only runs if all its dials fit in the chip's memory at once. A small model fits on a phone. A big one needs a data centre: a building full of powerful chips."
+        },
+        {
+          "type": "cloze",
+          "prompt": "A model can only run if all of its dials fit in the chip's ___ at once.",
+          "options": ["battery", "screen", "camera", "memory"],
+          "answer": 3,
+          "explain": "Every dial has to be loaded before the model can produce a single word. More dials need more memory, which limits where a model can run."
+        },
+        {
+          "type": "tf",
+          "prompt": "Any model, however large, can run on a phone as long as the phone is new enough.",
+          "answer": false,
+          "labels": { "true": "Fact", "false": "Myth" },
+          "explain": "The largest models have far more dials than a phone's memory can hold. They run on powerful chips in data centres, and your phone just sends the question and shows the answer."
+        },
+        {
+          "type": "card",
+          "title": "Right-size the tool",
+          "body": "You would not hire a film crew for a passport photo. Match the model to the job. A small model is faster and cheaper, and it is plenty for simple jobs such as tagging or sorting comments. Save the big model for work that needs depth."
+        },
+        {
+          "type": "sort",
+          "prompt": "Small model or big model? Sort each job.",
+          "buckets": ["Small model", "Big model"],
+          "items": [
+            ["Tag 5,000 comments as happy or unhappy", 0],
+            ["Draft a strategy for a tricky new market", 1],
+            ["Sort emails into three folders", 0],
+            ["Critique a long and complex pitch deck", 1],
+            ["Spot which reviews mention delivery", 0],
+            ["Weigh trade-offs in a year-long media plan", 1]
+          ],
+          "explain": "Tagging, sorting and spotting are simple, repeated jobs where a small model is quick and cheap. Open-ended thinking with many parts is where a big model earns its cost."
+        },
+        {
+          "type": "mcq",
+          "prompt": "You need 20,000 survey answers tagged by topic overnight. Which choice makes the most sense?",
+          "options": [
+            "A small model: quick, cheap and good enough",
+            "The very largest model: bigger is always better",
+            "No model: tagging is beyond what AI can do"
+          ],
+          "answer": 0,
+          "explain": "Tagging is a simple job repeated many times. A small model handles it well, and across 20,000 answers the savings in time and cost add up."
+        }
+      ],
+      "takeaway": "Every word costs calculations, and bigger models do more per word, so pick the smallest model that does the job well.",
+      "tryit": "Check whether an AI tool you use offers a choice of models, and try the faster one on a simple job."
+    }
+  ]
+}
